@@ -4,7 +4,6 @@ import { DispatcherHistoryData } from './models/dispatcherHistory.interface';
 import { AxiosResponse } from 'axios';
 import { DispatcherInfoData } from './models/dispatcherInfo.interface';
 import { PrismaService } from '../prisma/prisma.service';
-import { timetables } from '@prisma/client';
 import { DriverInfoData } from './models/driverInfo.interface';
 import { SceneryTimetablesData } from './models/sceneryTimetables.interface';
 import { TimetableData } from './models/timetable.interface';
