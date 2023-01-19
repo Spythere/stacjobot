@@ -1,0 +1,103 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model applogs {
+  id       Int      @id @default(autoincrement())
+  context  String   @unique
+  logarray String[]
+}
+
+model dispatchers {
+  id                    Int       @id @default(autoincrement())
+  currentDuration       Int
+  dispatcherId          Int
+  dispatcherName        String
+  isOnline              Boolean
+  lastOnlineTimestamp   Float
+  region                String
+  stationHash           String
+  stationName           String
+  timestampFrom         Float
+  timestampTo           Float?
+  dispatcherLevel       Int?
+  dispatcherIsSupporter Boolean   @default(false)
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime?
+}
+
+model sceneries {
+  id             Int       @id @default(autoincrement())
+  name           String    @unique
+  SUP            Boolean
+  authors        String?
+  availability   String
+  backupJSON     String?
+  checkpoints    String?
+  controlType    String
+  lines          String?
+  project        String?
+  reqLevel       Int
+  routes         String?
+  signalType     String
+  supportersOnly Boolean?  @default(false)
+  url            String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime?
+  routesInfo     Json[]
+}
+
+model timetables {
+  id                  Int       @id @default(autoincrement())
+  allStopsCount       Int
+  authorId            Int?
+  authorName          String?
+  beginDate           DateTime  @db.Timestamp(6)
+  confirmedStopsCount Int
+  currentDistance     Float
+  driverId            Int
+  driverName          String
+  endDate             DateTime  @db.Timestamp(6)
+  fulfilled           Boolean
+  route               String
+  routeDistance       Float
+  sceneriesString     String
+  scheduledBeginDate  DateTime  @db.Timestamp(6)
+  scheduledEndDate    DateTime  @db.Timestamp(6)
+  terminated          Boolean
+  timetableId         Int
+  trainCategoryCode   String
+  trainNo             Int
+  stockString         String?
+  stockMass           Int?
+  stockLength         Int?
+  maxSpeed            Int?
+  hashesString        String?
+  currentSceneryName  String?
+  currentSceneryHash  String?
+  skr                 Boolean?
+  twr                 Boolean?
+  driverIsSupporter   Boolean   @default(false)
+  driverLevel         Int?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime?
+}
+
+model userlogs {
+  id            Int    @id @default(autoincrement())
+  username      String
+  changes       Json
+  changesBackup Json
+}
+
+model users {
+  id       Int      @id @default(autoincrement())
+  name     String
+  password String
+  roles    String[]
+}
