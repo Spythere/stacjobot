@@ -28,7 +28,10 @@ import { ApiModule } from './api/api.module';
             forGuild: configService.get('BOT_GUILD_ID'),
             removeCommandsBefore: true,
             allowFactory: (m) => {
-              return m.content == '!deploy';
+              return (
+                m.author.id == configService.get('AUTHOR_ID') &&
+                m.content == '!deploy'
+              );
             },
           },
         ],
