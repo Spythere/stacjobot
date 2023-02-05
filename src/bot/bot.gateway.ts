@@ -1,9 +1,18 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { DiscordClientProvider, Once } from '@discord-nestjs/core';
-import { Interaction, InteractionType } from 'discord.js';
+import {
+  APIEmbedField,
+  EmbedBuilder,
+  Interaction,
+  InteractionType,
+  TextChannel,
+} from 'discord.js';
 import { SceneryPageBuilder } from './page_builders/scenery-page-builder.service';
 import { ScRjPageBuilder } from './page_builders/scrj-page-builder';
 import { TimetablePageBuilder } from './page_builders/timetable-page-builder';
+import { ConfigService } from '@nestjs/config';
+import { PrismaService } from '../prisma/prisma.service';
+import { DispatcherUtils } from './utils/dispatcherUtils';
 
 @Injectable()
 export class BotGateway {
@@ -14,11 +23,58 @@ export class BotGateway {
     private sceneryPageBuilder: SceneryPageBuilder,
     private timetablePageBuilder: TimetablePageBuilder,
     private scRjPageBuilder: ScRjPageBuilder,
+    private config: ConfigService,
+    private prisma: PrismaService,
   ) {}
+
+  async handleOnlineTables() {
+    const channel = (await this.discordClient
+      .getClient()
+      .channels.fetch(this.config.get('INFO_CHANNEL_ID'))) as TextChannel;
+
+    await channel.bulkDelete(20);
+
+    const msgRef = await channel.send({
+      content: 'Test',
+      embeds: [],
+    });
+
+    // setInterval(async () => {
+    const embed = new EmbedBuilder();
+    embed.setTitle('SCENERIE ONLINE [PL1]');
+
+    const onlineDispatchers = await this.prisma.dispatchers.findMany({
+      where: {
+        timestampTo: {
+          equals: null,
+        },
+      },
+      take: 20,
+    });
+
+    embed.setDescription(`Aktywnych scenerii: ${onlineDispatchers.length}`);
+
+    const fields: APIEmbedField[] = onlineDispatchers.map((d, i) => ({
+      name: d.stationName || 'xd',
+      value: `
+${DispatcherUtils.getDispatcherStatus(d.dispatcherStatus)}      
+${d.dispatcherName} (${d.dispatcherLevel} lvl)`,
+      inline: true,
+    }));
+
+    embed.addFields(fields);
+
+    msgRef.edit({
+      embeds: [embed],
+    });
+    // }, 35000);
+  }
 
   @Once('ready')
   onReady() {
     this.logger.log('Bot was started!');
+
+    // this.handleOnlineTables();
 
     this.discordClient
       .getClient()

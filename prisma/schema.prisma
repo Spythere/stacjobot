@@ -14,10 +14,14 @@ model applogs {
 }
 
 model dispatchers {
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime?
   id                    Int       @id @default(autoincrement())
   currentDuration       Int
   dispatcherId          Int
   dispatcherName        String
+  dispatcherLevel       Int?
+  dispatcherIsSupporter Boolean   @default(false)
   isOnline              Boolean
   lastOnlineTimestamp   Float
   region                String
@@ -25,13 +29,12 @@ model dispatchers {
   stationName           String
   timestampFrom         Float
   timestampTo           Float?
-  dispatcherLevel       Int?
-  dispatcherIsSupporter Boolean   @default(false)
-  createdAt             DateTime  @default(now())
-  updatedAt             DateTime?
+  dispatcherStatus      Float
 }
 
 model sceneries {
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime?
   id             Int       @id @default(autoincrement())
   name           String    @unique
   SUP            Boolean
@@ -44,15 +47,15 @@ model sceneries {
   project        String?
   reqLevel       Int
   routes         String?
+  routesInfo     Json[]
   signalType     String
   supportersOnly Boolean?  @default(false)
   url            String?
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime?
-  routesInfo     Json[]
 }
 
 model timetables {
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime?
   id                  Int       @id @default(autoincrement())
   allStopsCount       Int
   authorId            Int?
@@ -62,6 +65,8 @@ model timetables {
   currentDistance     Float
   driverId            Int
   driverName          String
+  driverIsSupporter   Boolean   @default(false)
+  driverLevel         Int?
   endDate             DateTime  @db.Timestamp(6)
   fulfilled           Boolean
   route               String
@@ -73,6 +78,8 @@ model timetables {
   timetableId         Int
   trainCategoryCode   String
   trainNo             Int
+  twr                 Boolean?
+  skr                 Boolean?
   stockString         String?
   stockMass           Int?
   stockLength         Int?
@@ -80,12 +87,6 @@ model timetables {
   hashesString        String?
   currentSceneryName  String?
   currentSceneryHash  String?
-  skr                 Boolean?
-  twr                 Boolean?
-  driverIsSupporter   Boolean   @default(false)
-  driverLevel         Int?
-  createdAt           DateTime  @default(now())
-  updatedAt           DateTime?
 }
 
 model userlogs {

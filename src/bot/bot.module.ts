@@ -16,6 +16,7 @@ import { rjInfoCmd } from './commands/rjinfo.command';
 import { TimetablePageBuilder } from './page_builders/timetable-page-builder';
 import { SceneryPageBuilder } from './page_builders/scenery-page-builder.service';
 import { ScRjPageBuilder } from './page_builders/scrj-page-builder';
+import { konfCmd } from './commands/konfident.command';
 
 @Module({
   imports: [DiscordModule.forFeature(), ApiModule],
@@ -32,6 +33,7 @@ import { ScRjPageBuilder } from './page_builders/scrj-page-builder';
     rjInfoCmd,
     scHistoryCmd,
     scRjCmd,
+    konfCmd,
   ],
 })
 export class BotModule {}

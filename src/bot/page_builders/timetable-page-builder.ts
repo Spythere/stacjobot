@@ -1,4 +1,3 @@
-import { timetables } from '.prisma/client';
 import { Injectable } from '@nestjs/common';
 import {
   ActionRowBuilder,
