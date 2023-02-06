@@ -10,13 +10,14 @@ import {
   scRjCmd,
 } from './commands';
 
+import { konfCmd } from './commands/konfident.command';
+import { ScTopCmd } from './commands/sctop.command';
 import { ApiModule } from '../api/api.module';
 import { PrismaService } from '../prisma/prisma.service';
 import { rjInfoCmd } from './commands/rjinfo.command';
 import { TimetablePageBuilder } from './page_builders/timetable-page-builder';
 import { SceneryPageBuilder } from './page_builders/scenery-page-builder.service';
 import { ScRjPageBuilder } from './page_builders/scrj-page-builder';
-import { konfCmd } from './commands/konfident.command';
 
 @Module({
   imports: [DiscordModule.forFeature(), ApiModule],
@@ -33,6 +34,7 @@ import { konfCmd } from './commands/konfident.command';
     rjInfoCmd,
     scHistoryCmd,
     scRjCmd,
+    ScTopCmd,
     konfCmd,
   ],
 })
