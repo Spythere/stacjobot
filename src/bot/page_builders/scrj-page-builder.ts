@@ -34,8 +34,6 @@ export class ScRjPageBuilder {
       await this.fetchIssuedTimetables(stationName, currentPage)
     ).data;
 
-    console.log(sceneryTimetables);
-
     if (totalCount == 0)
       return {
         content: 'Brak rozkładów wystawionych na tej scenerii!',
