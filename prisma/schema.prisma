@@ -14,14 +14,10 @@ model applogs {
 }
 
 model dispatchers {
-  createdAt             DateTime  @default(now())
-  updatedAt             DateTime?
-  id                    Int       @id @default(autoincrement())
+  id                    Int       @id @unique @default(autoincrement())
   currentDuration       Int
   dispatcherId          Int
   dispatcherName        String
-  dispatcherLevel       Int?
-  dispatcherIsSupporter Boolean   @default(false)
   isOnline              Boolean
   lastOnlineTimestamp   Float
   region                String
@@ -29,13 +25,18 @@ model dispatchers {
   stationName           String
   timestampFrom         Float
   timestampTo           Float?
-  dispatcherStatus      Float
+  dispatcherLevel       Int?
+  dispatcherIsSupporter Boolean   @default(false)
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime?
+  dispatcherStatus      Float     @default(-1)
+  dispatcherRate        Int       @default(0)
 }
 
 model sceneries {
   createdAt      DateTime  @default(now())
   updatedAt      DateTime?
-  id             Int       @id @default(autoincrement())
+  id             Int       @id @unique @default(autoincrement())
   name           String    @unique
   SUP            Boolean
   authors        String?
@@ -51,29 +52,27 @@ model sceneries {
   signalType     String
   supportersOnly Boolean?  @default(false)
   url            String?
+  projectUrl     String?
+  hash           String?
 }
 
 model timetables {
-  createdAt           DateTime  @default(now())
-  updatedAt           DateTime?
-  id                  Int       @id @default(autoincrement())
+  id                  Int          @id @unique @default(autoincrement())
   allStopsCount       Int
   authorId            Int?
   authorName          String?
-  beginDate           DateTime  @db.Timestamp(6)
+  beginDate           DateTime     @db.Timestamp(6)
   confirmedStopsCount Int
   currentDistance     Float
   driverId            Int
   driverName          String
-  driverIsSupporter   Boolean   @default(false)
-  driverLevel         Int?
-  endDate             DateTime  @db.Timestamp(6)
+  endDate             DateTime     @db.Timestamp(6)
   fulfilled           Boolean
   route               String
   routeDistance       Float
   sceneriesString     String
-  scheduledBeginDate  DateTime  @db.Timestamp(6)
-  scheduledEndDate    DateTime  @db.Timestamp(6)
+  scheduledBeginDate  DateTime     @db.Timestamp(6)
+  scheduledEndDate    DateTime     @db.Timestamp(6)
   terminated          Boolean
   timetableId         Int
   trainCategoryCode   String
@@ -87,6 +86,12 @@ model timetables {
   hashesString        String?
   currentSceneryName  String?
   currentSceneryHash  String?
+  driverIsSupporter   Boolean      @default(false)
+  driverLevel         Int?
+  createdAt           DateTime     @default(now())
+  updatedAt           DateTime?
+  stopsString         String?
+  violations          violations[]
 }
 
 model userlogs {
@@ -97,8 +102,27 @@ model userlogs {
 }
 
 model users {
-  id       Int      @id @default(autoincrement())
-  name     String
-  password String
-  roles    String[]
+  id         Int      @id @default(autoincrement())
+  name       String   @unique
+  password   String
+  roles      String[]
+  profileUrl String?
+}
+
+model violations {
+  id           Int           @id @unique @default(autoincrement())
+  createdAt    DateTime      @default(now())
+  type         ViolationType @default(SPEED)
+  value        String
+  timetableUID Int
+  stationHash  String
+  stationName  String
+  timetables   timetables    @relation(fields: [timetableUID], references: [id], onDelete: Cascade)
+}
+
+enum ViolationType {
+  SPEED
+  CATEGORY
+  NUMBER
+  LOCO_COUNT
 }
