@@ -1,28 +1,29 @@
 import {
-  Command,
-  DiscordTransformedCommand,
-  Payload,
-  TransformedCommandExecutionContext,
-  UsePipes,
-} from '@discord-nestjs/core';
-import { TransformPipe } from '@discord-nestjs/common';
-import { Injectable } from '@nestjs/common';
-import { EmbedBuilder, InteractionReplyOptions } from 'discord.js';
+  ClientEvents,
+  EmbedBuilder,
+  InteractionReplyOptions,
+} from 'discord.js';
 import { DrTopDto } from '../dto/drtop.dto';
 import { PrismaService } from '../../prisma/prisma.service';
+import {
+  Command,
+  EventParams,
+  Handler,
+  InteractionEvent,
+} from '@discord-nestjs/core';
+import { SlashCommandPipe } from '@discord-nestjs/common';
 
-@Injectable()
 @Command({
   name: 'drtop',
   description: 'Top lista dyżurnych ruchu',
 })
-@UsePipes(TransformPipe)
-export class DrTopCmd implements DiscordTransformedCommand<DrTopDto> {
+export class DrTopCmd {
   constructor(private prisma: PrismaService) {}
 
-  async handler(
-    @Payload() dto: DrTopDto,
-    { interaction }: TransformedCommandExecutionContext,
+  @Handler()
+  async onCommand(
+    @InteractionEvent(SlashCommandPipe) dto: DrTopDto,
+    @EventParams() args: ClientEvents['interactionCreate'],
   ): Promise<InteractionReplyOptions> {
     const embed = new EmbedBuilder().setColor('Random');
 

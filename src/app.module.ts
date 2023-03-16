@@ -3,7 +3,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { DiscordModule } from '@discord-nestjs/core';
-import { GatewayIntentBits } from 'discord.js';
+import { Client, GatewayIntentBits } from 'discord.js';
 import { BotModule } from './bot/bot.module';
 import { ApiModule } from './api/api.module';
 
@@ -36,6 +36,9 @@ import { ApiModule } from './api/api.module';
           },
         ],
       }),
+      setupClientFactory: (client: Client) => {
+        client.setMaxListeners(0);
+      },
       inject: [ConfigService],
     }),
     BotModule,

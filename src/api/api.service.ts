@@ -37,6 +37,12 @@ export class ApiService {
     });
   }
 
+  getDriverViolations(name: string): Promise<AxiosResponse<DriverInfoData>> {
+    return this.httpService.axiosRef.get('/api/getDriverViolations', {
+      params: { name },
+    });
+  }
+
   getTimetables(dto: any): Promise<AxiosResponse<TimetableData[]>> {
     return this.httpService.axiosRef.get('/api/getTimetables', {
       params: {

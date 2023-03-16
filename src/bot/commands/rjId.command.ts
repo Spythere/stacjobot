@@ -1,29 +1,31 @@
+import { SlashCommandPipe } from '@discord-nestjs/common';
 import {
   Command,
-  DiscordTransformedCommand,
-  Payload,
-  TransformedCommandExecutionContext,
-  UsePipes,
+  Handler,
+  InteractionEvent,
+  EventParams,
 } from '@discord-nestjs/core';
 
-import { TransformPipe } from '@discord-nestjs/common';
-import { Injectable } from '@nestjs/common';
-import { EmbedBuilder, InteractionReplyOptions } from 'discord.js';
+import {
+  ClientEvents,
+  EmbedBuilder,
+  InteractionReplyOptions,
+} from 'discord.js';
+
 import { RjIdDto } from '../dto/rjid.dto';
 import { ApiService } from '../../api/api.service';
 
-@Injectable()
 @Command({
   name: 'rjid',
   description: 'Rozkład jazdy o podanym ID',
 })
-@UsePipes(TransformPipe)
-export class rjIdCmd implements DiscordTransformedCommand<RjIdDto> {
+export class rjIdCmd {
   constructor(private apiService: ApiService) {}
 
-  async handler(
-    @Payload() dto: RjIdDto,
-    { interaction }: TransformedCommandExecutionContext,
+  @Handler()
+  async onCommand(
+    @InteractionEvent(SlashCommandPipe) dto: RjIdDto,
+    @EventParams() args: ClientEvents['interactionCreate'],
   ): Promise<InteractionReplyOptions> {
     const timetables = await this.apiService.getTimetables({
       timetableId: parseInt(dto.timetableId),

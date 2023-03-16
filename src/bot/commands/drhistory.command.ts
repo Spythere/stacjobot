@@ -1,30 +1,18 @@
-import {
-  Command,
-  DiscordTransformedCommand,
-  Payload,
-  TransformedCommandExecutionContext,
-  UsePipes,
-} from '@discord-nestjs/core';
-import { TransformPipe } from '@discord-nestjs/common';
-
-import { Injectable } from '@nestjs/common';
-import { EmbedBuilder, InteractionReplyOptions } from 'discord.js';
+import { EmbedBuilder } from 'discord.js';
 import { DrNickDto } from '../dto/drnick.dto';
 import { ApiService } from '../../api/api.service';
+import { Command, Handler, InteractionEvent } from '@discord-nestjs/core';
+import { SlashCommandPipe } from '@discord-nestjs/common';
 
-@Injectable()
 @Command({
   name: 'drhistory',
   description: 'Historia dyżurów gracza',
 })
-@UsePipes(TransformPipe)
-export class DrHistoryCmd implements DiscordTransformedCommand<DrNickDto> {
+export class DrHistoryCmd {
   constructor(private readonly apiService: ApiService) {}
 
-  async handler(
-    @Payload() dto: DrNickDto,
-    { interaction }: TransformedCommandExecutionContext,
-  ): Promise<InteractionReplyOptions> {
+  @Handler()
+  async onCommand(@InteractionEvent(SlashCommandPipe) dto: DrNickDto) {
     const { history, historyStats, dispatcherName } = (
       await this.apiService.getDispatcherHistory(dto.nick)
     ).data;

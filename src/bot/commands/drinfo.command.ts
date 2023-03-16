@@ -1,25 +1,24 @@
 import {
-  Command,
-  DiscordTransformedCommand,
-  Payload,
-  TransformedCommandExecutionContext,
-  UsePipes,
-} from '@discord-nestjs/core';
-import { TransformPipe } from '@discord-nestjs/common';
-
-import { Injectable } from '@nestjs/common';
-import { EmbedBuilder, InteractionReplyOptions } from 'discord.js';
+  ClientEvents,
+  EmbedBuilder,
+  InteractionReplyOptions,
+} from 'discord.js';
 import { DrNickDto } from '../dto/drnick.dto';
 import { ApiService } from '../../api/api.service';
 import { TimetableData } from '../../api/models/timetable.interface';
+import { SlashCommandPipe } from '@discord-nestjs/common';
+import {
+  Command,
+  Handler,
+  InteractionEvent,
+  EventParams,
+} from '@discord-nestjs/core';
 
-@Injectable()
 @Command({
   name: 'drinfo',
   description: 'Statystyki dyżurnego',
 })
-@UsePipes(TransformPipe)
-export class DrInfoCmd implements DiscordTransformedCommand<DrNickDto> {
+export class DrInfoCmd {
   constructor(private readonly apiService: ApiService) {}
 
   private timetablesFieldValue(timetables: TimetableData[]) {
@@ -33,9 +32,10 @@ export class DrInfoCmd implements DiscordTransformedCommand<DrNickDto> {
       .join('\n\n');
   }
 
-  async handler(
-    @Payload() dto: DrNickDto,
-    { interaction }: TransformedCommandExecutionContext,
+  @Handler()
+  async onCommand(
+    @InteractionEvent(SlashCommandPipe) dto: DrNickDto,
+    @EventParams() args: ClientEvents['interactionCreate'],
   ): Promise<InteractionReplyOptions> {
     const drData = await Promise.all([
       this.apiService.getDispatcherInfo(dto.nick),
