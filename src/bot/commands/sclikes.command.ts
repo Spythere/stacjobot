@@ -36,8 +36,8 @@ export class ScLikesCmd {
       .setColor('Random')
       .setDescription(`Liczba wyświetlanych pozycji: ${results.length}`)
       .addFields([
-        ...results.map((res) => ({
-          name: res.dispatcherName,
+        ...results.map((res, i) => ({
+          name: `${i + 1}. ${res.dispatcherName}`,
           value: res.maxRate.toString(),
           inline: true,
         })),
