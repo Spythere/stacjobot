@@ -28,7 +28,6 @@ export class ScLikesCmd {
         ephemeral: true,
       };
 
-    console.log(results);
     const sceneryName = results[0].sessionID.split('@')[1];
 
     const embed = new EmbedBuilder()
