@@ -18,8 +18,29 @@ export class DrTopCmd {
     const embed = new EmbedBuilder().setColor('Random');
 
     switch (dto.type) {
+      case 'LIKE_COUNT':
+        embed.setTitle('Top lista dyżurnych - suma ocen');
+        embed.setFooter({
+          text: 'Szczegółowe statystyki o ocenach dyżurnych są zbierane od 25 lutego 2023r.',
+        });
+
+        embed.addFields(
+          (await this.getTopLikeCount()).map((top, i) => {
+            return {
+              name: `${i + 1}. ${top.dispatcherName}`,
+              value: `${top.sumRate}`,
+              inline: true,
+            };
+          }),
+        );
+
+        break;
+
       case 'TIMETABLE_COUNT':
         embed.setTitle('Top lista dyżurnych - wystawione rozkłady jazdy');
+        embed.setFooter({
+          text: 'Szczegółowe statystyki o autorach RJ są zbierane od 1 lutego 2022r.',
+        });
 
         embed.addFields(
           (await this.getTopTimetableCount()).map((top, i) => {
@@ -35,6 +56,9 @@ export class DrTopCmd {
 
       case 'SERVICE_COUNT':
         embed.setTitle('Top lista dyżurnych - liczba dyżurów');
+        embed.setFooter({
+          text: 'Szczegółowe statystyki o liczbie dyżurów są zbierane od 1 lutego 2022r.',
+        });
 
         embed.addFields(
           (await this.getTopServiceCount()).map((top, i) => {
@@ -50,6 +74,9 @@ export class DrTopCmd {
 
       case 'LONGEST_TIMETABLE':
         embed.setTitle('Top lista dyżurnych - najdłuższy rozkład jazdy');
+        embed.setFooter({
+          text: 'Szczegółowe statystyki o rozkładach jazdy są zbierane od 1 lutego 2022r.',
+        });
 
         embed.addFields(
           (await this.getTopLongestTimetables()).map((top, i) => {
@@ -65,10 +92,6 @@ export class DrTopCmd {
       default:
         break;
     }
-
-    embed.setFooter({
-      text: 'Szczegółowe statystyki o dyżurnych są zbierane od 1 lutego 2022r.',
-    });
 
     return { embeds: [embed] };
   }
@@ -121,5 +144,17 @@ export class DrTopCmd {
     });
 
     return res;
+  }
+  // Like count
+  private async getTopLikeCount() {
+    const results: {
+      dispatcherName: string;
+      sumRate: number;
+    }[] = await this.prisma
+      .$queryRaw`select s."dispatcherName",SUM(s."maxRate") as "sumRate" from (select "dispatcherName",CONCAT("dispatcherName",'@',"stationName") as "sessionID", MAX("dispatcherRate") as "maxRate" from dispatchers where "dispatcherRate">0 group by "sessionID", "dispatcherName") as s group by "dispatcherName" order by "sumRate" desc, s."dispatcherName" asc limit 24;`;
+
+    console.log(results);
+
+    return results;
   }
 }
