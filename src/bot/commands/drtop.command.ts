@@ -1,16 +1,7 @@
-import {
-  ClientEvents,
-  EmbedBuilder,
-  InteractionReplyOptions,
-} from 'discord.js';
+import { EmbedBuilder, InteractionReplyOptions } from 'discord.js';
 import { DrTopDto } from '../dto/drtop.dto';
 import { PrismaService } from '../../prisma/prisma.service';
-import {
-  Command,
-  EventParams,
-  Handler,
-  InteractionEvent,
-} from '@discord-nestjs/core';
+import { Command, Handler, InteractionEvent } from '@discord-nestjs/core';
 import { SlashCommandPipe } from '@discord-nestjs/common';
 
 @Command({
@@ -23,7 +14,6 @@ export class DrTopCmd {
   @Handler()
   async onCommand(
     @InteractionEvent(SlashCommandPipe) dto: DrTopDto,
-    @EventParams() args: ClientEvents['interactionCreate'],
   ): Promise<InteractionReplyOptions> {
     const embed = new EmbedBuilder().setColor('Random');
 

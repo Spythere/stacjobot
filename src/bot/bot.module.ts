@@ -18,6 +18,7 @@ import { scHistoryCmd } from './commands/schistory.command';
 import { scRjCmd } from './commands/scrj.command';
 import { ScTopCmd } from './commands/sctop.command';
 import { violationsCmd } from './commands/violations.command';
+import { ScLikesCmd } from './commands/sclikes.command';
 
 @Module({
   imports: [DiscordModule.forFeature(), ApiModule],
@@ -37,6 +38,7 @@ import { violationsCmd } from './commands/violations.command';
     ScTopCmd,
     konfCmd,
     violationsCmd,
+    ScLikesCmd,
   ],
 })
 export class BotModule {}
