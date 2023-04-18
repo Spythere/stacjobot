@@ -33,7 +33,7 @@ function getViolationDesc(
       break;
 
     case ViolationType.LOCO_COUNT:
-      const locoCount = violationDoc;
+      const locoCount = violationDoc.value;
       message = `**Numer**: ${violationDoc.timetables.trainCategoryCode} ${violationDoc.timetables.trainNo} \n**Liczba pojazdów trakcyjnych**: ${locoCount}`;
       break;
 
