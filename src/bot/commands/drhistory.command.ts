@@ -35,7 +35,7 @@ export class DrHistoryCmd {
           value: historyStats._count._all.toString(),
         },
         ...history.map((historyRecord) => ({
-          name: historyRecord.stationName.toString(),
+          name: historyRecord.stationName,
           value: `<t:${Math.round(
             historyRecord.timestampFrom.valueOf() / 1000,
           )}:D> <t:${Math.round(

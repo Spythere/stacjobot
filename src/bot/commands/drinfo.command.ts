@@ -5,7 +5,6 @@ import {
 } from 'discord.js';
 import { DrNickDto } from '../dto/drnick.dto';
 import { ApiService } from '../../api/api.service';
-import { TimetableData } from '../../api/models/timetable.interface';
 import { SlashCommandPipe } from '@discord-nestjs/common';
 import {
   Command,
@@ -13,6 +12,7 @@ import {
   InteractionEvent,
   EventParams,
 } from '@discord-nestjs/core';
+import { DriverUtils } from '../utils/driverUtils';
 
 @Command({
   name: 'drinfo',
@@ -21,21 +21,9 @@ import {
 export class DrInfoCmd {
   constructor(private readonly apiService: ApiService) {}
 
-  private timetablesFieldValue(timetables: TimetableData[]) {
-    return timetables
-      .map(
-        (tt) =>
-          `${tt.driverName} | ${tt.trainCategoryCode} ${tt.trainNo} (${
-            tt.routeDistance
-          }km) \n ID: #${tt.id} \n ${tt.route.replace('|', ' -> ')}`,
-      )
-      .join('\n\n');
-  }
-
   @Handler()
   async onCommand(
     @InteractionEvent(SlashCommandPipe) dto: DrNickDto,
-    @EventParams() args: ClientEvents['interactionCreate'],
   ): Promise<InteractionReplyOptions> {
     const drData = await Promise.all([
       this.apiService.getDispatcherInfo(dto.nick),
@@ -88,7 +76,7 @@ export class DrInfoCmd {
         },
         {
           name: 'Ostatnie rozkłady jazdy',
-          value: this.timetablesFieldValue(drTimetables),
+          value: DriverUtils.timetablesFieldValue(drTimetables),
         },
       ])
       .setFooter({

@@ -37,7 +37,7 @@ import { ApiModule } from './api/api.module';
         ],
       }),
       setupClientFactory: (client: Client) => {
-        client.setMaxListeners(0);
+        client.setMaxListeners(15);
       },
       inject: [ConfigService],
     }),

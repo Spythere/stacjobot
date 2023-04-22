@@ -16,8 +16,6 @@ export class BotGateway {
     private sceneryPageBuilder: SceneryPageBuilder,
     private timetablePageBuilder: TimetablePageBuilder,
     private scRjPageBuilder: ScRjPageBuilder,
-    private config: ConfigService,
-    private prisma: PrismaService,
   ) {}
 
   @Once('ready')

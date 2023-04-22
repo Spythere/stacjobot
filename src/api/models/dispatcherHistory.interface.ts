@@ -1,7 +1,7 @@
 export interface History {
   stationName: string;
-  timestampFrom: any;
-  timestampTo: any;
+  timestampFrom: number;
+  timestampTo: number;
   dispatcherName: string;
 }
 
