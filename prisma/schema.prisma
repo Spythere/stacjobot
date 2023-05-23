@@ -15,7 +15,7 @@ model applogs {
 
 model dispatchers {
   id                    Int       @id @unique @default(autoincrement())
-  currentDuration       Int
+  currentDuration       Float
   dispatcherId          Int
   dispatcherName        String
   isOnline              Boolean
@@ -54,6 +54,7 @@ model sceneries {
   url            String?
   projectUrl     String?
   hash           String?
+  abbr           String    @default("")
 }
 
 model timetables {
@@ -91,6 +92,7 @@ model timetables {
   createdAt           DateTime     @default(now())
   updatedAt           DateTime?
   stopsString         String?
+  stockHistory        String[]     @default([])
   violations          violations[]
 }
 
@@ -114,9 +116,9 @@ model violations {
   createdAt    DateTime      @default(now())
   type         ViolationType @default(SPEED)
   value        String
-  timetableUID Int
-  stationHash  String
   stationName  String
+  stationHash  String
+  timetableUID Int
   timetables   timetables    @relation(fields: [timetableUID], references: [id], onDelete: Cascade)
 }
 
