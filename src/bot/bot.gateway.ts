@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { DiscordClientProvider, Once } from '@discord-nestjs/core';
-import { Interaction, InteractionType } from 'discord.js';
+import { ActivityType, Interaction, InteractionType } from 'discord.js';
 import { SceneryPageBuilder } from './page_builders/scenery-page-builder.service';
 import { ScRjPageBuilder } from './page_builders/scrj-page-builder';
 import { TimetablePageBuilder } from './page_builders/timetable-page-builder';
@@ -21,6 +21,12 @@ export class BotGateway {
   @Once('ready')
   onReady() {
     this.logger.log('Bot was started!');
+
+    this.discordClient.getClient().user.setActivity({
+      name: 'Train Driver 2',
+      type: ActivityType.Playing,
+      url: 'https://stacjownik-td2.web.app',
+    });
 
     this.discordClient
       .getClient()
