@@ -1,25 +1,12 @@
-import {
-  APIEmbedField,
-  ClientEvents,
-  EmbedBuilder,
-  EmbedField,
-  InteractionReplyOptions,
-} from 'discord.js';
+import { Colors, EmbedBuilder, InteractionReplyOptions } from 'discord.js';
 
 import { ApiService } from '../../api/api.service';
 import { SlashCommandPipe } from '@discord-nestjs/common';
-import {
-  Command,
-  Handler,
-  InteractionEvent,
-  EventParams,
-} from '@discord-nestjs/core';
+import { Command, Handler, InteractionEvent } from '@discord-nestjs/core';
 import { KonfDto } from '../dto/konfident.dto';
 import { DispatcherHistoryData } from '../../api/models/dispatcherHistory.interface';
-import { DriverInfoData } from '../../api/models/driverInfo.interface';
 import { TimetableData } from '../../api/models/timetable.interface';
 import { getDiscordTimeFormat } from '../../utils/discordTimestampUtils';
-import { DriverUtils } from '../utils/driverUtils';
 
 @Command({
   name: 'activity',
@@ -61,68 +48,65 @@ export class activityCmd {
       };
     }
 
-    const embed = new EmbedBuilder()
-      .setTitle(
-        `Teczka aktywności użytkownika ${dispatcherData.dispatcherName}`,
-      )
-      .setColor('Random')
-      .setDescription(
-        'Najświeższa historia aktywności użytkownika w trybach dyżurnego i maszynisty',
+    const driverEmbed = new EmbedBuilder()
+      .setColor(Colors.Blurple)
+      .setTitle(`MASZYNISTA - ROZKŁADY JAZDY`);
+    // .setDescription(
+    //   'Najświeższa historia aktywności użytkownika w trybach dyżurnego i maszynisty',
+    // );
+
+    driverEmbed.addFields(
+      driverData.map((tt) => ({
+        name: `#${tt.id} | ${tt.trainCategoryCode} ${tt.trainNo} (${
+          tt.routeDistance
+        }km) [${tt.fulfilled ? 'V' : 'X'}]`,
+        value: `${getDiscordTimeFormat(
+          new Date(tt.beginDate).getTime(),
+          'long',
+        )}\n${tt.route.replace('|', ' -> ')}\nAutor: ${
+          tt.authorName || '(brak)'
+        }`,
+        inline: true,
+      })),
+    );
+
+    const dispatcherEmbed = new EmbedBuilder()
+      .setColor(Colors.Red)
+      .setTitle('DYŻURNY - ROZKŁADY JAZDY')
+      .addFields(
+        authorData.map((tt, i) => ({
+          name: `#${tt.id} | ${tt.trainCategoryCode} ${tt.trainNo} (${
+            tt.routeDistance
+          }km) [${tt.fulfilled ? 'V' : 'X'}]`,
+          value: `${getDiscordTimeFormat(
+            new Date(tt.beginDate).getTime(),
+            'long',
+          )}\n${tt.route.replace('|', ' -> ')}\nDla: ${tt.driverName}`,
+          inline: true,
+        })),
       );
 
-    const embedDispatcherHistory = dispatcherData.history.map((record) => {
+    const embedServiceHistory = dispatcherData.history.map((record) => {
       const dateFrom = getDiscordTimeFormat(record.timestampFrom, 'date');
       const timeFrom = getDiscordTimeFormat(record.timestampFrom, 'time');
       const timeTo = getDiscordTimeFormat(record.timestampTo, 'time');
 
-      return `${record.stationName}: ${dateFrom} ${timeFrom} - ${timeTo}`;
+      // return `${record.stationName}: ${dateFrom} ${timeFrom} - ${timeTo}`;
+      return {
+        name: record.stationName,
+        value: `${dateFrom} ${timeFrom} - ${timeTo}`,
+        inline: true,
+      };
     });
 
-    embed.addFields([
-      {
-        name: 'MASZYNISTA - ROZKŁADY JAZDY',
-        value: driverData
-          .map(
-            (tt) =>
-              `\n${getDiscordTimeFormat(
-                new Date(tt.beginDate).getTime(),
-                'long',
-              )}\n#${tt.id} | ${tt.trainCategoryCode} ${tt.trainNo} (${
-                tt.routeDistance
-              }km) [${tt.fulfilled ? 'V' : 'X'}]\n${tt.route.replace(
-                '|',
-                ' -> ',
-              )}\nAutor: ${tt.authorName || '(brak)'}`,
-          )
-          .join('\n'),
-        inline: true,
-      },
-      {
-        name: 'DYŻURNY - ROZKŁADY JAZDY',
-        value: authorData
-          .map(
-            (tt) =>
-              `\n${getDiscordTimeFormat(
-                new Date(tt.beginDate).getTime(),
-                'long',
-              )}\n#${tt.id} | ${tt.trainCategoryCode} ${tt.trainNo} (${
-                tt.routeDistance
-              }km) [${tt.fulfilled ? 'V' : 'X'}]\n${tt.route.replace(
-                '|',
-                ' -> ',
-              )}\nDla: ${tt.driverName}`,
-          )
-          .join('\n'),
-        inline: true,
-      },
-      {
-        name: 'DYŻURNY - SŁUŻBY',
-        value: embedDispatcherHistory.join('\n'),
-      },
-    ]);
+    const serviceEmbed = new EmbedBuilder()
+      .setColor(Colors.Green)
+      .setTitle('DYŻURNY - SŁUŻBY')
+      .addFields(embedServiceHistory);
 
     return {
-      embeds: [embed],
+      content: `# Teczka aktywności użytkownika ${dispatcherData.dispatcherName}`,
+      embeds: [driverEmbed, dispatcherEmbed, serviceEmbed],
     };
   }
 }
