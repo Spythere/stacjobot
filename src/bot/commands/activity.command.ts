@@ -22,6 +22,7 @@ export class activityCmd {
     let dispatcherData: DispatcherHistoryData;
     let driverData: TimetableData[];
     let authorData: TimetableData[];
+    let username = '';
 
     try {
       const [dispatcherResponse, driverResponse, authorResponse] =
@@ -40,6 +41,11 @@ export class activityCmd {
       dispatcherData = dispatcherResponse.data;
       driverData = driverResponse.data;
       authorData = authorResponse.data;
+
+      username =
+        dispatcherData.dispatcherName ||
+        (authorData.length > 0 ? authorData[0].authorName : '') ||
+        (driverData.length > 0 ? driverData[0].driverName : '');
     } catch (error) {
       console.error(error);
 
@@ -48,33 +54,45 @@ export class activityCmd {
       };
     }
 
+    if (!username)
+      return {
+        content: 'Brak informacji o podanym użytkowniku!',
+        ephemeral: true,
+      };
+
     const driverEmbed = new EmbedBuilder()
       .setColor(Colors.Blurple)
       .setTitle(`MASZYNISTA - ROZKŁADY JAZDY`);
-    // .setDescription(
-    //   'Najświeższa historia aktywności użytkownika w trybach dyżurnego i maszynisty',
-    // );
 
-    driverEmbed.addFields(
-      driverData.map((tt) => ({
-        name: `#${tt.id} | ${tt.trainCategoryCode} ${tt.trainNo} (${
-          tt.routeDistance
-        }km) [${tt.fulfilled ? 'V' : 'X'}]`,
-        value: `${getDiscordTimeFormat(
-          new Date(tt.beginDate).getTime(),
-          'long',
-        )}\n${tt.route.replace('|', ' -> ')}\nAutor: ${
-          tt.authorName || '(brak)'
-        }`,
-        inline: true,
-      })),
-    );
+    if (driverData.length == 0)
+      driverEmbed.setDescription('Brak informacji o rozkładach jazdy');
+    else
+      driverEmbed.addFields(
+        driverData.map((tt) => ({
+          name: `#${tt.id} | ${tt.trainCategoryCode} ${tt.trainNo} (${
+            tt.routeDistance
+          }km) [${tt.fulfilled ? 'V' : 'X'}]`,
+          value: `${getDiscordTimeFormat(
+            new Date(tt.beginDate).getTime(),
+            'long',
+          )}\n${tt.route.replace('|', ' -> ')}\nAutor: ${
+            tt.authorName || '(brak)'
+          }`,
+          inline: true,
+        })),
+      );
 
     const dispatcherEmbed = new EmbedBuilder()
       .setColor(Colors.Red)
-      .setTitle('DYŻURNY - ROZKŁADY JAZDY')
-      .addFields(
-        authorData.map((tt, i) => ({
+      .setTitle('DYŻURNY - ROZKŁADY JAZDY');
+
+    if (authorData.length == 0)
+      dispatcherEmbed.setDescription(
+        'Brak informacji o wystawionych rozkładach jazdy',
+      );
+    else
+      dispatcherEmbed.addFields(
+        authorData.map((tt) => ({
           name: `#${tt.id} | ${tt.trainCategoryCode} ${tt.trainNo} (${
             tt.routeDistance
           }km) [${tt.fulfilled ? 'V' : 'X'}]`,
@@ -91,7 +109,6 @@ export class activityCmd {
       const timeFrom = getDiscordTimeFormat(record.timestampFrom, 'time');
       const timeTo = getDiscordTimeFormat(record.timestampTo, 'time');
 
-      // return `${record.stationName}: ${dateFrom} ${timeFrom} - ${timeTo}`;
       return {
         name: record.stationName,
         value: `${dateFrom} ${timeFrom} - ${timeTo}`,
@@ -101,11 +118,14 @@ export class activityCmd {
 
     const serviceEmbed = new EmbedBuilder()
       .setColor(Colors.Green)
-      .setTitle('DYŻURNY - SŁUŻBY')
-      .addFields(embedServiceHistory);
+      .setTitle('DYŻURNY - SŁUŻBY');
+
+    if (dispatcherData.history.length == 0)
+      serviceEmbed.setDescription('Brak informacji o dyżurach');
+    else serviceEmbed.addFields(embedServiceHistory);
 
     return {
-      content: `# Teczka aktywności użytkownika ${dispatcherData.dispatcherName}`,
+      content: `# Teczka aktywności użytkownika ${username}`,
       embeds: [driverEmbed, dispatcherEmbed, serviceEmbed],
     };
   }
