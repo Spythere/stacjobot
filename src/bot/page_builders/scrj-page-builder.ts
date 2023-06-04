@@ -30,11 +30,11 @@ export class ScRjPageBuilder {
   async generateSceneryPage(stationName: string, currentPage: number) {
     const timeStart = Date.now();
 
-    const { sceneryName, sceneryTimetables, totalCount } = (
+    const { timetables, count } = (
       await this.fetchIssuedTimetables(stationName, currentPage)
     ).data;
 
-    if (totalCount == 0)
+    if (count == 0 || timetables.length == 0)
       return {
         content: 'Brak rozkładów wystawionych na tej scenerii!',
         ephemeral: true,
@@ -43,12 +43,13 @@ export class ScRjPageBuilder {
     const buttonsRow = this.generateSceneryButtons(
       stationName,
       currentPage,
-      totalCount,
+      count,
     );
+
     const sceneryEmbed = this.generateSceneryEmbed(
-      sceneryTimetables,
-      totalCount,
-      sceneryName,
+      timetables,
+      count,
+      timetables[0].route.split('|')[0],
       currentPage,
       Date.now() - timeStart,
     );
@@ -61,11 +62,11 @@ export class ScRjPageBuilder {
   }
 
   private async fetchIssuedTimetables(name: string, currentPage: number) {
-    return this.apiService.getSceneryTimetables(
-      name,
-      (currentPage - 1) * 10,
-      10,
-    );
+    return this.apiService.getTimetablesWithCount({
+      issuedFrom: name,
+      countFrom: (currentPage - 1) * 10,
+      countLimit: 10,
+    });
   }
 
   private generateSceneryButtons(

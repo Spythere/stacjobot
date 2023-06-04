@@ -69,6 +69,7 @@ export class violationsCmd {
             equals: dto.nick,
             mode: 'insensitive',
           },
+          hidden: false,
         },
       },
 

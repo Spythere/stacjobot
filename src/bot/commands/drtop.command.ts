@@ -102,6 +102,7 @@ export class DrTopCmd {
       by: ['authorName'],
       where: {
         authorName: { not: { equals: '' } },
+        hidden: false,
       },
       _count: {
         timetableId: true,
@@ -136,6 +137,7 @@ export class DrTopCmd {
     const res = this.prisma.timetables.findMany({
       where: {
         authorName: { not: { equals: '' } },
+        hidden: false,
       },
       orderBy: {
         routeDistance: 'desc',
@@ -145,6 +147,7 @@ export class DrTopCmd {
 
     return res;
   }
+
   // Like count
   private async getTopLikeCount() {
     const results: {

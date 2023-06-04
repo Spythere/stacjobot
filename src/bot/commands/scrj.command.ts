@@ -21,7 +21,6 @@ export class scRjCmd {
   @Handler()
   async onCommand(
     @InteractionEvent(SlashCommandPipe) dto: ScHistoryDto,
-    @EventParams() args: ClientEvents['interactionCreate'],
   ): Promise<InteractionReplyOptions> {
     const page = await this.pageBuilder.generateSceneryPage(dto.sceneryName, 1);
     return page;

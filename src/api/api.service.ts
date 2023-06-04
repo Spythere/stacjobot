@@ -7,6 +7,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { DriverInfoData } from './models/driverInfo.interface';
 import { SceneryTimetablesData } from './models/sceneryTimetables.interface';
 import { TimetableData } from './models/timetable.interface';
+import { TimetablesWithCountResponse } from './models/timetableWithCount.interface';
 
 @Injectable()
 export class ApiService {
@@ -51,16 +52,13 @@ export class ApiService {
     });
   }
 
-  getSceneryTimetables(
-    name: string,
-    countFrom: number,
-    countLimit: number,
-  ): Promise<AxiosResponse<SceneryTimetablesData>> {
-    return this.httpService.axiosRef.get('/api/getSceneryTimetables', {
+  getTimetablesWithCount(
+    dto: any,
+  ): Promise<AxiosResponse<TimetablesWithCountResponse>> {
+    return this.httpService.axiosRef.get('/api/getTimetables', {
       params: {
-        name,
-        countFrom,
-        countLimit,
+        ...dto,
+        countQuery: 1,
       },
     });
   }

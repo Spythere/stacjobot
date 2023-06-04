@@ -78,8 +78,8 @@ model timetables {
   timetableId         Int
   trainCategoryCode   String
   trainNo             Int
-  twr                 Boolean?
-  skr                 Boolean?
+  twr                 Boolean?     @default(false)
+  skr                 Boolean?     @default(false)
   stockString         String?
   stockMass           Int?
   stockLength         Int?
@@ -93,6 +93,8 @@ model timetables {
   updatedAt           DateTime?
   stopsString         String?
   stockHistory        String[]     @default([])
+  hidden              Boolean      @default(false)
+  routeSceneries      String?
   violations          violations[]
 }
 
