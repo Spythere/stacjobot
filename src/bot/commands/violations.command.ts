@@ -24,23 +24,23 @@ function getViolationDesc(
   switch (violationDoc.type) {
     case ViolationType.SPEED:
       const [loco, speed] = violationDoc.value.split(';');
-      message = `**Numer**: ${violationDoc.timetables.trainCategoryCode} ${violationDoc.timetables.trainNo} \n**Prędkość**: ${speed}km/h | **Pojazd**: ${loco}`;
+      message = `**Numer**: ${violationDoc.timetables.trainCategoryCode} ${violationDoc.timetables.trainNo}\n**Prędkość**: ${speed}km/h\n**Pojazd**: ${loco}`;
       break;
 
     case ViolationType.NUMBER:
       const [category, trainNo] = violationDoc.value.split(';');
-      message = `**Numer**: ${category} ${trainNo} \n**Autor RJ**: ${violationDoc.timetables.authorName}`;
+      message = `**Numer**: ${category} ${trainNo}\n**Autor RJ**: ${violationDoc.timetables.authorName}`;
       break;
 
     case ViolationType.LOCO_COUNT:
       const locoCount = violationDoc.value;
-      message = `**Numer**: ${violationDoc.timetables.trainCategoryCode} ${violationDoc.timetables.trainNo} \n**Liczba pojazdów trakcyjnych**: ${locoCount}`;
+      message = `**Numer**: ${violationDoc.timetables.trainCategoryCode} ${violationDoc.timetables.trainNo}\n**Liczba pojazdów trakcyjnych**: ${locoCount}`;
       break;
 
     case ViolationType.CATEGORY:
       const [trainCategory, locoType] = violationDoc.value.split(';');
 
-      message = `**Numer**: ${trainCategory} ${violationDoc.timetables.trainNo} \n **Pojazd**: ${locoType}`;
+      message = `**Numer**: ${trainCategory} ${violationDoc.timetables.trainNo}\n**Pojazd**: ${locoType}\n**Autor RJ**: ${violationDoc.timetables.authorName}`;
       break;
 
     default:
@@ -71,6 +71,7 @@ export class violationsCmd {
           },
           hidden: false,
         },
+        type: dto.type,
       },
 
       orderBy: {
@@ -86,7 +87,7 @@ export class violationsCmd {
 
     if (violationDocs.length == 0)
       return {
-        content: 'Nie znaleziono wykroczeń dla podanego maszynisty!',
+        content: 'Brak wyników dla podanych parametrów!',
         ephemeral: true,
       };
 
