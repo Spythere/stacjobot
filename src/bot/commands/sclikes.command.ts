@@ -20,7 +20,7 @@ export class ScLikesCmd {
       sessionID: string;
       maxRate: number;
     }[] = await this.prisma
-      .$queryRaw`select "dispatcherName", CONCAT("dispatcherName",'@',"stationName") as "sessionID", MAX("dispatcherRate") as "maxRate" from dispatchers where UPPER("stationName")=UPPER(${dto.sceneryName}) and "dispatcherRate">0 group by "sessionID", "dispatcherName" order by "maxRate" desc, "dispatcherName" asc limit 24;`;
+      .$queryRaw`select "dispatcherName", CONCAT("dispatcherName",'@',"stationName") as "sessionID", MAX("dispatcherRate") as "maxRate" from dispatchers where UPPER("stationName")=UPPER(${dto.sceneryName}) and "dispatcherRate">0 and "hidden"=false group by "sessionID", "dispatcherName" order by "maxRate" desc, "dispatcherName" asc limit 24;`;
 
     if (results.length == 0)
       return {

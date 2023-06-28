@@ -1,17 +1,8 @@
-import {
-  ClientEvents,
-  EmbedBuilder,
-  InteractionReplyOptions,
-} from 'discord.js';
+import { EmbedBuilder, InteractionReplyOptions } from 'discord.js';
 import { DrNickDto } from '../dto/drnick.dto';
 import { ApiService } from '../../api/api.service';
 import { SlashCommandPipe } from '@discord-nestjs/common';
-import {
-  Command,
-  Handler,
-  InteractionEvent,
-  EventParams,
-} from '@discord-nestjs/core';
+import { Command, Handler, InteractionEvent } from '@discord-nestjs/core';
 import { DriverUtils } from '../utils/driverUtils';
 
 @Command({

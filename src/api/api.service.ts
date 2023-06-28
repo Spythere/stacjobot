@@ -5,7 +5,6 @@ import { AxiosResponse } from 'axios';
 import { DispatcherInfoData } from './models/dispatcherInfo.interface';
 import { PrismaService } from '../prisma/prisma.service';
 import { DriverInfoData } from './models/driverInfo.interface';
-import { SceneryTimetablesData } from './models/sceneryTimetables.interface';
 import { TimetableData } from './models/timetable.interface';
 import { TimetablesWithCountResponse } from './models/timetableWithCount.interface';
 

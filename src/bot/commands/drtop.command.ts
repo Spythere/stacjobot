@@ -120,6 +120,9 @@ export class DrTopCmd {
   private async getTopServiceCount() {
     return this.prisma.dispatchers.groupBy({
       by: ['dispatcherName'],
+      where: {
+        hidden: false,
+      },
       _count: {
         id: true,
       },
@@ -154,7 +157,7 @@ export class DrTopCmd {
       dispatcherName: string;
       sumRate: number;
     }[] = await this.prisma
-      .$queryRaw`select s."dispatcherName",SUM(s."maxRate") as "sumRate" from (select "dispatcherName",CONCAT("dispatcherName",'@',"stationName") as "sessionID", MAX("dispatcherRate") as "maxRate" from dispatchers where "dispatcherRate">0 group by "sessionID", "dispatcherName") as s group by "dispatcherName" order by "sumRate" desc, s."dispatcherName" asc limit 24;`;
+      .$queryRaw`select s."dispatcherName",SUM(s."maxRate") as "sumRate" from (select "dispatcherName",CONCAT("dispatcherName",'@',"stationName") as "sessionID", MAX("dispatcherRate") as "maxRate" from dispatchers where "dispatcherRate">0 and "hidden"=false group by "sessionID", "dispatcherName") as s group by "dispatcherName" order by "sumRate" desc, s."dispatcherName" asc limit 24;`;
 
     return results;
   }

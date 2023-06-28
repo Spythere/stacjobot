@@ -1,12 +1,7 @@
 import { SlashCommandPipe } from '@discord-nestjs/common';
-import {
-  Command,
-  Handler,
-  InteractionEvent,
-  EventParams,
-} from '@discord-nestjs/core';
+import { Command, Handler, InteractionEvent } from '@discord-nestjs/core';
 
-import { ClientEvents, InteractionReplyOptions } from 'discord.js';
+import { InteractionReplyOptions } from 'discord.js';
 
 import { ScHistoryDto } from '../dto/schistory.dto';
 import { ScRjPageBuilder } from '../page_builders/scrj-page-builder';

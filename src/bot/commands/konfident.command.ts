@@ -1,18 +1,8 @@
-import { Injectable } from '@nestjs/common';
-import {
-  ClientEvents,
-  EmbedBuilder,
-  InteractionReplyOptions,
-} from 'discord.js';
+import { EmbedBuilder, InteractionReplyOptions } from 'discord.js';
 import { ApiService } from '../../api/api.service';
 import { KonfDto } from '../dto/konfident.dto';
 import { SlashCommandPipe } from '@discord-nestjs/common';
-import {
-  Command,
-  Handler,
-  InteractionEvent,
-  EventParams,
-} from '@discord-nestjs/core';
+import { Command, Handler, InteractionEvent } from '@discord-nestjs/core';
 
 @Command({
   name: '60',
@@ -24,7 +14,6 @@ export class konfCmd {
   @Handler()
   async onCommand(
     @InteractionEvent(SlashCommandPipe) dto: KonfDto,
-    @EventParams() args: ClientEvents['interactionCreate'],
   ): Promise<InteractionReplyOptions> {
     const embed = new EmbedBuilder();
     embed.setTitle(`Donos na użytkownika ${dto.nick}`);

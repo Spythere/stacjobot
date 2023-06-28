@@ -1,17 +1,8 @@
-import {
-  ClientEvents,
-  EmbedBuilder,
-  InteractionReplyOptions,
-} from 'discord.js';
+import { EmbedBuilder, InteractionReplyOptions } from 'discord.js';
 import { PrismaService } from '../../prisma/prisma.service';
 import { ScTopDto } from '../dto/sctop.dto';
 import { SlashCommandPipe } from '@discord-nestjs/common';
-import {
-  Command,
-  Handler,
-  InteractionEvent,
-  EventParams,
-} from '@discord-nestjs/core';
+import { Command, Handler, InteractionEvent } from '@discord-nestjs/core';
 
 interface ITopDispatcherCount {
   dispatcherName: string;
@@ -28,10 +19,9 @@ export class ScTopCmd {
   @Handler()
   async onCommand(
     @InteractionEvent(SlashCommandPipe) dto: ScTopDto,
-    @EventParams() args: ClientEvents['interactionCreate'],
   ): Promise<InteractionReplyOptions> {
     const topDispatchers: ITopDispatcherCount[] = await this.prisma
-      .$queryRaw`select "dispatcherName",count(*) FROM dispatchers WHERE UPPER("stationName")=UPPER(${dto.name}) GROUP BY "dispatcherName" ORDER BY count DESC LIMIT 15`;
+      .$queryRaw`select "dispatcherName",count(*) FROM dispatchers WHERE UPPER("stationName")=UPPER(${dto.name}) AND "hidden"=false GROUP BY "dispatcherName" ORDER BY count DESC LIMIT 15`;
 
     if (topDispatchers.length == 0)
       return {

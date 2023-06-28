@@ -1,16 +1,6 @@
 import { SlashCommandPipe } from '@discord-nestjs/common';
-import {
-  Command,
-  Handler,
-  InteractionEvent,
-  EventParams,
-} from '@discord-nestjs/core';
-
-import {
-  ClientEvents,
-  EmbedBuilder,
-  InteractionReplyOptions,
-} from 'discord.js';
+import { Command, Handler, InteractionEvent } from '@discord-nestjs/core';
+import { EmbedBuilder, InteractionReplyOptions } from 'discord.js';
 
 import { RjIdDto } from '../dto/rjid.dto';
 import { ApiService } from '../../api/api.service';
@@ -25,7 +15,6 @@ export class rjIdCmd {
   @Handler()
   async onCommand(
     @InteractionEvent(SlashCommandPipe) dto: RjIdDto,
-    @EventParams() args: ClientEvents['interactionCreate'],
   ): Promise<InteractionReplyOptions> {
     const timetables = await this.apiService.getTimetables({
       timetableId: parseInt(dto.timetableId),

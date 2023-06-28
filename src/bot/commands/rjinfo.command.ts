@@ -1,13 +1,8 @@
 import { SlashCommandPipe } from '@discord-nestjs/common';
-import {
-  Command,
-  Handler,
-  InteractionEvent,
-  EventParams,
-} from '@discord-nestjs/core';
+import { Command, Handler, InteractionEvent } from '@discord-nestjs/core';
 
 import { RjNickDto } from '../dto/rjnick.dto';
-import { ClientEvents, InteractionReplyOptions } from 'discord.js';
+import { InteractionReplyOptions } from 'discord.js';
 import { TimetablePageBuilder } from '../page_builders/timetable-page-builder';
 
 @Command({
@@ -20,7 +15,6 @@ export class rjInfoCmd {
   @Handler()
   async onCommand(
     @InteractionEvent(SlashCommandPipe) dto: RjNickDto,
-    @EventParams() args: ClientEvents['interactionCreate'],
   ): Promise<InteractionReplyOptions> {
     return await this.pageBuilder.generateTimetablesPage(dto.nick, 1);
   }

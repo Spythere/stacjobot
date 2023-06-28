@@ -55,6 +55,7 @@ export class SceneryPageBuilder {
           mode: 'insensitive',
         },
         timestampTo: { gt: 0 },
+        hidden: false,
       },
       orderBy: {
         timestampFrom: 'desc',
@@ -74,6 +75,7 @@ export class SceneryPageBuilder {
           mode: 'insensitive',
         },
         timestampTo: { gt: 0 },
+        hidden: false,
       },
       _count: {
         _all: true,
