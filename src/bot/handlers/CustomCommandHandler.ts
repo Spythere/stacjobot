@@ -17,8 +17,8 @@ function randomMuteUser(message: Message) {
 
       message.reply(
         `Gratulacje, <@${message.member.id}>! Dostałeś ${
-          hours > 0 ? hours + ' hektarów i ' : ''
-        } ${minutes}m przerwy! <a:rewident:1108083125147406389>`,
+          hours > 0 ? hours + ' hektar i ' : ''
+        }${minutes}m przerwy! <a:rewident:1108083125147406389>`,
       );
 
       message.react('<a:rewident:1108083125147406389>');
