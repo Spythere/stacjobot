@@ -1,13 +1,24 @@
 import { Client, Message } from 'discord.js';
 
+const MAX_TIMEOUT_MINUTES = 120,
+  MIN_TIMEOUT_MINUTES = 5;
+
 function randomMuteUser(message: Message) {
-  const randMinutes = ~~(Math.random() * (60 - 3) + 3);
+  const randMinutes = ~~(
+    Math.random() * (MAX_TIMEOUT_MINUTES - MIN_TIMEOUT_MINUTES) +
+    MIN_TIMEOUT_MINUTES
+  );
 
   message.member
     .timeout(randMinutes * 60 * 1000)
     .then(() => {
+      const hours = ~~(randMinutes / 60);
+      const minutes = randMinutes % 60;
+
       message.reply(
-        `Gratulacje, <@${message.member.id}>! Dostałeś ${randMinutes}m przerwy! <a:rewident:1108083125147406389>`,
+        `Gratulacje, <@${message.member.id}>! Dostałeś ${
+          hours > 0 ? hours + ' hektarów i ' : ''
+        } ${minutes}m przerwy! <a:rewident:1108083125147406389>`,
       );
 
       message.react('<a:rewident:1108083125147406389>');
