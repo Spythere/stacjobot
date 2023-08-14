@@ -132,6 +132,52 @@ model violations {
   timetables   timetables    @relation(fields: [timetableUID], references: [id], onDelete: Cascade)
 }
 
+model td2dailystats {
+  id                    Int      @id @unique @default(autoincrement())
+  datetime              DateTime @default(now()) @db.Date
+  driversMax            Int
+  dispatchersMax        Int
+  timetablesMax         Int
+  maxTimetable          String?
+  mostActiveDispatchers String?
+  mostActiveDrivers     String?
+  longestDuties         String?
+  distanceAvg           Int
+  distanceSum           Int
+  totalTimetables       Int
+}
+
+model td2globalstats {
+  id                 Int      @id @unique @default(autoincrement())
+  datetime           DateTime @default(now()) @db.Timestamptz(6)
+  avgSpeed           Int
+  rippedSwitches     Int
+  derailments        Int
+  skippedStopSignals Int
+  radioStops         Int
+  kills              Int
+  drivenKilometers   Int
+  routedTrains       Int
+  dispatchers        Int
+  drivers            Int
+  timetables         Int
+}
+
+model td2players {
+  id          Int     @id @unique @default(autoincrement())
+  playerId    Int     @unique
+  whitelisted Boolean @default(false)
+  blacklisted Boolean @default(true)
+}
+
+model stacjobotUsers {
+  id     Int    @id @unique @default(autoincrement())
+  userId String @unique
+
+  kofolaCount    Int      @default(1)
+  nextKofolaTime DateTime @default(now())
+}
+
 enum ViolationType {
   SPEED
   CATEGORY

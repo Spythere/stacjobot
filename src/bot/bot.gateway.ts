@@ -6,6 +6,7 @@ import { ScRjPageBuilder } from './page_builders/scrj-page-builder';
 import { TimetablePageBuilder } from './page_builders/timetable-page-builder';
 import { CustomCommandHandler } from './handlers/CustomCommandHandler';
 import { InteractionHandler } from './handlers/InteractionHandler';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class BotGateway {
@@ -16,13 +17,14 @@ export class BotGateway {
 
   constructor(
     private readonly discordClient: DiscordClientProvider,
+    private readonly prisma: PrismaService,
     sceneryPageBuilder: SceneryPageBuilder,
     timetablePageBuilder: TimetablePageBuilder,
     scRjPageBuilder: ScRjPageBuilder,
   ) {
     const client = discordClient.getClient();
 
-    this.customCmdHandler = new CustomCommandHandler(client);
+    this.customCmdHandler = new CustomCommandHandler(client, prisma);
     this.interactionHandler = new InteractionHandler(
       client,
       this.logger,
