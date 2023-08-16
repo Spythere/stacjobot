@@ -2,6 +2,7 @@ import { Client } from 'discord.js';
 import { PrismaService } from '../../prisma/prisma.service';
 import { randomMuteUser } from '../customCommands/dajmute';
 import { addKofolaToUser } from '../customCommands/kofola';
+import { getKofolaTopList } from '../customCommands/topkofola';
 
 export class CustomCommandHandler {
   constructor(
@@ -26,6 +27,9 @@ export class CustomCommandHandler {
           addKofolaToUser(this.prisma, message);
           break;
 
+        case 'topkofola':
+          getKofolaTopList(this.prisma, message);
+          break;
         default:
           break;
       }
