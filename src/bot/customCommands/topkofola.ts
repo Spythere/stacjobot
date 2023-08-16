@@ -1,17 +1,18 @@
-import {
-  APIEmbedField,
-  AllowedMentionsTypes,
-  Colors,
-  EmbedBuilder,
-  Message,
-} from 'discord.js';
+import { Message } from 'discord.js';
 import { PrismaService } from '../../prisma/prisma.service';
 import { customEmojiIds } from '../constants/customEmojiIds';
+
+const ALLOWED_CHANNELS = [process.env.KOFOLA_CHANNEL_ID];
 
 export async function getKofolaTopList(
   prisma: PrismaService,
   message: Message,
 ) {
+  if (!ALLOWED_CHANNELS.includes(message.channelId)) {
+    await message.delete();
+    return;
+  }
+
   const topKofolaCount = await prisma.stacjobotUsers.groupBy({
     where: {
       kofolaCount: {
@@ -26,19 +27,14 @@ export async function getKofolaTopList(
     take: 10,
   });
 
-  const topList: string[] = await topKofolaCount.reduce(
-    async (acc, top, i) => {
-      const discordUser = await message.client.users.fetch(top.userId);
-      //${discordUser?.username || 'Nieznany użytkownik :('}
-      (await acc).push(
-        `**${i + 1}.**\t<@${top.userId}> - ${top.kofolaCount}x ${
-          customEmojiIds.kofola
-        }`,
-      );
-      return acc;
-    },
-    Promise.resolve([] as string[]),
-  );
+  const topList: string[] = topKofolaCount.reduce((acc, top, i) => {
+    acc.push(
+      `${i + 1}. <@${top.userId}> - ${top.kofolaCount}x ${
+        customEmojiIds.kofola
+      }`,
+    );
+    return acc;
+  }, [] as string[]);
 
   message.channel.send({
     content: `# TOP LISTA ZEBRANYCH ${customEmojiIds.kofola}\n${topList.join(
