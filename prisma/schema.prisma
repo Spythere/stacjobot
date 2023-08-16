@@ -174,8 +174,9 @@ model stacjobotUsers {
   id     Int    @id @unique @default(autoincrement())
   userId String @unique
 
-  kofolaCount    Int      @default(1)
-  nextKofolaTime DateTime @default(now())
+  kofolaCount     Int      @default(1)
+  nextKofolaTime  DateTime @default(now())
+  kofolaMotoracek String   @default("motosraczek3")
 }
 
 enum ViolationType {

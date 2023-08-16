@@ -1,10 +1,11 @@
 import { stacjobotUsers } from '@prisma/client';
 import { Message } from 'discord.js';
 import { PrismaService } from '../../prisma/prisma.service';
-import { customEmojiIds } from '../constants/customEmojiIds';
+import { getEmojiByName } from '../constants/customEmojiIds';
 
 const ALLOWED_CHANNELS = [process.env.KOFOLA_CHANNEL_ID];
-const TIMEOUT_HOURS = 12;
+const MAX_TIMEOUT_HOURS = 12,
+  MIN_TIMEOUT_HOURS = 9;
 
 const RANDOM_MAX = 5,
   RANDOM_MIN = 1;
@@ -21,10 +22,36 @@ export async function addKofolaToUser(prisma: PrismaService, message: Message) {
     where: { userId: messageAuthorId },
   });
 
+  const kofolaEmoji = getEmojiByName(message, 'kofola2');
+
+  if (user && user.nextKofolaTime > new Date()) {
+    const motosraczekEmoji = getEmojiByName(message, user.kofolaMotoracek);
+    const tenseSmashEmoji = getEmojiByName(message, 'tenseSmash');
+
+    message.reply(
+      `Twój ${motosraczekEmoji} z kofolą przyjedzie <t:${~~(
+        user.nextKofolaTime.getTime() / 1000
+      )}:R> ${tenseSmashEmoji} \nObecnie posiadasz: ${
+        user.kofolaCount
+      }x ${kofolaEmoji}!`,
+    );
+
+    return;
+  }
+
   let updatedUser: stacjobotUsers;
-  const nextTime = new Date(
-    new Date().getTime() + TIMEOUT_HOURS * 60 * 60 * 1000,
+
+  const randTimeout = ~~(
+    Math.random() * (MAX_TIMEOUT_HOURS + 1 - MIN_TIMEOUT_HOURS) +
+    MIN_TIMEOUT_HOURS
   );
+
+  const nextTime = new Date(
+    new Date().getTime() + randTimeout * 60 * 60 * 1000,
+  );
+
+  const nextMotoracekName = `motosraczek${~~(Math.random() * (6 - 1) + 1)}`;
+  const motosraczekEmoji = getEmojiByName(message, nextMotoracekName);
 
   const randAmount = ~~(
     Math.random() * (RANDOM_MAX + 1 - RANDOM_MIN) +
@@ -32,18 +59,6 @@ export async function addKofolaToUser(prisma: PrismaService, message: Message) {
   );
 
   if (user) {
-    if (user.nextKofolaTime > new Date()) {
-      message.reply(
-        `Twój ${customEmojiIds.motosraczek} z kofolą przyjedzie <t:${~~(
-          user.nextKofolaTime.getTime() / 1000
-        )}:R> ${customEmojiIds.tenseSmash} \nObecnie posiadasz: ${
-          user.kofolaCount
-        }x ${customEmojiIds.kofola}!`,
-      );
-
-      return;
-    }
-
     updatedUser = await prisma.stacjobotUsers.update({
       where: {
         userId: messageAuthorId,
@@ -53,6 +68,7 @@ export async function addKofolaToUser(prisma: PrismaService, message: Message) {
           increment: randAmount,
         },
         nextKofolaTime: nextTime,
+        kofolaMotoracek: nextMotoracekName,
       },
     });
   } else
@@ -61,11 +77,16 @@ export async function addKofolaToUser(prisma: PrismaService, message: Message) {
         userId: messageAuthorId,
         nextKofolaTime: nextTime,
         kofolaCount: randAmount,
+        kofolaMotoracek: nextMotoracekName,
       },
     });
 
-  message.react(customEmojiIds.kofola);
+  message.react(kofolaEmoji);
   message.reply(
-    `Zdobyłeś ${randAmount}x ${customEmojiIds.kofola}! (Łącznie: ${updatedUser.kofolaCount})`,
+    `Zdobyłeś ${randAmount}x ${kofolaEmoji}! (Łącznie: ${
+      updatedUser.kofolaCount
+    })\nNastępna dostawa: ${motosraczekEmoji} <t:${~~(
+      updatedUser.nextKofolaTime.getTime() / 1000
+    )}:R> `,
   );
 }

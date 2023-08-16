@@ -1,6 +1,6 @@
 import { Message } from 'discord.js';
 import { PrismaService } from '../../prisma/prisma.service';
-import { customEmojiIds } from '../constants/customEmojiIds';
+import { getEmojiByName } from '../constants/customEmojiIds';
 
 const ALLOWED_CHANNELS = [process.env.KOFOLA_CHANNEL_ID];
 
@@ -27,26 +27,17 @@ export async function getKofolaTopList(
     take: 10,
   });
 
+  const kofolaEmoji = getEmojiByName(message, 'kofola2');
+
   const topList: string[] = topKofolaCount.reduce((acc, top, i) => {
-    acc.push(
-      `${i + 1}. <@${top.userId}> - ${top.kofolaCount}x ${
-        customEmojiIds.kofola
-      }`,
-    );
+    acc.push(`${i + 1}. <@${top.userId}> - ${top.kofolaCount}x ${kofolaEmoji}`);
     return acc;
   }, [] as string[]);
 
   message.channel.send({
-    content: `# TOP LISTA ZEBRANYCH ${customEmojiIds.kofola}\n${topList.join(
-      '\n',
-    )}`,
+    content: `# TOP LISTA ZEBRANYCH ${kofolaEmoji}\n${topList.join('\n')}`,
     allowedMentions: {
       parse: [],
     },
   });
-
-  //   message.channel.send({
-  //     body: 'siema',
-  //     allowedMentions: {},
-  //   });
 }
