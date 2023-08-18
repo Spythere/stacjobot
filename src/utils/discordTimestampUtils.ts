@@ -1,6 +1,6 @@
 export const getDiscordTimeFormat = (
   timestamp: number,
-  format: 'date' | 'time' | 'long' | 'longshort',
+  format: 'date' | 'time' | 'long' | 'longshort' | 'relative',
 ) =>
   `<t:${Math.round(timestamp / 1000)}:${
     format === 'date'
@@ -9,5 +9,7 @@ export const getDiscordTimeFormat = (
       ? 't'
       : format == 'long'
       ? 'F'
+      : format == 'relative'
+      ? 'R'
       : 'f'
   }>`;
