@@ -6,6 +6,7 @@ import { randomRange } from '../../utils/randomUtils';
 import { getDiscordTimeFormat } from '../../utils/discordTimestampUtils';
 import { isDevelopment } from '../utils/envUtils';
 import { getLitersInPolish } from '../../utils/namingUtils';
+import { fetchTopUsers } from './topkofola';
 
 const ALLOWED_CHANNELS = [process.env.KOFOLA_CHANNEL_ID];
 const MAX_TIMEOUT_HOURS = 12,
@@ -61,6 +62,7 @@ export async function addKofolaToUser(prisma: PrismaService, message: Message) {
 
   const nextMotoracekName = `motosraczek${randomRange(5, 1)}`;
   const motosraczekEmoji = getEmojiByName(message, nextMotoracekName);
+  const notujEmoji = getEmojiByName(message, 'notujspeed');
 
   const multipliedRoles = message.member.roles.cache.filter((role) =>
     Object.keys(roleMultipliers).includes(role.name),
@@ -96,15 +98,28 @@ export async function addKofolaToUser(prisma: PrismaService, message: Message) {
       },
     });
 
+  const topList = await fetchTopUsers(prisma);
+
+  const topListPlace = topList.findIndex(
+    (top) => top.userId == messageAuthorId,
+  );
+
+  const topPlaceMessage =
+    topListPlace != -1
+      ? `\n${notujEmoji} Obecnie jesteś na **${
+          topListPlace + 1
+        }. miejscu** top listy zebranych kofoli! ${notujEmoji}`
+      : ``;
+
   message.react(kofolaEmoji);
   message.reply(
-    `Zdobyłeś ${randAmount} ${getLitersInPolish(
+    `Zdobyłeś **${randAmount} ${getLitersInPolish(
       randAmount,
-    )} ${kofolaEmoji}! (Łącznie: ${
+    )}** ${kofolaEmoji}! (Łącznie: ${
       updatedUser.kofolaCount
-    })\nNastępna dostawa: ${motosraczekEmoji} ${getDiscordTimeFormat(
+    })\n*Następna dostawa:* ${motosraczekEmoji} ${getDiscordTimeFormat(
       updatedUser.nextKofolaTime.getTime(),
       'relative',
-    )}`,
+    )}${topPlaceMessage}`,
   );
 }

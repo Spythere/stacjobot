@@ -3,11 +3,15 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { randomMuteUser } from '../customCommands/dajmute';
 import { addKofolaToUser } from '../customCommands/kofola';
 import { getKofolaTopList } from '../customCommands/topkofola';
+import { Logger } from '@nestjs/common';
+
+const customCommands = ['dajmute', 'kofola', 'topkofola'];
 
 export class CustomCommandHandler {
   constructor(
     private readonly client: Client,
     private readonly prisma: PrismaService,
+    private readonly logger: Logger,
   ) {}
 
   public handleCommands() {
@@ -17,8 +21,15 @@ export class CustomCommandHandler {
       if (!content.startsWith('!')) return;
 
       const [command] = content.slice(1).split(' ');
+      const commandLowerCase = command.toLocaleLowerCase();
 
-      switch (command.toLocaleLowerCase()) {
+      if (!customCommands.includes(commandLowerCase)) return;
+
+      this.logger.log(
+        `${message.author.username} (${message.author.id}): !${commandLowerCase}`,
+      );
+
+      switch (commandLowerCase) {
         case 'dajmute':
           randomMuteUser(message);
           break;

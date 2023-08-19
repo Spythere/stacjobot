@@ -24,7 +24,12 @@ export class BotGateway {
   ) {
     const client = discordClient.getClient();
 
-    this.customCmdHandler = new CustomCommandHandler(client, prisma);
+    this.customCmdHandler = new CustomCommandHandler(
+      client,
+      prisma,
+      this.logger,
+    );
+
     this.interactionHandler = new InteractionHandler(
       client,
       this.logger,
