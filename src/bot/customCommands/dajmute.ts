@@ -2,8 +2,8 @@ import { Message } from 'discord.js';
 import { getEmojiByName } from '../constants/customEmojiIds';
 import { isDevelopment } from '../utils/envUtils';
 
-const MAX_TIMEOUT_MINUTES = 1440 * 3,
-  MIN_TIMEOUT_MINUTES = 360;
+const MAX_TIMEOUT_MINUTES = 1440,
+  MIN_TIMEOUT_MINUTES = 120;
 
 function getFormattedTimeout(minutesTotal: number) {
   const days = ~~(minutesTotal / 1440);

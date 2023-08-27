@@ -177,6 +177,7 @@ model stacjobotUsers {
   kofolaCount     Int      @default(1)
   nextKofolaTime  DateTime @default(now())
   kofolaMotoracek String   @default("motosraczek3")
+  kofolaStreak    Int      @default(0)
 }
 
 enum ViolationType {

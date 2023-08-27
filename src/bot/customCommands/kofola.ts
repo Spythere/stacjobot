@@ -22,6 +22,17 @@ const roleMultipliers = {
   testowy: 1.5,
 };
 
+function getMaxMultiplier(message: Message) {
+  const multipliedRoles = message.member.roles.cache.filter((role) =>
+    Object.keys(roleMultipliers).includes(role.name),
+  );
+
+  return Math.max(
+    1,
+    ...multipliedRoles.map((role) => roleMultipliers[role.name]),
+  );
+}
+
 export async function addKofolaToUser(prisma: PrismaService, message: Message) {
   if (!ALLOWED_CHANNELS.includes(message.channelId)) {
     await message.delete();
@@ -55,25 +66,17 @@ export async function addKofolaToUser(prisma: PrismaService, message: Message) {
   let updatedUser: stacjobotUsers;
 
   const randTimeout = randomRange(MAX_TIMEOUT_HOURS, MIN_TIMEOUT_HOURS);
-
   const nextTime = new Date(
     new Date().getTime() + randTimeout * 60 * 60 * 1000,
+  );
+
+  const randKofolaAmount = ~~(
+    randomRange(AMOUNT_MAX, AMOUNT_MIN) * getMaxMultiplier(message)
   );
 
   const nextMotoracekName = `motosraczek${randomRange(5, 1)}`;
   const motosraczekEmoji = getEmojiByName(message, nextMotoracekName);
   const notujEmoji = getEmojiByName(message, 'notujspeed');
-
-  const multipliedRoles = message.member.roles.cache.filter((role) =>
-    Object.keys(roleMultipliers).includes(role.name),
-  );
-
-  const maxMultiplier = Math.max(
-    1,
-    ...multipliedRoles.map((role) => roleMultipliers[role.name]),
-  );
-
-  const randAmount = ~~(randomRange(AMOUNT_MAX, AMOUNT_MIN) * maxMultiplier);
 
   if (user) {
     updatedUser = await prisma.stacjobotUsers.update({
@@ -82,7 +85,7 @@ export async function addKofolaToUser(prisma: PrismaService, message: Message) {
       },
       data: {
         kofolaCount: {
-          increment: randAmount,
+          increment: randKofolaAmount,
         },
         nextKofolaTime: nextTime,
         kofolaMotoracek: nextMotoracekName,
@@ -93,7 +96,7 @@ export async function addKofolaToUser(prisma: PrismaService, message: Message) {
       data: {
         userId: messageAuthorId,
         nextKofolaTime: nextTime,
-        kofolaCount: randAmount,
+        kofolaCount: randKofolaAmount,
         kofolaMotoracek: nextMotoracekName,
       },
     });
@@ -111,15 +114,25 @@ export async function addKofolaToUser(prisma: PrismaService, message: Message) {
         }. miejscu** top listy zebranych kofoli! ${notujEmoji}`
       : ``;
 
+  const liters = getLitersInPolish(randKofolaAmount);
+  const gainMessage = `Zdobyłeś **${randKofolaAmount} ${liters}** ${kofolaEmoji}!`;
+  const totalMessage = `(Łącznie: ${updatedUser.kofolaCount})`;
+
+  const nextKofolaTimestamp = getDiscordTimeFormat(
+    updatedUser.nextKofolaTime.getTime(),
+    'relative',
+  );
+
+  const nextKofolaMessage = `*Następna dostawa*: ${motosraczekEmoji} ${nextKofolaTimestamp}`;
+
   message.react(kofolaEmoji);
   message.reply(
-    `Zdobyłeś **${randAmount} ${getLitersInPolish(
-      randAmount,
-    )}** ${kofolaEmoji}! (Łącznie: ${
-      updatedUser.kofolaCount
-    })\n*Następna dostawa:* ${motosraczekEmoji} ${getDiscordTimeFormat(
-      updatedUser.nextKofolaTime.getTime(),
-      'relative',
-    )}${topPlaceMessage}`,
+    `${gainMessage} ${totalMessage}\n${nextKofolaMessage}${topPlaceMessage}`,
   );
+
+  // message.reply(
+  //   `Zdobyłeś **${randKofolaAmount} ${getLitersInPolish(randKofolaAmount)}** ${kofolaEmoji}! (Łącznie: ${
+  //     updatedUser.kofolaCount
+  //   })\n*Następna dostawa:* ${motosraczekEmoji} ${getDiscordTimeFormat(updatedUser.nextKofolaTime.getTime(), 'relative')}${topPlaceMessage}`,
+  // );
 }
