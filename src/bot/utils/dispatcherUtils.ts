@@ -2,12 +2,12 @@
 
 const dispatcherStatusName = {
   '-2': 'NIEWPISANY',
-  '-1': 'NIEZNANY',
+  '-1': 'NIEDOSTĘPNY',
   '0': 'BEZ LIMITU',
   '1': 'ZARAZ WRACAM',
   '2': 'KOŃCZY',
   '3': 'BRAK MIEJSCA',
-  '4': 'NIEDOSTĘPNY',
+  '4': 'NIEZNANY',
 };
 
 export class DispatcherUtils {
