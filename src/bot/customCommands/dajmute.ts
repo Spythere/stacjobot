@@ -28,8 +28,6 @@ export async function randomMuteUser(message: Message) {
 
     message.react(rewidentEmoji);
 
-    // console.debug(`time: ${randMinutesTotal}; formatted: ${formattedTimeout}`);
-
     message.reply(
       `Gratulacje, <@${message.member.id}>! Dostałeś ${formattedTimeout} przerwy! ${rewidentEmoji}`,
     );

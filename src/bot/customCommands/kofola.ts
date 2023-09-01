@@ -8,7 +8,6 @@ import { isDevelopment } from '../utils/envUtils';
 import { getLitersInPolish } from '../../utils/namingUtils';
 import { fetchTopUsers } from './topkofola';
 
-const ALLOWED_CHANNELS = [process.env.KOFOLA_CHANNEL_ID];
 const MAX_TIMEOUT_HOURS = 12,
   MIN_TIMEOUT_HOURS = 9;
 
@@ -34,11 +33,6 @@ function getMaxMultiplier(message: Message) {
 }
 
 export async function addKofolaToUser(prisma: PrismaService, message: Message) {
-  if (!ALLOWED_CHANNELS.includes(message.channelId)) {
-    await message.delete();
-    return;
-  }
-
   const messageAuthorId = message.author.id;
 
   const user = await prisma.stacjobotUsers.findUnique({

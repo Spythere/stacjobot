@@ -1,30 +1,35 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { DiscordClientProvider, Once } from '@discord-nestjs/core';
-import { ActivityType } from 'discord.js';
+import { Injectable, Logger, UseGuards } from '@nestjs/common';
+import { DiscordClientProvider, On, Once } from '@discord-nestjs/core';
+import {
+  ActivityType,
+  ChatInputCommandInteraction,
+  Interaction,
+  InteractionType,
+  Message,
+} from 'discord.js';
 import { CustomCommandHandler } from './handlers/CustomCommandHandler';
-import { InteractionHandler } from './handlers/InteractionHandler';
 import { PrismaService } from '../prisma/prisma.service';
+import { CustomCommandGuard } from './guards/command.guard';
 
 @Injectable()
 export class BotGateway {
   private readonly logger = new Logger('DiscordBot');
 
   private readonly customCmdHandler: CustomCommandHandler;
-  private readonly interactionHandler: InteractionHandler;
 
   constructor(
     private readonly discordClient: DiscordClientProvider,
     private readonly prisma: PrismaService,
   ) {
-    const client = discordClient.getClient();
+    this.customCmdHandler = new CustomCommandHandler(prisma, this.logger);
+  }
 
-    this.customCmdHandler = new CustomCommandHandler(
-      client,
-      prisma,
-      this.logger,
+  private logSlashCommand(i: ChatInputCommandInteraction) {
+    this.logger.log(
+      `${i.user.username} (${i.user.id}): /${i.commandName} ${i.options.data
+        .map((param) => `${param.name}: ${param.value}`)
+        .join(' ')}`,
     );
-
-    this.interactionHandler = new InteractionHandler(client, this.logger);
   }
 
   @Once('ready')
@@ -38,9 +43,18 @@ export class BotGateway {
     });
 
     // Custom commands handling
-    this.customCmdHandler.handleCommands();
+  }
 
-    // Interaction (buttons) handling
-    this.interactionHandler.handleButtonInteraction();
+  @On('interactionCreate')
+  async onInteraction(i: Interaction) {
+    if (i.type == InteractionType.ApplicationCommand)
+      this.logSlashCommand(i as ChatInputCommandInteraction);
+  }
+
+  @On('messageCreate')
+  @UseGuards(CustomCommandGuard)
+  async onMessage(message: Message) {
+    console.log('najs');
+    this.customCmdHandler.handleCommands(message);
   }
 }
