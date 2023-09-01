@@ -54,7 +54,6 @@ export class BotGateway {
   @On('messageCreate')
   @UseGuards(CustomCommandGuard)
   async onMessage(message: Message) {
-    console.log('najs');
     this.customCmdHandler.handleCommands(message);
   }
 }

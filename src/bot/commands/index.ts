@@ -1,6 +1,7 @@
 import { activityCmd } from './activity.command';
 import { DrHistoryCmd } from './drhistory.command';
 import { DrInfoCmd } from './drinfo.command';
+import { DrStatusCmd } from './drstatus.command';
 import { DrTopCmd } from './drtop.command';
 import { konfCmd } from './konfident.command';
 import { rjIdCmd } from './rjId.command';
@@ -24,4 +25,5 @@ export const commandsIndex = [
   violationsCmd,
   ScLikesCmd,
   activityCmd,
+  DrStatusCmd,
 ];
