@@ -1,9 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { DiscordClientProvider, Once } from '@discord-nestjs/core';
 import { ActivityType } from 'discord.js';
-import { SceneryPageBuilder } from './page_builders/scenery-page-builder.service';
-import { ScRjPageBuilder } from './page_builders/scrj-page-builder';
-import { TimetablePageBuilder } from './page_builders/timetable-page-builder';
 import { CustomCommandHandler } from './handlers/CustomCommandHandler';
 import { InteractionHandler } from './handlers/InteractionHandler';
 import { PrismaService } from '../prisma/prisma.service';
@@ -18,9 +15,6 @@ export class BotGateway {
   constructor(
     private readonly discordClient: DiscordClientProvider,
     private readonly prisma: PrismaService,
-    sceneryPageBuilder: SceneryPageBuilder,
-    timetablePageBuilder: TimetablePageBuilder,
-    scRjPageBuilder: ScRjPageBuilder,
   ) {
     const client = discordClient.getClient();
 
@@ -30,13 +24,7 @@ export class BotGateway {
       this.logger,
     );
 
-    this.interactionHandler = new InteractionHandler(
-      client,
-      this.logger,
-      sceneryPageBuilder,
-      timetablePageBuilder,
-      scRjPageBuilder,
-    );
+    this.interactionHandler = new InteractionHandler(client, this.logger);
   }
 
   @Once('ready')

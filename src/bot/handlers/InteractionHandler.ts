@@ -8,9 +8,6 @@ export class InteractionHandler {
   constructor(
     private readonly client: Client,
     private readonly logger: Logger,
-    private sceneryPageBuilder: SceneryPageBuilder,
-    private timetablePageBuilder: TimetablePageBuilder,
-    private scRjPageBuilder: ScRjPageBuilder,
   ) {}
 
   public handleButtonInteraction() {
@@ -22,38 +19,6 @@ export class InteractionHandler {
             .join(' ')}`,
         );
       }
-
-      if (!i.isButton()) return;
-
-      const customId = i.customId;
-
-      if (customId.startsWith('btn-scenery')) {
-        const btnInfo = customId.split('-');
-        const stationName = btnInfo[2];
-        const pageNo = Number(btnInfo[3]);
-
-        const page = await this.sceneryPageBuilder.generateSceneryPage(
-          stationName,
-          pageNo,
-        );
-
-        i.update(page);
-      }
-
-      if (customId.startsWith('btn-timetable')) {
-        const btnInfo = customId.split('-');
-        const nickname = btnInfo[2];
-        const page = Number(btnInfo[3]);
-
-        i.update(
-          await this.timetablePageBuilder.generateTimetablesPage(
-            nickname,
-            page,
-          ),
-        );
-      }
-
-      this.scRjPageBuilder.interactionController(i, customId);
     });
   }
 }
