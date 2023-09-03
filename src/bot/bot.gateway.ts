@@ -82,7 +82,8 @@ export class BotGateway {
     }
   }
 
-  @Cron('21 20 * * *', { timeZone: 'Europe/Warsaw' })
+  // 21:37
+  @Cron('37 21 * * *', { timeZone: 'Europe/Warsaw' })
   async scheduleGiveway() {
     const guild = await this.client.guilds.fetch(
       this.config.get<string>('BOT_GUILD_ID'),
@@ -166,14 +167,14 @@ export class BotGateway {
     });
   }
 
-  // 20:20
-  @Cron('20 20 * * *', { timeZone: 'Europe/Warsaw' })
+  // 20:37
+  @Cron('37 20 * * *', { timeZone: 'Europe/Warsaw' })
   async announceGiveway() {
     const bagietyEmoji = getEmojiByName('bagiety');
 
     givewaySetup.minAmount = randomRange(5, 1);
     givewaySetup.maxAmount = givewaySetup.minAmount + 2;
-    givewaySetup.drawCount = randomRange(6, 3);
+    givewaySetup.drawCount = randomRange(6, 4);
 
     this.webhookClient.send({
       content: `# ${bagietyEmoji} KOFOLOTERIA JUŻ ZA GODZINĘ! ${bagietyEmoji}\n## DZIŚ WYLOSUJEMY *${givewaySetup.drawCount} SZCZĘŚLIWCÓW* KTÓRZY DOSTANĄ DODATKOWY PRZYDZIAŁ KOFOLI!`,
