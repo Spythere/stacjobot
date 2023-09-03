@@ -6,9 +6,11 @@ import { DiscordModule } from '@discord-nestjs/core';
 import { Client, GatewayIntentBits } from 'discord.js';
 import { BotModule } from './bot/bot.module';
 import { ApiModule } from './api/api.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
+    ScheduleModule.forRoot(),
     ConfigModule.forRoot({
       isGlobal: true,
     }),
@@ -21,6 +23,7 @@ import { ApiModule } from './api/api.module';
             GatewayIntentBits.Guilds,
             GatewayIntentBits.GuildMessages,
             GatewayIntentBits.MessageContent,
+            GatewayIntentBits.GuildMembers,
           ],
         },
         registerCommandOptions: [

@@ -1,6 +1,6 @@
 import { Message } from 'discord.js';
-import { getEmojiByName } from '../constants/customEmojiIds';
 import { isDevelopment } from '../utils/envUtils';
+import { getEmojiByName } from '../utils/emojiUtils';
 
 const MAX_TIMEOUT_MINUTES = 1440,
   MIN_TIMEOUT_MINUTES = 120;
@@ -23,7 +23,7 @@ export async function randomMuteUser(message: Message) {
     if (!isDevelopment())
       await message.member.timeout(randMinutesTotal * 60 * 1000);
 
-    const rewidentEmoji = getEmojiByName(message, 'rewident');
+    const rewidentEmoji = getEmojiByName('rewident');
     const formattedTimeout = getFormattedTimeout(randMinutesTotal);
 
     message.react(rewidentEmoji);
@@ -32,7 +32,7 @@ export async function randomMuteUser(message: Message) {
       `Gratulacje, <@${message.member.id}>! Dostałeś ${formattedTimeout} przerwy! ${rewidentEmoji}`,
     );
   } catch (error) {
-    const bagietyEmoji = getEmojiByName(message, 'bagiety');
+    const bagietyEmoji = getEmojiByName('bagiety');
 
     message.reply(
       `Niestety, obecny reżim nie pozwala na mutowanie oficjeli na wysokich stanowiskach! ${bagietyEmoji}`,

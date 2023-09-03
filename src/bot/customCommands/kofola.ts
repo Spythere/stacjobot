@@ -1,12 +1,12 @@
 import { stacjobotUsers } from '@prisma/client';
 import { Message } from 'discord.js';
 import { PrismaService } from '../../prisma/prisma.service';
-import { getEmojiByName } from '../constants/customEmojiIds';
 import { randomRange } from '../../utils/randomUtils';
 import { getDiscordTimeFormat } from '../../utils/discordTimestampUtils';
 import { isDevelopment } from '../utils/envUtils';
 import { getLitersInPolish } from '../../utils/namingUtils';
 import { fetchTopUsers } from './topkofola';
+import { getEmojiByName } from '../utils/emojiUtils';
 
 const MAX_TIMEOUT_HOURS = 12,
   MIN_TIMEOUT_HOURS = 9;
@@ -39,11 +39,11 @@ export async function addKofolaToUser(prisma: PrismaService, message: Message) {
     where: { userId: messageAuthorId },
   });
 
-  const kofolaEmoji = getEmojiByName(message, 'kofola2');
+  const kofolaEmoji = getEmojiByName('kofola2');
 
   if (user && user.nextKofolaTime > new Date() && !isDevelopment()) {
-    const motosraczekEmoji = getEmojiByName(message, user.kofolaMotoracek);
-    const tenseSmashEmoji = getEmojiByName(message, 'tenseSmash');
+    const motosraczekEmoji = getEmojiByName(user.kofolaMotoracek);
+    const tenseSmashEmoji = getEmojiByName('tenseSmash');
 
     message.reply(
       `Twój ${motosraczekEmoji} z kofolą przyjedzie ${getDiscordTimeFormat(
@@ -69,8 +69,8 @@ export async function addKofolaToUser(prisma: PrismaService, message: Message) {
   );
 
   const nextMotoracekName = `motosraczek${randomRange(5, 1)}`;
-  const motosraczekEmoji = getEmojiByName(message, nextMotoracekName);
-  const notujEmoji = getEmojiByName(message, 'notujspeed');
+  const motosraczekEmoji = getEmojiByName(nextMotoracekName);
+  const notujEmoji = getEmojiByName('notujspeed');
 
   if (user) {
     updatedUser = await prisma.stacjobotUsers.update({

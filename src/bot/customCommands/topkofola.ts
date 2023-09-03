@@ -1,8 +1,8 @@
 import { Message } from 'discord.js';
 import { PrismaService } from '../../prisma/prisma.service';
-import { getEmojiByName } from '../constants/customEmojiIds';
+import { getEmojiByName } from '../utils/emojiUtils';
 
-export async function fetchTopUsers(prisma: PrismaService) {
+export async function fetchTopUsers(prisma: PrismaService, topLimit = 10) {
   const fetchedData = await prisma.stacjobotUsers.groupBy({
     where: {
       kofolaCount: {
@@ -10,11 +10,11 @@ export async function fetchTopUsers(prisma: PrismaService) {
       },
     },
 
-    by: ['kofolaCount', 'userId'],
+    by: ['kofolaCount', 'userId', 'kofolaStreak', 'nextKofolaTime'],
     orderBy: {
       kofolaCount: 'desc',
     },
-    take: 10,
+    take: topLimit,
   });
 
   return fetchedData;
@@ -25,7 +25,7 @@ export async function getKofolaTopList(
   message: Message,
 ) {
   const topKofolaCount = await fetchTopUsers(prisma);
-  const kofolaEmoji = getEmojiByName(message, 'kofola2');
+  const kofolaEmoji = getEmojiByName('kofola2');
 
   const topList: string[] = topKofolaCount.reduce((acc, top, i) => {
     acc.push(`${i + 1}. <@${top.userId}> - ${top.kofolaCount}l ${kofolaEmoji}`);
@@ -37,5 +37,6 @@ export async function getKofolaTopList(
     allowedMentions: {
       parse: [],
     },
+    flags: ['SuppressNotifications'],
   });
 }

@@ -1,6 +1,6 @@
 import { CanActivate, ExecutionContext } from '@nestjs/common';
 
-const accepted = ['kofola', 'dajmute', 'topkofola'];
+const accepted = ['kofola', 'dajmute', 'topkofola', 'test'];
 
 export class CustomCommandGuard implements CanActivate {
   canActivate(context: ExecutionContext): boolean {
