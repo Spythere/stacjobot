@@ -10,7 +10,7 @@ export async function fetchTopUsers(prisma: PrismaService, topLimit = 10) {
       },
     },
 
-    by: ['kofolaCount', 'userId', 'kofolaStreak', 'nextKofolaTime'],
+    by: ['kofolaCount', 'userId', 'nextKofolaTime'],
     orderBy: {
       kofolaCount: 'desc',
     },
