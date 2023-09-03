@@ -27,8 +27,18 @@ export async function getKofolaTopList(
   const topKofolaCount = await fetchTopUsers(prisma);
   const kofolaEmoji = getEmojiByName('kofola2');
 
+  const guild = await message.client.guilds.fetch(process.env['BOT_GUILD_ID']);
+  const members = await guild.members.fetch();
+
   const topList: string[] = topKofolaCount.reduce((acc, top, i) => {
-    acc.push(`${i + 1}. <@${top.userId}> - ${top.kofolaCount}l ${kofolaEmoji}`);
+    const displayName = ` (${members.find((m) => m.id == top.userId)
+      ?.displayName})`;
+
+    acc.push(
+      `${i + 1}. <@${top.userId}>${displayName} - ${
+        top.kofolaCount
+      }l ${kofolaEmoji}`,
+    );
     return acc;
   }, [] as string[]);
 
