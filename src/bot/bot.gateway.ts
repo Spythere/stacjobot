@@ -122,18 +122,17 @@ export class BotGateway {
         givewaySetup.minAmount,
       );
 
-      if (isDevelopment()) {
-        await this.prisma.stacjobotUsers.update({
-          where: {
-            userId: user.userId,
+      // if (isDevelopment()) {
+      await this.prisma.stacjobotUsers.update({
+        where: {
+          userId: user.userId,
+        },
+        data: {
+          kofolaCount: {
+            increment: randAmount,
           },
-          data: {
-            kofolaCount: {
-              increment: randAmount,
-            },
-          },
-        });
-      }
+        },
+      });
 
       winners.push({
         userId: user.userId,
