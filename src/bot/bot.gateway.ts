@@ -19,8 +19,14 @@ import { collectEmojis, getEmojiByName } from './utils/emojiUtils';
 import { stacjobotUsers } from '@prisma/client';
 import { isDevelopment } from './utils/envUtils';
 import { Cron } from '@nestjs/schedule';
+import { getLitersInPolish } from '../utils/namingUtils';
 
-const givewaySetup = { minAmount: 3, maxAmount: 5, drawCount: 5 };
+const givewaySetup = {
+  maxAmount: 3,
+  minAmount: 1,
+  drawMaxCount: 5,
+  drawMinCount: 3,
+};
 
 @Injectable()
 export class BotGateway {
@@ -92,7 +98,7 @@ export class BotGateway {
     const members = await guild.members.fetch();
 
     let randomRows: stacjobotUsers[] = await this.prisma
-      .$queryRaw`SELECT * FROM "stacjobotUsers" ORDER BY random() LIMIT 20;`;
+      .$queryRaw`SELECT * FROM "stacjobotUsers" WHERE "nextKofolaTime" > (current_timestamp - interval '4 days') ORDER BY random() LIMIT 20;`;
 
     randomRows = randomRows.filter((row) =>
       members.some((m) => m.id == row.userId),
@@ -108,13 +114,15 @@ export class BotGateway {
     }
 
     const kofolaEmoji = getEmojiByName('kofola2');
-    const winners: { userId: string; amount: number }[] = [];
+    const winners: { userId: string; amount: number; totalAfter: number }[] =
+      [];
 
-    for (
-      let i = 0;
-      i < Math.min(givewaySetup.drawCount, randomRows.length);
-      i++
-    ) {
+    const drawCount = randomRange(
+      givewaySetup.drawMaxCount,
+      givewaySetup.drawMinCount,
+    );
+
+    for (let i = 0; i < Math.min(drawCount, randomRows.length); i++) {
       const user = randomRows[i];
 
       const randAmount = randomRange(
@@ -123,7 +131,7 @@ export class BotGateway {
       );
 
       // if (isDevelopment()) {
-      await this.prisma.stacjobotUsers.update({
+      const updatedWinner = await this.prisma.stacjobotUsers.update({
         where: {
           userId: user.userId,
         },
@@ -137,16 +145,21 @@ export class BotGateway {
       winners.push({
         userId: user.userId,
         amount: randAmount,
+        totalAfter: updatedWinner.kofolaCount,
       });
     }
 
-    const winnerDisplay = winners.map((w) => {
-      const dcMember = members.find((m) => m.id == w.userId);
+    const winnerDisplay = winners
+      .sort((w1, w2) => w2.amount - w1.amount)
+      .map((w) => {
+        const dcMember = members.find((m) => m.id == w.userId);
 
-      return `> - **${dcMember.displayName || dcMember.nickname}**: + ${
-        w.amount
-      }x ${kofolaEmoji}`;
-    });
+        return `> - **${dcMember.displayName || dcMember.nickname}**: + ${
+          w.amount
+        }l ${kofolaEmoji} ▶▶ ${w.totalAfter} ${getLitersInPolish(
+          w.totalAfter,
+        )}!`;
+      });
 
     const timestamp = ~~(Date.now() / 1000);
     const contentLines = [
@@ -167,16 +180,16 @@ export class BotGateway {
   }
 
   // 20:37
-  @Cron('37 20 * * *', { timeZone: 'Europe/Warsaw' })
-  async announceGiveway() {
-    const bagietyEmoji = getEmojiByName('bagiety');
+  // @Cron('37 20 * * *', { timeZone: 'Europe/Warsaw' })
+  // async announceGiveway() {
+  //   const bagietyEmoji = getEmojiByName('bagiety');
 
-    givewaySetup.minAmount = randomRange(5, 1);
-    givewaySetup.maxAmount = givewaySetup.minAmount + 2;
-    givewaySetup.drawCount = randomRange(6, 4);
+  //   givewaySetup.minAmount = randomRange(5, 1);
+  //   givewaySetup.maxAmount = givewaySetup.minAmount + 2;
+  //   givewaySetup.drawCount = randomRange(6, 4);
 
-    this.webhookClient.send({
-      content: `# ${bagietyEmoji} KOFOLOTERIA JUŻ ZA GODZINĘ! ${bagietyEmoji}\n## DZIŚ WYLOSUJEMY *${givewaySetup.drawCount} SZCZĘŚLIWCÓW* KTÓRZY DOSTANĄ DODATKOWY PRZYDZIAŁ KOFOLI!`,
-    });
-  }
+  //   this.webhookClient.send({
+  //     content: `# ${bagietyEmoji} KOFOLOTERIA JUŻ ZA GODZINĘ! ${bagietyEmoji}\n## DZIŚ WYLOSUJEMY *${givewaySetup.drawCount} SZCZĘŚLIWCÓW* KTÓRZY DOSTANĄ DODATKOWY PRZYDZIAŁ KOFOLI!`,
+  //   });
+  // }
 }
