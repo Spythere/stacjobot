@@ -101,7 +101,10 @@ export class BotGateway {
       .$queryRaw`SELECT * FROM "stacjobotUsers" WHERE "nextKofolaTime" > (current_timestamp - interval '4 days') ORDER BY random() LIMIT 20;`;
 
     randomRows = randomRows.filter((row) =>
-      members.some((m) => m.id == row.userId),
+      members.some(
+        (m) =>
+          m.id == row.userId && m.communicationDisabledUntilTimestamp == null,
+      ),
     );
 
     if (randomRows.length == 0) {
