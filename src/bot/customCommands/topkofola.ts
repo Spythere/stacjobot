@@ -2,7 +2,7 @@ import { Message } from 'discord.js';
 import { PrismaService } from '../../prisma/prisma.service';
 import { getEmojiByName } from '../utils/emojiUtils';
 
-export async function fetchTopUsers(prisma: PrismaService, topLimit = 10) {
+export async function fetchTopUsers(prisma: PrismaService, topLimit = 15) {
   const fetchedData = await prisma.stacjobotUsers.groupBy({
     where: {
       kofolaCount: {
