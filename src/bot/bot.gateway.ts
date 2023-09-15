@@ -83,8 +83,7 @@ export class BotGateway {
       message.content == '!test' &&
       message.member.permissions.has(PermissionFlagsBits.Administrator)
     ) {
-      // this.announceGiveway();
-      this.scheduleGiveway();
+      //
     }
   }
 
