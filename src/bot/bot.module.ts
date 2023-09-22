@@ -9,6 +9,7 @@ import { SceneryPageBuilder } from './page_builders/schistory-page-builder.servi
 
 import { commandsIndex } from './commands';
 import { PageBuilderService } from './page_builders/builder.service';
+import { KofolaGiveway } from './serverEvents/giveway-event.service';
 
 @Module({
   imports: [DiscordModule.forFeature(), ApiModule],
@@ -18,6 +19,7 @@ import { PageBuilderService } from './page_builders/builder.service';
     TimetablePageBuilder,
     SceneryPageBuilder,
     BotGateway,
+    KofolaGiveway,
     ...commandsIndex,
   ],
 })

@@ -7,43 +7,32 @@ import {
   Interaction,
   InteractionType,
   Message,
-  PermissionFlagsBits,
   WebhookClient,
 } from 'discord.js';
 import { CustomCommandHandler } from './handlers/CustomCommandHandler';
 import { PrismaService } from '../prisma/prisma.service';
-import { CustomCommandGuard } from './guards/command.guard';
+import {
+  AdministratorCommandGuard,
+  PrefixCommandGuard,
+} from './guards/command.guard';
 import { ConfigService } from '@nestjs/config';
-import { randomRange } from '../utils/randomUtils';
-import { collectEmojis, getEmojiByName } from './utils/emojiUtils';
-import { stacjobotUsers } from '@prisma/client';
-import { isDevelopment } from './utils/envUtils';
+import { collectEmojis } from './utils/emojiUtils';
 import { Cron } from '@nestjs/schedule';
-import { getLitersInPolish } from '../utils/namingUtils';
-
-const givewaySetup = {
-  maxAmount: 3,
-  minAmount: 1,
-  drawMaxCount: 5,
-  drawMinCount: 3,
-};
+import { KofolaGiveway } from './serverEvents/giveway-event.service';
 
 @Injectable()
 export class BotGateway {
   private readonly logger = new Logger('DiscordBot');
   private readonly customCmdHandler: CustomCommandHandler;
-  private webhookClient: WebhookClient;
 
   constructor(
     @InjectDiscordClient()
     private readonly client: Client,
     readonly prisma: PrismaService,
     private readonly config: ConfigService,
+    private readonly giveway: KofolaGiveway,
   ) {
     this.customCmdHandler = new CustomCommandHandler(prisma, this.logger);
-    this.webhookClient = new WebhookClient({
-      url: config.get<string>('ANNOUNCEMENT_WEBHOOK_URL'),
-    });
   }
 
   private logSlashCommand(i: ChatInputCommandInteraction) {
@@ -65,7 +54,6 @@ export class BotGateway {
     });
 
     collectEmojis(this.client);
-    // if (isDevelopment()) this.announceGiveway();
   }
 
   @On('interactionCreate')
@@ -75,123 +63,24 @@ export class BotGateway {
   }
 
   @On('messageCreate')
-  @UseGuards(CustomCommandGuard)
-  async onMessage(message: Message) {
+  @UseGuards(PrefixCommandGuard)
+  async onPrefixCommand(message: Message) {
     this.customCmdHandler.handleCommands(message);
+  }
 
-    if (
-      message.content == '!test' &&
-      message.member.permissions.has(PermissionFlagsBits.Administrator)
-    ) {
-      this.scheduleGiveway();
+  @On('messageCreate')
+  @UseGuards(AdministratorCommandGuard)
+  async onMessage(message: Message) {
+    if (message.content == '!test') this.giveway.runGiveway();
+
+    if (message.channelId == this.config.get<string>('KOFOLA_CHANNEL_ID')) {
+      message.reply('Test');
     }
   }
 
   // 21:37
   @Cron('37 21 * * *', { timeZone: 'Europe/Warsaw' })
   async scheduleGiveway() {
-    const guild = await this.client.guilds.fetch(
-      this.config.get<string>('BOT_GUILD_ID'),
-    );
-
-    const members = await guild.members.fetch();
-
-    let randomRows: stacjobotUsers[] = await this.prisma
-      .$queryRaw`SELECT * FROM "stacjobotUsers" WHERE "nextKofolaTime" > (current_timestamp - interval '4 days') ORDER BY random() LIMIT 20;`;
-
-    randomRows = randomRows.filter((row) =>
-      members.some(
-        (m) =>
-          m.id == row.userId && m.communicationDisabledUntilTimestamp == null,
-      ),
-    );
-
-    if (randomRows.length == 0) {
-      this.webhookClient.send({
-        content:
-          'Losowanie przerwane z powodu brakującej liczby wymaganych uczestników :(',
-      });
-
-      return;
-    }
-
-    const kofolaEmoji = getEmojiByName('kofola2');
-    const winners: { userId: string; amount: number; totalAfter: number }[] =
-      [];
-
-    const drawCount = randomRange(
-      givewaySetup.drawMaxCount,
-      givewaySetup.drawMinCount,
-    );
-
-    for (let i = 0; i < Math.min(drawCount, randomRows.length); i++) {
-      const user = randomRows[i];
-
-      const randAmount = randomRange(
-        givewaySetup.maxAmount,
-        givewaySetup.minAmount,
-      );
-
-      // if (isDevelopment()) {
-      const updatedWinner = await this.prisma.stacjobotUsers.update({
-        where: {
-          userId: user.userId,
-        },
-        data: {
-          kofolaCount: {
-            increment: randAmount,
-          },
-        },
-      });
-
-      winners.push({
-        userId: user.userId,
-        amount: randAmount,
-        totalAfter: updatedWinner.kofolaCount,
-      });
-    }
-
-    const winnerDisplay = winners
-      .sort((w1, w2) => w2.amount - w1.amount)
-      .map((w) => {
-        const dcMember = members.find((m) => m.id == w.userId);
-
-        return `> - **${dcMember.displayName || dcMember.nickname}**: + ${
-          w.amount
-        }l ${kofolaEmoji} ▶▶ ${w.totalAfter} ${getLitersInPolish(
-          w.totalAfter,
-        )}!`;
-      });
-
-    const timestamp = ~~(Date.now() / 1000);
-    const contentLines = [
-      `# ${kofolaEmoji} __STACJOWNIKOWA KOFOLOTERIA DNIA__ <t:${timestamp}:D> ${kofolaEmoji}`,
-      '# Dzisiejszymi zwycięzcami są:',
-      winnerDisplay.join('\n'),
-      '',
-      '*Wszelkie zażalenia dotyczące przebiegu losowania można zgłaszać [tutaj](https://www.youtube.com/watch?v=avCWDDox1nE)*',
-    ];
-
-    this.webhookClient.send({
-      content: contentLines.join('\n'),
-      allowedMentions: {
-        parse: [],
-      },
-      flags: ['SuppressEmbeds', 'SuppressNotifications'],
-    });
+    this.giveway.runGiveway();
   }
-
-  // 20:37
-  // @Cron('37 20 * * *', { timeZone: 'Europe/Warsaw' })
-  // async announceGiveway() {
-  //   const bagietyEmoji = getEmojiByName('bagiety');
-
-  //   givewaySetup.minAmount = randomRange(5, 1);
-  //   givewaySetup.maxAmount = givewaySetup.minAmount + 2;
-  //   givewaySetup.drawCount = randomRange(6, 4);
-
-  //   this.webhookClient.send({
-  //     content: `# ${bagietyEmoji} KOFOLOTERIA JUŻ ZA GODZINĘ! ${bagietyEmoji}\n## DZIŚ WYLOSUJEMY *${givewaySetup.drawCount} SZCZĘŚLIWCÓW* KTÓRZY DOSTANĄ DODATKOWY PRZYDZIAŁ KOFOLI!`,
-  //   });
-  // }
 }
