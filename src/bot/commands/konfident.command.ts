@@ -8,7 +8,7 @@ import { Command, Handler, InteractionEvent } from '@discord-nestjs/core';
   name: '60',
   description: 'Donosi na podanego użytkownika',
 })
-export class konfCmd {
+export class KonfCmd {
   constructor(private apiService: ApiService) {}
 
   @Handler()

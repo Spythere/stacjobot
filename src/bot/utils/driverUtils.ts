@@ -1,7 +1,7 @@
-import { TimetableData } from '../../api/models/timetable.interface';
+import { ITimetable } from '../../api/interfaces/timetable.interface';
 
 export abstract class DriverUtils {
-  static timetablesFieldValue(timetables: TimetableData[]) {
+  static timetablesFieldValue(timetables: ITimetable[]) {
     return timetables
       .map(
         (tt) =>

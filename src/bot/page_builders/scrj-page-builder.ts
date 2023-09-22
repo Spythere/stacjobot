@@ -8,7 +8,7 @@ import {
   EmbedBuilder,
 } from 'discord.js';
 import { ApiService } from '../../api/api.service';
-import { TimetableData } from '../../api/models/timetable.interface';
+import { ITimetable } from '../../api/interfaces/timetable.interface';
 
 @Injectable()
 export class ScRjPageBuilder {
@@ -114,7 +114,7 @@ export class ScRjPageBuilder {
   }
 
   private generateSceneryEmbed(
-    sceneryTimetables: TimetableData[],
+    sceneryTimetables: ITimetable[],
     totalCount: number,
     originalSceneryName: string,
     currentPage: number,
@@ -134,15 +134,25 @@ export class ScRjPageBuilder {
     embed.setColor('Random');
 
     embed.addFields(
-      sceneryTimetables.map((doc) => ({
-        name: `${doc.driverName} | ${doc.trainCategoryCode} ${doc.trainNo} (${doc.routeDistance}km) [#${doc.timetableId}]`,
-        value: `<t:${Math.round(
-          new Date(doc.beginDate).getTime() / 1000,
-        )}:R> wystawił: ${doc.authorName}\nRelacja: ${doc.route.replace(
-          '|',
-          ' > ',
-        )}`,
-      })),
+      sceneryTimetables.map((doc) => {
+        const createdAtDate = new Date(doc.createdAt);
+        const beginDate = new Date(doc.beginDate);
+
+        const timetableStartTimestamp = ~~(
+          (beginDate < createdAtDate ? beginDate : createdAtDate).getTime() /
+          1000
+        );
+
+        const author =
+          doc.authorName != null ? ` wystawił: ${doc.authorName}` : '';
+
+        const route = doc.route.replace('|', ' > ');
+
+        return {
+          name: `${doc.driverName} | ${doc.trainCategoryCode} ${doc.trainNo} (${doc.routeDistance}km) [#${doc.id}]`,
+          value: `<t:${timetableStartTimestamp}:R>${author}\nRelacja: ${route}`,
+        };
+      }),
     );
 
     embed.setFooter({ text: `Pobrano w ${queryTimeMs}ms` });

@@ -16,22 +16,9 @@ export class DrInfoCmd {
   async onCommand(
     @InteractionEvent(SlashCommandPipe) dto: DrNickDto,
   ): Promise<InteractionReplyOptions> {
-    const drData = await Promise.all([
-      this.apiService.getDispatcherInfo(dto.nick),
-      this.apiService.getTimetables({
-        authorName: dto.nick,
-        countLimit: 10,
-      }),
-    ]);
+    const drStats = (await this.apiService.getDispatcherInfo(dto.nick)).data;
 
-    const drStats = drData[0].data;
-    const drTimetables = drData[1].data;
-
-    if (
-      drTimetables.length == 0 ||
-      !drStats._max.authorName ||
-      drStats._count._all == 0
-    )
+    if (!drStats._max.authorName || drStats._count._all == 0)
       return {
         content: 'Brak informacji na temat tego dyżurnego!',
         ephemeral: true,
@@ -40,7 +27,7 @@ export class DrInfoCmd {
     const embed = new EmbedBuilder()
       .setTitle(`Statystyki dyżurnego ${drStats._max.authorName}`)
       .setColor('Random')
-      .setDescription('Statystyki ruchu i ostatnio wystawione rozkłady jazdy')
+      .setDescription('Statystyki ruchu dyżurnego')
       .addFields([
         {
           name: 'Wystawione rozkłady jazdy',
@@ -64,10 +51,6 @@ export class DrInfoCmd {
           name: 'Minimalna długość RJ ',
           value: drStats._min.routeDistance.toFixed(2) + 'km',
           inline: true,
-        },
-        {
-          name: 'Ostatnie rozkłady jazdy',
-          value: DriverUtils.timetablesFieldValue(drTimetables),
         },
       ])
       .setFooter({

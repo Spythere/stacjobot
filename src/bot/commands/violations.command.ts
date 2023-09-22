@@ -55,7 +55,7 @@ function getViolationDesc(
   name: 'wykroczenia',
   description: 'Wykroczenia maszynisty',
 })
-export class violationsCmd {
+export class ViolationsCmd {
   constructor(private prisma: PrismaService) {}
 
   @Handler()

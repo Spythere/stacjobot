@@ -1,4 +1,4 @@
-export interface DriverInfoData {
+export interface IDriverInfoData {
   _sum: {
     routeDistance?: number;
     confirmedStopsCount?: number;

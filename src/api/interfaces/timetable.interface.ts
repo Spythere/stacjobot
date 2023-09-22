@@ -1,4 +1,6 @@
-export interface TimetableData {
+export type ITimetables = ITimetable[];
+
+export interface ITimetable {
   id: number;
   allStopsCount: number;
   authorId: number | null;
@@ -32,4 +34,9 @@ export interface TimetableData {
   driverLevel: number | null;
   createdAt: string;
   updatedAt: Date | null;
+}
+
+export interface ITimetablesWithCount {
+  timetables: ITimetables;
+  count: number;
 }

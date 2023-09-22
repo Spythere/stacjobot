@@ -1,18 +1,18 @@
-export interface History {
+export interface IHistory {
   stationName: string;
   timestampFrom: number;
   timestampTo: number;
   dispatcherName: string;
 }
 
-export interface HistoryStats {
+export interface IHistoryStats {
   _count: {
     _all: number;
   };
 }
 
-export interface DispatcherHistoryData {
-  history: History[];
-  historyStats: HistoryStats;
+export interface IDispatcherHistoryData {
+  history: IHistory[];
+  historyStats: IHistoryStats;
   dispatcherName: string;
 }

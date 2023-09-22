@@ -1,0 +1,2 @@
+
+GET https://stacjownik.spythere.pl/api/getTimetables?issuedFrom=Czermin&countQuery=1

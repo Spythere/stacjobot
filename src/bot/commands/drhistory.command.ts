@@ -13,15 +13,19 @@ export class DrHistoryCmd {
 
   @Handler()
   async onCommand(@InteractionEvent(SlashCommandPipe) dto: DrNickDto) {
-    const { history, historyStats, dispatcherName } = (
-      await this.apiService.getDispatcherHistory(dto.nick)
+    const { dispatchers: dispatcherHistory, count } = (
+      await this.apiService.getDispatchersWithCount({
+        dispatcherName: dto.nick,
+      })
     ).data;
 
-    if (history.length == 0 || historyStats._count._all == 0)
+    if (dispatcherHistory.length == 0 || count == 0)
       return {
         content: 'Brak informacji na temat tego dyżurnego!',
         ephemeral: true,
       };
+
+    const dispatcherName = dispatcherHistory[0].dispatcherName;
 
     const embed = new EmbedBuilder()
       .setTitle(`Historia dyżurnego ${dispatcherName}`)
@@ -32,9 +36,9 @@ export class DrHistoryCmd {
       .addFields([
         {
           name: 'Zapisane dyżury',
-          value: historyStats._count._all.toString(),
+          value: `${count}`,
         },
-        ...history.map((historyRecord) => ({
+        ...dispatcherHistory.map((historyRecord) => ({
           name: historyRecord.stationName,
           value: `<t:${Math.round(
             historyRecord.timestampFrom.valueOf() / 1000,
@@ -43,6 +47,7 @@ export class DrHistoryCmd {
           )}:t>-<t:${Math.round(
             historyRecord.timestampTo.valueOf() / 1000,
           )}:t>`,
+          inline: true,
         })),
       ])
       .setFooter({

@@ -4,24 +4,24 @@ import { ApiService } from '../../api/api.service';
 import { SlashCommandPipe } from '@discord-nestjs/common';
 import { Command, Handler, InteractionEvent } from '@discord-nestjs/core';
 import { KonfDto } from '../dto/konfident.dto';
-import { DispatcherHistoryData } from '../../api/models/dispatcherHistory.interface';
-import { TimetableData } from '../../api/models/timetable.interface';
+import { IDispatcherHistoryData } from '../../api/interfaces/dispatcherHistory.interface';
+import { ITimetable } from '../../api/interfaces/timetable.interface';
 import { getDiscordTimeFormat } from '../../utils/discordTimestampUtils';
 
 @Command({
   name: 'activity',
   description: 'Historia aktywności użytkownika',
 })
-export class activityCmd {
+export class ActivityCmd {
   constructor(private apiService: ApiService) {}
 
   @Handler()
   async onCommand(
     @InteractionEvent(SlashCommandPipe) dto: KonfDto,
   ): Promise<InteractionReplyOptions> {
-    let dispatcherData: DispatcherHistoryData;
-    let driverData: TimetableData[];
-    let authorData: TimetableData[];
+    let dispatcherData: IDispatcherHistoryData;
+    let driverData: ITimetable[];
+    let authorData: ITimetable[];
     let username = '';
 
     try {

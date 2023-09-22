@@ -1,4 +1,4 @@
-export interface DispatcherInfoData {
+export interface IDispatcherInfoData {
   _sum: {
     routeDistance?: number;
   };

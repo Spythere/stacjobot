@@ -8,7 +8,7 @@ import {
 
 import { RjNickDto } from '../dto/rjnick.dto';
 import { InteractionReplyOptions } from 'discord.js';
-import { TimetablePageBuilder } from '../page_builders/timetable-page-builder';
+import { TimetablePageBuilder } from '../page_builders/rjinfo-page-builder';
 import { UseInterceptors } from '@nestjs/common';
 import { ButtonInteractionCollector } from '../collectors/button.collector';
 
@@ -18,13 +18,13 @@ import { ButtonInteractionCollector } from '../collectors/button.collector';
 })
 @UseInterceptors(CollectorInterceptor)
 @UseCollectors(ButtonInteractionCollector)
-export class rjInfoCmd {
+export class RjInfoCmd {
   constructor(private pageBuilder: TimetablePageBuilder) {}
 
   @Handler()
   async onCommand(
     @InteractionEvent(SlashCommandPipe) dto: RjNickDto,
   ): Promise<InteractionReplyOptions> {
-    return await this.pageBuilder.generateTimetablesPage(dto.nick, 1);
+    return await this.pageBuilder.generatePage(dto.nick, 1);
   }
 }

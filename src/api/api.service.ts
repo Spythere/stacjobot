@@ -1,23 +1,26 @@
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
-import { DispatcherHistoryData } from './models/dispatcherHistory.interface';
 import { AxiosResponse } from 'axios';
-import { DispatcherInfoData } from './models/dispatcherInfo.interface';
-import { PrismaService } from '../prisma/prisma.service';
-import { DriverInfoData } from './models/driverInfo.interface';
-import { TimetableData } from './models/timetable.interface';
-import { TimetablesWithCountResponse } from './models/timetableWithCount.interface';
+import { IDriverInfoData } from './interfaces/driverInfo.interface';
+import {
+  ITimetables,
+  ITimetablesWithCount,
+} from './interfaces/timetable.interface';
+import { IDispatcherInfoData } from './interfaces/dispatcherInfo.interface';
+import { IDispatcherHistoryData } from './interfaces/dispatcherHistory.interface';
+import { DispatchersDto } from './dtos/dispatchers.dto';
+import {
+  IDispatchers,
+  IDispatchersWithCount,
+} from './interfaces/dispatcher.interface';
 
 @Injectable()
 export class ApiService {
-  constructor(
-    private readonly httpService: HttpService,
-    private readonly prisma: PrismaService,
-  ) {}
+  constructor(private readonly httpService: HttpService) {}
 
   getDispatcherHistory(
     name: string,
-  ): Promise<AxiosResponse<DispatcherHistoryData>> {
+  ): Promise<AxiosResponse<IDispatcherHistoryData>> {
     return this.httpService.axiosRef.get('/api/getDispatcherHistory', {
       params: {
         name,
@@ -25,25 +28,42 @@ export class ApiService {
     });
   }
 
-  getDispatcherInfo(name: string): Promise<AxiosResponse<DispatcherInfoData>> {
+  getDispatchers(dto: DispatchersDto): Promise<AxiosResponse<IDispatchers>> {
+    return this.httpService.axiosRef.get('/api/getDispatchers', {
+      params: dto,
+    });
+  }
+
+  getDispatchersWithCount(
+    dto: DispatchersDto,
+  ): Promise<AxiosResponse<IDispatchersWithCount>> {
+    return this.httpService.axiosRef.get('/api/getDispatchers', {
+      params: {
+        ...dto,
+        countQuery: true,
+      },
+    });
+  }
+
+  getDispatcherInfo(name: string): Promise<AxiosResponse<IDispatcherInfoData>> {
     return this.httpService.axiosRef.get('/api/getDispatcherInfo', {
       params: { name },
     });
   }
 
-  getDriverInfo(name: string): Promise<AxiosResponse<DriverInfoData>> {
+  getDriverInfo(name: string): Promise<AxiosResponse<IDriverInfoData>> {
     return this.httpService.axiosRef.get('/api/getDriverInfo', {
       params: { name },
     });
   }
 
-  getDriverViolations(name: string): Promise<AxiosResponse<DriverInfoData>> {
+  getDriverViolations(name: string): Promise<AxiosResponse<IDriverInfoData>> {
     return this.httpService.axiosRef.get('/api/getDriverViolations', {
       params: { name },
     });
   }
 
-  getTimetables(dto: any): Promise<AxiosResponse<TimetableData[]>> {
+  getTimetables(dto: any): Promise<AxiosResponse<ITimetables>> {
     return this.httpService.axiosRef.get('/api/getTimetables', {
       params: {
         ...dto,
@@ -53,7 +73,7 @@ export class ApiService {
 
   getTimetablesWithCount(
     dto: any,
-  ): Promise<AxiosResponse<TimetablesWithCountResponse>> {
+  ): Promise<AxiosResponse<ITimetablesWithCount>> {
     return this.httpService.axiosRef.get('/api/getTimetables', {
       params: {
         ...dto,
