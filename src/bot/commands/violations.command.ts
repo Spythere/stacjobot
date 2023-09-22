@@ -62,6 +62,8 @@ export class violationsCmd {
   async onCommand(
     @InteractionEvent(SlashCommandPipe) dto: ViolationsDto,
   ): Promise<InteractionReplyOptions> {
+    console.log('v', dto.violationType);
+
     const violationDocs = await this.prisma.violations.findMany({
       where: {
         timetables: {
@@ -71,7 +73,7 @@ export class violationsCmd {
           },
           hidden: false,
         },
-        type: dto.type,
+        type: dto.violationType as ViolationType,
       },
 
       orderBy: {

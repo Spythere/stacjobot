@@ -1,12 +1,12 @@
 import { Choice, Param } from '@discord-nestjs/core';
 import { ViolationType } from '@prisma/client';
 
-const violationChocies = {
-  'Przekroczenie prędkości': ViolationType.SPEED,
-  'Niepoprawny numer': ViolationType.NUMBER,
-  'Niepoprawna kategoria': ViolationType.CATEGORY,
-  'Przekroczenie liczby pojazdów': ViolationType.LOCO_COUNT,
-};
+// const violationChocies = {
+//   'Przekroczenie prędkości': ViolationType.SPEED,
+//   'Niepoprawny numer': ViolationType.NUMBER,
+//   'Niepoprawna kategoria': ViolationType.CATEGORY,
+//   'Przekroczenie liczby pojazdów': ViolationType.LOCO_COUNT,
+// };
 
 export class ViolationsDto {
   @Param({
@@ -17,10 +17,10 @@ export class ViolationsDto {
   nick: string;
 
   @Param({
-    name: 'type',
+    name: 'typ',
     description: 'Typ wykroczenia',
     required: false,
   })
-  @Choice(violationChocies)
-  type?: ViolationType;
+  @Choice(ViolationType)
+  violationType?: string;
 }

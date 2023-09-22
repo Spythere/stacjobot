@@ -14,5 +14,5 @@ export class DrTopDto {
     required: true,
   })
   @Choice(TopChoices)
-  type: string;
+  type: TopChoices;
 }
