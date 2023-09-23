@@ -73,9 +73,9 @@ export class BotGateway {
   async onMessage(message: Message) {
     if (message.content == '!test') this.giveway.runGiveway();
 
-    if (message.channelId == this.config.get<string>('KOFOLA_CHANNEL_ID')) {
-      message.reply('Test');
-    }
+    // if (message.channelId == this.config.get<string>('KOFOLA_CHANNEL_ID')) {
+    //   message.reply('Test');
+    // }
   }
 
   // 21:37
