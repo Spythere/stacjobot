@@ -14,7 +14,9 @@
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
     "prisma:pull": "npx prisma db pull && npx prisma generate",
-    "prisma:push": "npx prisma db push && npx prisma generate"
+    "prisma:push": "npx prisma db push && npx prisma generate",
+    "start:pm2": "pm2 restart stacjobot",
+    "start:pm2:logs": "pm2 restart stacjobot && pm2 logs stacjobot"
   },
   "dependencies": {
     "@discord-nestjs/common": "^5.2.2",
