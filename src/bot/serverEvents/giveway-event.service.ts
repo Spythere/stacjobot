@@ -41,8 +41,6 @@ export class KofolaGiveway {
     const users = await this.fetchRandomizedUsers();
     const drawnUsers = await this.drawUsers(dcMembers, users);
 
-    console.log(dcMembers);
-
     if (drawnUsers.length == 0) {
       this.webhookClient.send({
         content:
