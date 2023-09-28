@@ -16,7 +16,12 @@
     "prisma:pull": "npx prisma db pull && npx prisma generate",
     "prisma:push": "npx prisma db push && npx prisma generate",
     "start:pm2": "pm2 restart ecosystem.config.js",
-    "start:pm2:logs": "pm2 restart ecosystem.config.js && pm2 logs stacjobot"
+    "start:pm2:logs": "pm2 restart ecosystem.config.js && pm2 logs stacjobot",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:cov": "jest --coverage",
+    "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
+    "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
     "@discord-nestjs/common": "^5.2.2",

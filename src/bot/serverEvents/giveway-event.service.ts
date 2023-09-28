@@ -2,11 +2,12 @@ import { InjectDiscordClient } from '@discord-nestjs/core';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { stacjobotUsers } from '@prisma/client';
-import { Client, WebhookClient } from 'discord.js';
+import { Client, Collection, GuildMember, WebhookClient } from 'discord.js';
 import { getLitersInPolish } from '../../utils/namingUtils';
 import { randomRange } from '../../utils/randomUtils';
 import { getEmojiByName } from '../utils/emojiUtils';
 import { PrismaService } from '../../prisma/prisma.service';
+import { Winner } from './se.types';
 
 const givewaySetup = {
   maxAmount: 3,
@@ -31,23 +32,18 @@ export class KofolaGiveway {
   }
 
   async runGiveway() {
-    const guild = await this.client.guilds.fetch(
+    const dcGuild = await this.client.guilds.fetch(
       this.config.get<string>('BOT_GUILD_ID'),
     );
 
-    const members = await guild.members.fetch();
+    const dcMembers = await dcGuild.members.fetch();
 
-    let randomRows: stacjobotUsers[] = await this.prisma
-      .$queryRaw`SELECT * FROM "stacjobotUsers" WHERE "nextKofolaTime" > (current_timestamp - interval '4 days') ORDER BY random() LIMIT 20;`;
+    const users = await this.fetchRandomizedUsers();
+    const drawnUsers = await this.drawUsers(dcMembers, users);
 
-    randomRows = randomRows.filter((row) =>
-      members.some(
-        (m) =>
-          m.id == row.userId && m.communicationDisabledUntilTimestamp == null,
-      ),
-    );
+    console.log(dcMembers);
 
-    if (randomRows.length == 0) {
+    if (drawnUsers.length == 0) {
       this.webhookClient.send({
         content:
           'Losowanie przerwane z powodu brakującej liczby wymaganych uczestników :(',
@@ -56,24 +52,52 @@ export class KofolaGiveway {
       return;
     }
 
-    const kofolaEmoji = getEmojiByName('kofola2');
-    const winners: { userId: string; amount: number; totalAfter: number }[] =
-      [];
+    const winners = await this.processWinners(drawnUsers);
 
+    this.displayWinners(dcMembers, winners);
+  }
+
+  private async fetchRandomizedUsers(): Promise<stacjobotUsers[]> {
+    // Dev environment
+    if (process.env['NODE_ENV'] === 'development')
+      return await this.prisma
+        .$queryRaw`SELECT * FROM "stacjobotUsers" ORDER BY random() LIMIT 50;`;
+
+    return await this.prisma
+      .$queryRaw`SELECT * FROM "stacjobotUsers" WHERE "nextKofolaTime" > (current_timestamp - interval '4 days') ORDER BY random() LIMIT 50;`;
+  }
+
+  private async drawUsers(
+    dcMembers: Collection<string, GuildMember>,
+    users: stacjobotUsers[],
+  ) {
     const drawCount = randomRange(
       givewaySetup.drawMaxCount,
       givewaySetup.drawMinCount,
     );
 
-    for (let i = 0; i < Math.min(drawCount, randomRows.length); i++) {
-      const user = randomRows[i];
+    const drawnUsers = users.filter((row) =>
+      dcMembers.some(
+        (m) =>
+          m.id == row.userId &&
+          m.communicationDisabledUntilTimestamp <= Date.now(),
+      ),
+    );
+
+    return drawnUsers.slice(0, drawCount);
+  }
+
+  private async processWinners(drawnUsers: stacjobotUsers[]) {
+    const winners: Winner[] = [];
+
+    for (let i = 0; i < drawnUsers.length; i++) {
+      const user = drawnUsers[i];
 
       const randAmount = randomRange(
         givewaySetup.maxAmount,
         givewaySetup.minAmount,
       );
 
-      // if (isDevelopment()) {
       const updatedWinner = await this.prisma.stacjobotUsers.update({
         where: {
           userId: user.userId,
@@ -92,19 +116,27 @@ export class KofolaGiveway {
       });
     }
 
-    const winnerDisplay = winners
-      .sort((w1, w2) => w2.amount - w1.amount)
-      .map((w) => {
-        const dcMember = members.find((m) => m.id == w.userId);
+    return winners.sort((w1, w2) => w2.amount - w1.amount);
+  }
 
-        return `> - **${dcMember.displayName || dcMember.nickname}**: + ${
-          w.amount
-        }l ${kofolaEmoji} ▶▶ ${w.totalAfter} ${getLitersInPolish(
-          w.totalAfter,
-        )}!`;
-      });
+  private async displayWinners(
+    dcMembers: Collection<string, GuildMember>,
+    winners: Winner[],
+  ) {
+    const kofolaEmoji = getEmojiByName('kofola2');
+
+    const winnerDisplay = winners.map((w) => {
+      const dcMember = dcMembers.find((m) => m.id == w.userId);
+
+      return `> - **${dcMember.displayName || dcMember.nickname}**: + ${
+        w.amount
+      }l ${kofolaEmoji} ▶▶ ${w.totalAfter} ${getLitersInPolish(
+        w.totalAfter,
+      )}!`;
+    });
 
     const timestamp = ~~(Date.now() / 1000);
+
     const contentLines = [
       `# ${kofolaEmoji} __STACJOWNIKOWA KOFOLOTERIA DNIA__ <t:${timestamp}:D> ${kofolaEmoji}`,
       '# Dzisiejszymi zwycięzcami są:',
@@ -121,14 +153,4 @@ export class KofolaGiveway {
       flags: ['SuppressEmbeds', 'SuppressNotifications'],
     });
   }
-
-  // announceGiveway() {
-  //   const bagietyEmoji = getEmojiByName('bagiety');
-  //   givewaySetup.minAmount = randomRange(5, 1);
-  //   givewaySetup.maxAmount = givewaySetup.minAmount + 2;
-  //   givewaySetup.drawCount = randomRange(6, 4);
-  //   this.webhookClient.send({
-  //     content: `# ${bagietyEmoji} KOFOLOTERIA JUŻ ZA GODZINĘ! ${bagietyEmoji}\n## DZIŚ WYLOSUJEMY *${givewaySetup.drawCount} SZCZĘŚLIWCÓW* KTÓRZY DOSTANĄ DODATKOWY PRZYDZIAŁ KOFOLI!`,
-  //   });
-  // }
 }
