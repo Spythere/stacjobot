@@ -178,6 +178,9 @@ model stacjobotUsers {
   kofolaMotoracek   String    @default("motosraczek3")
   kofolaStreak      Int       @default(0)
   lastLotteryWinner DateTime?
+  kofolaExcluded    Boolean   @default(false)
+  kofolaMultiplier  Float     @default(1)
+  userName          String    @default("")
 }
 
 enum ViolationType {

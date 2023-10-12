@@ -1,17 +1,15 @@
 import { Client, Message } from 'discord.js';
 import { PrismaService } from '../../prisma/prisma.service';
-import { randomMuteUser } from '../customCommands/dajmute';
-import { addKofolaToUser } from '../customCommands/kofola';
-import { getKofolaTopList } from '../customCommands/topkofola';
-import { Logger } from '@nestjs/common';
+import { randomMuteUser } from '../prefixCommands/dajmute';
+import { addKofolaToUser } from '../prefixCommands/kofola';
+import { getKofolaTopList } from '../prefixCommands/topkofola';
+import { Injectable, Logger } from '@nestjs/common';
 
-const customCommands = ['dajmute', 'kofola', 'topkofola'];
+@Injectable()
+export class PrefixCommandHandler {
+  private readonly logger = new Logger('PrefixCmd');
 
-export class CustomCommandHandler {
-  constructor(
-    private readonly prisma: PrismaService,
-    private readonly logger: Logger,
-  ) {}
+  constructor(private readonly prisma: PrismaService) {} // !commands
 
   private logCommand(message: Message) {
     this.logger.log(
@@ -24,8 +22,6 @@ export class CustomCommandHandler {
 
     const [command] = content.slice(1).split(' ');
     const commandLowerCase = command.toLocaleLowerCase();
-
-    if (!customCommands.includes(commandLowerCase)) return;
 
     this.logCommand(message);
 
@@ -41,6 +37,11 @@ export class CustomCommandHandler {
       case 'topkofola':
         getKofolaTopList(this.prisma, message);
         break;
+
+      case 'dajbana':
+        getKofolaTopList(this.prisma, message);
+        break;
+
       default:
         break;
     }

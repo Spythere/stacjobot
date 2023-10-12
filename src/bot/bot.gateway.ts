@@ -9,7 +9,7 @@ import {
   Message,
   WebhookClient,
 } from 'discord.js';
-import { CustomCommandHandler } from './handlers/CustomCommandHandler';
+import { PrefixCommandHandler } from './handlers/PrefixCommandHandler';
 import { PrismaService } from '../prisma/prisma.service';
 import {
   AdministratorCommandGuard,
@@ -19,11 +19,11 @@ import { ConfigService } from '@nestjs/config';
 import { collectEmojis } from './utils/emojiUtils';
 import { Cron } from '@nestjs/schedule';
 import { KofolaGiveway } from './serverEvents/giveway-event.service';
+import { isDevelopment } from './utils/envUtils';
 
 @Injectable()
 export class BotGateway {
   private readonly logger = new Logger('DiscordBot');
-  private readonly customCmdHandler: CustomCommandHandler;
 
   constructor(
     @InjectDiscordClient()
@@ -31,9 +31,8 @@ export class BotGateway {
     readonly prisma: PrismaService,
     private readonly config: ConfigService,
     private readonly giveway: KofolaGiveway,
-  ) {
-    this.customCmdHandler = new CustomCommandHandler(prisma, this.logger);
-  }
+    private readonly customCmdHandler: PrefixCommandHandler,
+  ) {}
 
   private logSlashCommand(i: ChatInputCommandInteraction) {
     this.logger.log(
@@ -71,7 +70,8 @@ export class BotGateway {
   @On('messageCreate')
   @UseGuards(AdministratorCommandGuard)
   async onMessage(message: Message) {
-    if (message.content == '!test') this.giveway.runGiveway();
+    if (message.content == '!test' && isDevelopment())
+      this.giveway.runGiveway();
   }
 
   // 21:37

@@ -10,6 +10,7 @@ import { SceneryPageBuilder } from './page_builders/schistory-page-builder.servi
 import { commandsIndex } from './commands';
 import { PageBuilderService } from './page_builders/builder.service';
 import { KofolaGiveway } from './serverEvents/giveway-event.service';
+import { PrefixCommandHandler } from './handlers/PrefixCommandHandler';
 
 @Module({
   imports: [DiscordModule.forFeature(), ApiModule],
@@ -19,6 +20,7 @@ import { KofolaGiveway } from './serverEvents/giveway-event.service';
     TimetablePageBuilder,
     SceneryPageBuilder,
     BotGateway,
+    PrefixCommandHandler,
     KofolaGiveway,
     ...commandsIndex,
   ],
