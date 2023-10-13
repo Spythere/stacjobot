@@ -4,15 +4,15 @@ import { ConfigService } from '@nestjs/config';
 import { stacjobotUsers } from '@prisma/client';
 import { Client, Collection, GuildMember, WebhookClient } from 'discord.js';
 import { getLitersInPolish } from '../../utils/namingUtils';
-import { randomRange } from '../../utils/randomUtils';
+import { randomRangeInteger } from '../../utils/randomUtils';
 import { getEmojiByName } from '../utils/emojiUtils';
 import { PrismaService } from '../../prisma/prisma.service';
 import { Winner } from './se.types';
 
 const givewaySetup = {
-  maxAmount: 3,
+  maxAmount: 5,
   minAmount: 1,
-  drawMaxCount: 5,
+  drawMaxCount: 6,
   drawMinCount: 3,
 };
 
@@ -59,17 +59,17 @@ export class KofolaGiveway {
     // Dev environment
     if (process.env['NODE_ENV'] === 'development')
       return await this.prisma
-        .$queryRaw`SELECT * FROM "stacjobotUsers" ORDER BY random() LIMIT 50;`;
+        .$queryRaw`SELECT * FROM "stacjobotUsers" WHERE "kofolaExcluded"=False ORDER BY random() LIMIT 50;`;
 
     return await this.prisma
-      .$queryRaw`SELECT * FROM "stacjobotUsers" WHERE "nextKofolaTime" > (current_timestamp - interval '4 days') ORDER BY random() LIMIT 50;`;
+      .$queryRaw`SELECT * FROM "stacjobotUsers" WHERE "nextKofolaTime" > (current_timestamp - interval '4 days') AND "kofolaExcluded"=False ORDER BY random() LIMIT 50;`;
   }
 
   private async drawUsers(
     dcMembers: Collection<string, GuildMember>,
     users: stacjobotUsers[],
   ) {
-    const drawCount = randomRange(
+    const drawCount = randomRangeInteger(
       givewaySetup.drawMaxCount,
       givewaySetup.drawMinCount,
     );
@@ -91,7 +91,7 @@ export class KofolaGiveway {
     for (let i = 0; i < drawnUsers.length; i++) {
       const user = drawnUsers[i];
 
-      const randAmount = randomRange(
+      const randAmount = randomRangeInteger(
         givewaySetup.maxAmount,
         givewaySetup.minAmount,
       );
@@ -104,11 +104,13 @@ export class KofolaGiveway {
           kofolaCount: {
             increment: randAmount,
           },
+          lastLotteryWinner: new Date(),
         },
       });
 
       winners.push({
         userId: user.userId,
+        userName: user.userName,
         amount: randAmount,
         totalAfter: updatedWinner.kofolaCount,
       });
@@ -126,7 +128,7 @@ export class KofolaGiveway {
     const winnerDisplay = winners.map((w) => {
       const dcMember = dcMembers.find((m) => m.id == w.userId);
 
-      return `> - **${dcMember.displayName || dcMember.nickname}**: + ${
+      return `> - **${w.userName || dcMember.user.globalName}**: + ${
         w.amount
       }l ${kofolaEmoji} ▶▶ ${w.totalAfter} ${getLitersInPolish(
         w.totalAfter,

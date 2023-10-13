@@ -3,10 +3,11 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { DiscordModule } from '@discord-nestjs/core';
-import { Client, GatewayIntentBits } from 'discord.js';
+import { Client, GatewayIntentBits, PermissionsBitField } from 'discord.js';
 import { BotModule } from './bot/bot.module';
 import { ApiModule } from './api/api.module';
 import { ScheduleModule } from '@nestjs/schedule';
+import { isDevelopment } from './bot/utils/envUtils';
 
 @Module({
   imports: [
@@ -28,12 +29,15 @@ import { ScheduleModule } from '@nestjs/schedule';
         },
         registerCommandOptions: [
           {
-            forGuild: configService.get('BOT_GUILD_ID'),
+            forGuild: isDevelopment()
+              ? configService.get('BOT_GUILD_ID')
+              : undefined,
             removeCommandsBefore: true,
             allowFactory: (m) => {
               return (
-                m.author.id == configService.get('AUTHOR_ID') &&
-                m.content == '!deploy'
+                m.member.permissions.has(
+                  PermissionsBitField.Flags.Administrator,
+                ) && m.content == '!deploy'
               );
             },
           },

@@ -4,6 +4,7 @@ import { randomMuteUser } from '../prefixCommands/dajmute';
 import { addKofolaToUser } from '../prefixCommands/kofola';
 import { getKofolaTopList } from '../prefixCommands/topkofola';
 import { Injectable, Logger } from '@nestjs/common';
+import { fakeBanUser } from '../prefixCommands/dajbana';
 
 @Injectable()
 export class PrefixCommandHandler {
@@ -39,7 +40,7 @@ export class PrefixCommandHandler {
         break;
 
       case 'dajbana':
-        getKofolaTopList(this.prisma, message);
+        fakeBanUser(message);
         break;
 
       default:
