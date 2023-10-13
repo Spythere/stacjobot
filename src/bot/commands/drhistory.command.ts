@@ -3,6 +3,7 @@ import { DrNickDto } from '../dto/drnick.dto';
 import { ApiService } from '../../api/api.service';
 import { Command, Handler, InteractionEvent } from '@discord-nestjs/core';
 import { SlashCommandPipe } from '@discord-nestjs/common';
+import { TimestampUtils } from '../utils/timestampUtils';
 
 @Command({
   name: 'drhistory',
@@ -16,6 +17,7 @@ export class DrHistoryCmd {
     const { dispatchers: dispatcherHistory, count } = (
       await this.apiService.getDispatchersWithCount({
         dispatcherName: dto.nick,
+        countLimit: 24,
       })
     ).data;
 
@@ -31,24 +33,36 @@ export class DrHistoryCmd {
       .setTitle(`Historia dyżurnego ${dispatcherName}`)
       .setColor('Random')
       .setDescription(
-        'Wyświetlanych jest maksymalnie 15 najnowszych wpisów w bazie',
+        'Wyświetlanych jest maksymalnie 24 najnowszych wpisów w bazie',
       )
       .addFields([
         {
           name: 'Zapisane dyżury',
           value: `${count}`,
         },
-        ...dispatcherHistory.map((historyRecord) => ({
-          name: historyRecord.stationName,
-          value: `<t:${Math.round(
-            historyRecord.timestampFrom.valueOf() / 1000,
-          )}:D> <t:${Math.round(
-            historyRecord.timestampFrom.valueOf() / 1000,
-          )}:t>-<t:${Math.round(
-            historyRecord.timestampTo.valueOf() / 1000,
-          )}:t>`,
-          inline: true,
-        })),
+        ...dispatcherHistory.map((historyRecord) => {
+          const dateFrom = TimestampUtils.getDiscordTimestamp(
+            historyRecord.timestampFrom,
+            'D',
+          );
+
+          const timeFrom = TimestampUtils.getDiscordTimestamp(
+            historyRecord.timestampFrom,
+            't',
+          );
+
+          const timeTo = historyRecord.timestampTo
+            ? TimestampUtils.getDiscordTimestamp(historyRecord.timestampTo, 't')
+            : '';
+
+          return {
+            name: historyRecord.stationName,
+            value: `${dateFrom}\nod: ${timeFrom} ${
+              timeTo ? `do: ${timeTo}` : '(online)'
+            }`,
+            inline: true,
+          };
+        }),
       ])
       .setFooter({
         text: `Statystyki dyżurnego dostępne pod /drinfo ${dispatcherName}`,

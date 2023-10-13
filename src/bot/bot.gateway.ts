@@ -70,12 +70,8 @@ export class BotGateway {
   @On('messageCreate')
   @UseGuards(AdministratorCommandGuard)
   async onMessage(message: Message) {
-    if (message.content == '!test')
-      // this.giveway.runGiveway();
-      this.client.application.commands.set(
-        [],
-        this.config.get<string>('BOT_GUILD_ID'),
-      );
+    if (message.content == '!test' && isDevelopment())
+      this.giveway.runGiveway();
   }
 
   // 21:37
