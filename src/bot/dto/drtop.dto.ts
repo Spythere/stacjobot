@@ -1,10 +1,10 @@
 import { Choice, Param } from '@discord-nestjs/core';
 
-enum TopChoices {
-  'Liczba wystawionych RJ' = 'TIMETABLE_COUNT',
-  'Najdłuższy wystawiony RJ' = 'LONGEST_TIMETABLE',
-  'Liczba wypełnionych dyżurów' = 'SERVICE_COUNT',
-  'Ocena dyżurnego' = 'LIKE_COUNT',
+export enum DrTopChoices {
+  'Liczba wystawionych RJ' = '1',
+  'Najdłuższy wystawiony RJ' = '2',
+  'Liczba wypełnionych dyżurów' = '3',
+  'Ocena dyżurnego' = '4',
 }
 
 export class DrTopDto {
@@ -13,6 +13,6 @@ export class DrTopDto {
     description: 'Rodzaj top listy',
     required: true,
   })
-  @Choice(TopChoices)
-  type: TopChoices;
+  @Choice(DrTopChoices)
+  type: DrTopChoices;
 }

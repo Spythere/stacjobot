@@ -6,8 +6,8 @@ import { DrTopCmd } from './drtop.command';
 import { KonfCmd } from './konfident.command';
 import { RjInfoCmd } from './rjinfo.command';
 import { ScHistoryCmd } from './schistory.command';
-import { ScLikesCmd } from './sclikes.command';
 import { ScTopCmd } from './sctop.command';
+import { TD2StatsCmd } from './td2stats.command';
 import { ViolationsCmd } from './violations.command';
 
 export const commandsIndex = [
@@ -20,6 +20,6 @@ export const commandsIndex = [
   ScTopCmd,
   KonfCmd,
   ViolationsCmd,
-  ScLikesCmd,
   ActivityCmd,
+  TD2StatsCmd,
 ];

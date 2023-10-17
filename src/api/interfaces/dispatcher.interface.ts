@@ -11,7 +11,7 @@ export interface IDispatcher {
   stationHash: string;
   stationName: string;
   timestampFrom: number;
-  timestampTo: number;
+  timestampTo?: number;
   dispatcherLevel: number;
   dispatcherIsSupporter: boolean;
   createdAt: string;
