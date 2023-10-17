@@ -18,6 +18,7 @@ import {
 export class ApiService {
   constructor(private readonly httpService: HttpService) {}
 
+  /* api/getDispatcherHistory */
   getDispatcherHistory(
     name: string,
   ): Promise<AxiosResponse<IDispatcherHistoryData>> {
@@ -28,6 +29,7 @@ export class ApiService {
     });
   }
 
+  /* api/getDispatchers */
   getDispatchers(dto: DispatchersDto): Promise<AxiosResponse<IDispatchers>> {
     return this.httpService.axiosRef.get('/api/getDispatchers', {
       params: dto,
@@ -45,24 +47,28 @@ export class ApiService {
     });
   }
 
+  /* api/getDispatcherInfo */
   getDispatcherInfo(name: string): Promise<AxiosResponse<IDispatcherInfoData>> {
     return this.httpService.axiosRef.get('/api/getDispatcherInfo', {
       params: { name },
     });
   }
 
+  /* api/getDriverInfo */
   getDriverInfo(name: string): Promise<AxiosResponse<IDriverInfoData>> {
     return this.httpService.axiosRef.get('/api/getDriverInfo', {
       params: { name },
     });
   }
 
+  /* api/getDriverViolations */
   getDriverViolations(name: string): Promise<AxiosResponse<IDriverInfoData>> {
     return this.httpService.axiosRef.get('/api/getDriverViolations', {
       params: { name },
     });
   }
 
+  /* api/getTimetables */
   getTimetables(dto: any): Promise<AxiosResponse<ITimetables>> {
     return this.httpService.axiosRef.get('/api/getTimetables', {
       params: {
@@ -78,6 +84,16 @@ export class ApiService {
       params: {
         ...dto,
         countQuery: 1,
+      },
+    });
+  }
+
+  /* api/getTrafficStats */
+  getTrafficStats(): Promise<AxiosResponse<any>> {
+    return this.httpService.axiosRef.get('/api/getTrafficStats', {
+      responseType: 'arraybuffer',
+      headers: {
+        'Content-Type': 'image/png',
       },
     });
   }

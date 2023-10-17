@@ -1,5 +1,5 @@
 import { EmbedBuilder, InteractionReplyOptions } from 'discord.js';
-import { DrTopDto } from '../dto/drtop.dto';
+import { DrTopChoices, DrTopDto } from '../dto/drtop.dto';
 import { PrismaService } from '../../prisma/prisma.service';
 import { Command, Handler, InteractionEvent } from '@discord-nestjs/core';
 import { SlashCommandPipe } from '@discord-nestjs/common';
@@ -18,7 +18,7 @@ export class DrTopCmd {
     const embed = new EmbedBuilder().setColor('Random');
 
     switch (dto.type) {
-      case 'LIKE_COUNT':
+      case DrTopChoices['Ocena dyżurnego']:
         embed.setTitle('Top lista dyżurnych - suma ocen');
         embed.setFooter({
           text: 'Szczegółowe statystyki o ocenach dyżurnych są zbierane od 25 lutego 2023r.',
@@ -36,7 +36,7 @@ export class DrTopCmd {
 
         break;
 
-      case 'TIMETABLE_COUNT':
+      case DrTopChoices['Liczba wystawionych RJ']:
         embed.setTitle('Top lista dyżurnych - wystawione rozkłady jazdy');
         embed.setFooter({
           text: 'Szczegółowe statystyki o autorach RJ są zbierane od 1 lutego 2022r.',
@@ -54,7 +54,7 @@ export class DrTopCmd {
 
         break;
 
-      case 'SERVICE_COUNT':
+      case DrTopChoices['Liczba wypełnionych dyżurów']:
         embed.setTitle('Top lista dyżurnych - liczba dyżurów');
         embed.setFooter({
           text: 'Szczegółowe statystyki o liczbie dyżurów są zbierane od 1 lutego 2022r.',
@@ -72,7 +72,7 @@ export class DrTopCmd {
 
         break;
 
-      case 'LONGEST_TIMETABLE':
+      case DrTopChoices['Najdłuższy wystawiony RJ']:
         embed.setTitle('Top lista dyżurnych - najdłuższy rozkład jazdy');
         embed.setFooter({
           text: 'Szczegółowe statystyki o rozkładach jazdy są zbierane od 1 lutego 2022r.',
