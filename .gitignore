@@ -37,3 +37,6 @@ lerna-debug.log*
 .env
 .env.save
 *.lock
+
+# Prisma schemas on submodules
+prisma
