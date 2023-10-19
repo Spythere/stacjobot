@@ -13,6 +13,7 @@ import {
   IDispatchers,
   IDispatchersWithCount,
 } from './interfaces/dispatcher.interface';
+import { TD2StatsDto } from '../bot/dto/td2stats.dto';
 
 @Injectable()
 export class ApiService {
@@ -89,12 +90,15 @@ export class ApiService {
   }
 
   /* api/getTrafficStats */
-  getTrafficStats(): Promise<AxiosResponse<any>> {
-    return this.httpService.axiosRef.get('/api/getTrafficStats', {
-      responseType: 'arraybuffer',
-      headers: {
-        'Content-Type': 'image/png',
+  getTrafficStats(dto: TD2StatsDto): Promise<AxiosResponse<any>> {
+    return this.httpService.axiosRef.get(
+      `/api/getTrafficStats?scope=${dto.scope}&${dto.type}`,
+      {
+        responseType: 'arraybuffer',
+        headers: {
+          'Content-Type': 'image/png',
+        },
       },
-    });
+    );
   }
 }

@@ -1,16 +1,17 @@
 import { Choice, Param } from '@discord-nestjs/core';
 
 export enum TD2StatScopes {
-  'Dzisiaj' = 'TODAY',
-  'Ten tydzień' = 'WEEK',
+  'Dzisiaj' = 'day',
+  'Ostatnie 12h' = '12h',
+  'Ostatnie 24h' = '24h',
 }
 
 export enum TD2StatModes {
-  'Maszyniści' = 'DRIVERS',
-  'Aktywne RJ' = 'TIMETABLES',
-  'Dyżurni' = 'DISPATCHERS',
-  'Maszyniści + RJ' = 'DRIVERS-TIMETABLES',
-  'Dyżurni + RJ' = 'DISPATCHERS-TIMETABLES',
+  'Maszyniści' = 'drivers=true',
+  'Aktywne RJ' = 'timetables=true',
+  'Dyżurni' = 'dispatchers=true',
+  'Maszyniści + RJ' = 'drivers=true&timetables=true',
+  'Dyżurni + RJ' = 'dispatchers=true&timetables=true',
 }
 
 export class TD2StatsDto {

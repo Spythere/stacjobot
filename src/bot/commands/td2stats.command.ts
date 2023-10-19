@@ -24,7 +24,7 @@ export class TD2StatsCmd {
   async onCommand(
     @InteractionEvent(SlashCommandPipe) dto: TD2StatsDto,
   ): Promise<InteractionReplyOptions> {
-    const graph = await this.apiService.getTrafficStats();
+    const graph = await this.apiService.getTrafficStats(dto);
 
     const imageAttachment = new AttachmentBuilder(graph.data);
     imageAttachment.setName('td2stats');
