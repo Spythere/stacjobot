@@ -13,7 +13,7 @@ const givewaySetup = {
   maxAmount: 5,
   minAmount: 1,
   drawMaxCount: 6,
-  drawMinCount: 3,
+  drawMinCount: 5,
 };
 
 @Injectable()
