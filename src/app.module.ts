@@ -33,11 +33,13 @@ import { isDevelopment } from './bot/utils/envUtils';
               ? configService.get('BOT_GUILD_ID')
               : undefined,
             removeCommandsBefore: true,
-            allowFactory: (m) => {
+            allowFactory: (message) => {
+              if (message.author.bot || !message.member) return false;
+
               return (
-                m.member.permissions.has(
+                message.member.permissions.has(
                   PermissionsBitField.Flags.Administrator,
-                ) && m.content == '!deploy'
+                ) && message.content == '!deploy'
               );
             },
           },
