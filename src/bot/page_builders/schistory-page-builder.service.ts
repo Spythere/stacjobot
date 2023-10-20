@@ -73,7 +73,7 @@ export class SceneryPageBuilder {
   private async fetchData(stationName: string, currentPage: number) {
     return this.apiService.getDispatchersWithCount({
       stationName,
-      online: 0,
+      online: false,
       countFrom: (currentPage - 1) * 10,
       countLimit: 10,
     });

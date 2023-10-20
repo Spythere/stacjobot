@@ -1,7 +1,7 @@
 export class DispatchersDto {
   dispatcherName?: string;
   stationName?: string;
-  online?: number;
+  online?: boolean;
   sortBy?: string;
   countFrom?: number;
   countLimit?: number;
