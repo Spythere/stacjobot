@@ -13,9 +13,6 @@ const accepted = [
 export class PrefixCommandGuard implements CanActivate {
   canActivate(context: ExecutionContext): boolean {
     const message = context.getArgByIndex(0);
-
-    console.log(message.content);
-
     if (message.author.bot) return false;
 
     return new RegExp(`^!(${accepted.join('|')})$`, 'i').test(message.content);
