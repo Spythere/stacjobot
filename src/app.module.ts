@@ -34,7 +34,7 @@ import { isDevelopment } from './bot/utils/envUtils';
               : undefined,
             removeCommandsBefore: true,
             allowFactory: (message) => {
-              if (message.author.bot || !message.member) return false;
+              // if (message.author.bot || !message.member) return false;
 
               return (
                 message.member.permissions.has(
