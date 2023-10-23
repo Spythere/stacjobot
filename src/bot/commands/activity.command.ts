@@ -51,6 +51,7 @@ export class ActivityCmd {
 
       return {
         content: 'Ups! Coś poszło nie tak podczas przetwarzania komendy!',
+        ephemeral: true,
       };
     }
 

@@ -4,6 +4,8 @@ import { ApiService } from '../../api/api.service';
 import { Command, Handler, InteractionEvent } from '@discord-nestjs/core';
 import { SlashCommandPipe } from '@discord-nestjs/common';
 import { TimestampUtils } from '../utils/timestampUtils';
+import { IDispatchersWithCount } from '../../api/interfaces/dispatcher.interface';
+import { LoggerService } from '@nestjs/common';
 
 @Command({
   name: 'drhistory',
@@ -14,20 +16,31 @@ export class DrHistoryCmd {
 
   @Handler()
   async onCommand(@InteractionEvent(SlashCommandPipe) dto: DrNickDto) {
-    const { dispatchers: dispatcherHistory, count } = (
-      await this.apiService.getDispatchersWithCount({
-        dispatcherName: dto.nick,
-        countLimit: 24,
-      })
-    ).data;
+    let responseData: IDispatchersWithCount;
 
-    if (dispatcherHistory.length == 0 || count == 0)
+    try {
+      responseData = (
+        await this.apiService.getDispatchersWithCount({
+          dispatcherName: dto.nick,
+          countLimit: 24,
+        })
+      ).data;
+    } catch (error) {
+      return {
+        content: 'Ups! Coś poszło nie tak podczas przetwarzania komendy!',
+        ephemeral: true,
+      };
+    }
+
+    const { dispatchers, count } = responseData;
+
+    if (dispatchers.length == 0 || count == 0)
       return {
         content: 'Brak informacji na temat tego dyżurnego!',
         ephemeral: true,
       };
 
-    const dispatcherName = dispatcherHistory[0].dispatcherName;
+    const dispatcherName = dispatchers[0].dispatcherName;
 
     const embed = new EmbedBuilder()
       .setTitle(`Historia dyżurnego ${dispatcherName}`)
@@ -40,7 +53,7 @@ export class DrHistoryCmd {
           name: 'Zapisane dyżury',
           value: `${count}`,
         },
-        ...dispatcherHistory.map((historyRecord) => {
+        ...dispatchers.map((historyRecord) => {
           const dateFrom = TimestampUtils.getDiscordTimestamp(
             historyRecord.timestampFrom,
             'D',

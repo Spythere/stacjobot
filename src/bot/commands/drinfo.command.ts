@@ -4,6 +4,7 @@ import { ApiService } from '../../api/api.service';
 import { SlashCommandPipe } from '@discord-nestjs/common';
 import { Command, Handler, InteractionEvent } from '@discord-nestjs/core';
 import { DriverUtils } from '../utils/driverUtils';
+import { IDispatcherInfoData } from '../../api/interfaces/dispatcherInfo.interface';
 
 @Command({
   name: 'drinfo',
@@ -16,7 +17,17 @@ export class DrInfoCmd {
   async onCommand(
     @InteractionEvent(SlashCommandPipe) dto: DrNickDto,
   ): Promise<InteractionReplyOptions> {
-    const drStats = (await this.apiService.getDispatcherInfo(dto.nick)).data;
+    let drStats: IDispatcherInfoData;
+    try {
+      drStats = (await this.apiService.getDispatcherInfo(dto.nick)).data;
+    } catch (error) {
+      console.error(error);
+
+      return {
+        content: 'Ups! Coś poszło nie tak podczas przetwarzania komendy!',
+        ephemeral: true,
+      };
+    }
 
     if (!drStats._max.authorName || drStats._count._all == 0)
       return {
