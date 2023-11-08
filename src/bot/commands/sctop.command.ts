@@ -59,7 +59,7 @@ export class ScTopCmd {
 
   private async onLikeCountChoice(sceneryName: string) {
     const topQueryResult: ITopDispatcherCount[] = await this.prisma
-      .$queryRaw`select s."dispatcherName",SUM(s."maxRate") as "count" from (select "dispatcherName",CONCAT("dispatcherName",'@',"stationName") as "sessionID", MAX("dispatcherRate") as "maxRate" from dispatchers where "dispatcherRate">0 and "hidden"=false and UPPER("stationName")=UPPER(${sceneryName}) group by "sessionID", "dispatcherName") as s group by "dispatcherName" order by "count" desc, s."dispatcherName" asc limit 24;`;
+      .$queryRaw`select s."dispatcherName",SUM(s."maxRate") as "count" from (select "dispatcherName",CONCAT("dispatcherName",'@',"stationHash") as "sessionID", MAX("dispatcherRate") as "maxRate" from dispatchers where "dispatcherRate">0 and "hidden"=false and UPPER("stationName")=UPPER(${sceneryName}) group by "sessionID", "dispatcherName") as s group by "dispatcherName" order by "count" desc, s."dispatcherName" asc limit 24;`;
 
     if (topQueryResult.length == 0)
       return {
