@@ -21,13 +21,13 @@ export class DrHistoryCmd {
       })
     ).data;
 
-    if (dispatchers.length == 0 || count == 0)
+    if (dispatcherHistory.length == 0 || count == 0)
       return {
         content: 'Brak informacji na temat tego dyżurnego!',
         ephemeral: true,
       };
 
-    const dispatcherName = dispatchers[0].dispatcherName;
+    const dispatcherName = dispatcherHistory[0].dispatcherName;
 
     const embed = new EmbedBuilder()
       .setTitle(`Historia dyżurnego ${dispatcherName}`)
@@ -40,7 +40,7 @@ export class DrHistoryCmd {
           name: 'Zapisane dyżury',
           value: `${count}`,
         },
-        ...dispatchers.map((historyRecord) => {
+        ...dispatcherHistory.map((historyRecord) => {
           const dateFrom = TimestampUtils.getDiscordTimestamp(
             historyRecord.timestampFrom,
             'D',
