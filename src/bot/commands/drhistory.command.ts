@@ -4,7 +4,6 @@ import { ApiService } from '../../api/api.service';
 import { Command, Handler, InteractionEvent } from '@discord-nestjs/core';
 import { SlashCommandPipe } from '@discord-nestjs/common';
 import { TimestampUtils } from '../utils/timestampUtils';
-import { IDispatchersWithCount } from '../../api/interfaces/dispatcher.interface';
 
 @Command({
   name: 'drhistory',
@@ -14,26 +13,13 @@ export class DrHistoryCmd {
   constructor(private readonly apiService: ApiService) {}
 
   @Handler()
-  async onCommand(
-    @InteractionEvent(SlashCommandPipe) dto: DrNickDto,
-  ): Promise<InteractionReplyOptions> {
-    let responseData: IDispatchersWithCount;
-
-    try {
-      responseData = (
-        await this.apiService.getDispatchersWithCount({
-          dispatcherName: dto.nick,
-          countLimit: 24,
-        })
-      ).data;
-    } catch (error) {
-      return {
-        content: 'Ups! Coś poszło nie tak podczas przetwarzania komendy!',
-        ephemeral: true,
-      };
-    }
-
-    const { dispatchers, count } = responseData;
+  async onCommand(@InteractionEvent(SlashCommandPipe) dto: DrNickDto) {
+    const { dispatchers: dispatcherHistory, count } = (
+      await this.apiService.getDispatchersWithCount({
+        dispatcherName: dto.nick,
+        countLimit: 24,
+      })
+    ).data;
 
     if (dispatchers.length == 0 || count == 0)
       return {
