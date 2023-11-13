@@ -8,6 +8,9 @@ export async function fetchTopUsers(prisma: PrismaService, topLimit = 15) {
       kofolaCount: {
         gt: 0,
       },
+      userName: {
+        not: '',
+      },
     },
 
     by: ['kofolaCount', 'userId', 'nextKofolaTime', 'userName'],
@@ -27,15 +30,9 @@ export async function getKofolaTopList(
   const topKofolaCount = await fetchTopUsers(prisma);
   const kofolaEmoji = getEmojiByName('kofola2');
 
-  const guild = await message.client.guilds.fetch(process.env['BOT_GUILD_ID']);
-  const members = await guild.members.fetch();
-
   const topList: string[] = topKofolaCount.reduce((acc, top, i) => {
-    const displayName =
-      top.userName ?? members.find((m) => m.id == top.userId)?.user.globalName;
-
     acc.push(
-      `${i + 1}. **${displayName}** - ${top.kofolaCount}l ${kofolaEmoji}`,
+      `${i + 1}. **${top.userName}** - ${top.kofolaCount}l ${kofolaEmoji}`,
     );
     return acc;
   }, [] as string[]);
