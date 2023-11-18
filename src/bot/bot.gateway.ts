@@ -20,6 +20,7 @@ import { collectEmojis } from './utils/emojiUtils';
 import { Cron } from '@nestjs/schedule';
 import { KofolaGiveway } from './serverEvents/giveway-event.service';
 import { isDevelopment } from './utils/envUtils';
+import { DailyStatsOverview } from './serverEvents/daily-stats-event.service';
 
 @Injectable()
 export class BotGateway {
@@ -29,8 +30,8 @@ export class BotGateway {
     @InjectDiscordClient()
     private readonly client: Client,
     readonly prisma: PrismaService,
-    private readonly config: ConfigService,
     private readonly giveway: KofolaGiveway,
+    private readonly dailyOverview: DailyStatsOverview,
     private readonly customCmdHandler: PrefixCommandHandler,
   ) {}
 
@@ -70,13 +71,21 @@ export class BotGateway {
   @On('messageCreate')
   @UseGuards(AdministratorCommandGuard)
   async onMessage(message: Message) {
-    if (message.content == '!test' && isDevelopment())
-      this.giveway.runGiveway();
+    if (message.content == '!test' && isDevelopment()) {
+      // this.giveway.runGiveway();
+      // this.dailyOverview.runEvent();
+    }
   }
 
-  // 21:37
+  // 21:37 - kofola event
   @Cron('37 21 * * *', { timeZone: 'Europe/Warsaw' })
   async scheduleGiveway() {
     this.giveway.runGiveway();
+  }
+
+  // 00:00:05 - stats event
+  @Cron('05 00 00 * * *', { timeZone: 'Europe/Warsaw' })
+  async scheduleStatsOverview() {
+    this.dailyOverview.runEvent();
   }
 }

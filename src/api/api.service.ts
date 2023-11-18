@@ -1,23 +1,36 @@
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { AxiosResponse } from 'axios';
-import { IDriverInfoData } from './interfaces/driverInfo.interface';
-import {
-  ITimetables,
-  ITimetablesWithCount,
-} from './interfaces/timetable.interface';
-import { IDispatcherInfoData } from './interfaces/dispatcherInfo.interface';
-import { IDispatcherHistoryData } from './interfaces/dispatcherHistory.interface';
 import { DispatchersDto } from './dtos/dispatchers.dto';
+
+import { TD2StatsDto } from '../bot/dto/td2stats.dto';
+
 import {
+  IDailyStats,
+  IDispatcherHistoryData,
+  IDispatcherInfoData,
   IDispatchers,
   IDispatchersWithCount,
-} from './interfaces/dispatcher.interface';
-import { TD2StatsDto } from '../bot/dto/td2stats.dto';
+  IDriverInfoData,
+  ITimetables,
+  ITimetablesWithCount,
+} from './interfaces/_index';
+import { DailyStatsDto } from './dtos/_index';
 
 @Injectable()
 export class ApiService {
   constructor(private readonly httpService: HttpService) {}
+
+  /* api/getDailyTimetableStats */
+  getDailyTimetableStats(
+    dto: DailyStatsDto,
+  ): Promise<AxiosResponse<IDailyStats>> {
+    return this.httpService.axiosRef.get('/api/getDailyTimetableStats', {
+      params: {
+        date: dto.date,
+      },
+    });
+  }
 
   /* api/getDispatcherHistory */
   getDispatcherHistory(

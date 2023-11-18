@@ -11,6 +11,7 @@ import { commandsIndex } from './commands';
 import { PageBuilderService } from './page_builders/builder.service';
 import { KofolaGiveway } from './serverEvents/giveway-event.service';
 import { PrefixCommandHandler } from './handlers/PrefixCommandHandler';
+import { DailyStatsOverview } from './serverEvents/daily-stats-event.service';
 
 @Module({
   imports: [DiscordModule.forFeature(), ApiModule],
@@ -22,6 +23,7 @@ import { PrefixCommandHandler } from './handlers/PrefixCommandHandler';
     BotGateway,
     PrefixCommandHandler,
     KofolaGiveway,
+    DailyStatsOverview,
     ...commandsIndex,
   ],
 })

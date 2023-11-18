@@ -37,6 +37,8 @@ function getMaxMultiplier(message: Message) {
 }
 
 function getStreakValue(prismaUser: stacjobotUsers) {
+  if (!prismaUser || !prismaUser.nextKofolaTime) return 1;
+
   const maxStreakDate = prismaUser.nextKofolaTime;
   maxStreakDate.setHours(maxStreakDate.getHours() + 12);
 
@@ -68,8 +70,6 @@ export async function addKofolaToUser(prisma: PrismaService, message: Message) {
     return;
   }
 
-  let updatedUser: stacjobotUsers;
-
   const randTimeout = randomRangeInteger(MAX_TIMEOUT_HOURS, MIN_TIMEOUT_HOURS);
   const nextTime = new Date(
     new Date().getTime() + randTimeout * 60 * 60 * 1000,
@@ -84,31 +84,55 @@ export async function addKofolaToUser(prisma: PrismaService, message: Message) {
   const motosraczekEmoji = getEmojiByName(nextMotoracekName);
   const notujEmoji = getEmojiByName('notujspeed');
 
-  if (user) {
-    updatedUser = await prisma.stacjobotUsers.update({
-      where: {
-        userId: messageAuthorId,
+  const upsertedUser = await prisma.stacjobotUsers.upsert({
+    where: {
+      userId: messageAuthorId,
+    },
+
+    create: {
+      userId: messageAuthorId,
+      nextKofolaTime: nextTime,
+      kofolaCount: randKofolaAmount,
+      kofolaMotoracek: nextMotoracekName,
+      userName: message.author.globalName || '',
+    },
+
+    update: {
+      kofolaCount: {
+        increment: randKofolaAmount,
       },
-      data: {
-        kofolaCount: {
-          increment: randKofolaAmount,
-        },
-        nextKofolaTime: nextTime,
-        kofolaMotoracek: nextMotoracekName,
-        kofolaStreak: getStreakValue(user),
-        userName: message.author.globalName || '',
-      },
-    });
-  } else
-    updatedUser = await prisma.stacjobotUsers.create({
-      data: {
-        userId: messageAuthorId,
-        nextKofolaTime: nextTime,
-        kofolaCount: randKofolaAmount,
-        kofolaMotoracek: nextMotoracekName,
-        userName: message.author.globalName || '',
-      },
-    });
+      nextKofolaTime: nextTime,
+      kofolaMotoracek: nextMotoracekName,
+      kofolaStreak: getStreakValue(user),
+      userName: message.author.globalName || '',
+    },
+  });
+
+  // if (user) {
+  //   updatedUser = await prisma.stacjobotUsers.update({
+  //     where: {
+  //       userId: messageAuthorId,
+  //     },
+  //     data: {
+  //       kofolaCount: {
+  //         increment: randKofolaAmount,
+  //       },
+  //       nextKofolaTime: nextTime,
+  //       kofolaMotoracek: nextMotoracekName,
+  //       kofolaStreak: getStreakValue(user),
+  //       userName: message.author.globalName || '',
+  //     },
+  //   });
+  // } else
+  //   updatedUser = await prisma.stacjobotUsers.create({
+  //     data: {
+  //       userId: messageAuthorId,
+  //       nextKofolaTime: nextTime,
+  //       kofolaCount: randKofolaAmount,
+  //       kofolaMotoracek: nextMotoracekName,
+  //       userName: message.author.globalName || '',
+  //     },
+  //   });
 
   const topList = await fetchTopUsers(prisma);
 
@@ -125,10 +149,10 @@ export async function addKofolaToUser(prisma: PrismaService, message: Message) {
 
   const liters = getLitersInPolish(randKofolaAmount);
   const gainMessage = `Zdobyłeś **${randKofolaAmount} ${liters}** ${kofolaEmoji}!`;
-  const totalMessage = `(Łącznie: ${updatedUser.kofolaCount})`;
+  const totalMessage = `(Łącznie: ${upsertedUser.kofolaCount})`;
 
   const nextKofolaTimestamp = getDiscordTimeFormat(
-    updatedUser.nextKofolaTime.getTime(),
+    upsertedUser.nextKofolaTime.getTime(),
     'relative',
   );
 
