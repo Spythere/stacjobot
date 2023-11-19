@@ -75,9 +75,8 @@ export async function addKofolaToUser(prisma: PrismaService, message: Message) {
     new Date().getTime() + randTimeout * 60 * 60 * 1000,
   );
 
-  const randKofolaAmount = Math.round(
-    randomRangeFloat(AMOUNT_MAX, AMOUNT_MIN) * getMaxMultiplier(message),
-  );
+  const randKofolaAmount =
+    randomRangeFloat(AMOUNT_MAX, AMOUNT_MIN, 2) * getMaxMultiplier(message);
 
   const nextMotoracekName = `motosraczek${randomRangeInteger(5, 1)}`;
 
@@ -108,32 +107,6 @@ export async function addKofolaToUser(prisma: PrismaService, message: Message) {
     },
   });
 
-  // if (user) {
-  //   updatedUser = await prisma.stacjobotUsers.update({
-  //     where: {
-  //       userId: messageAuthorId,
-  //     },
-  //     data: {
-  //       kofolaCount: {
-  //         increment: randKofolaAmount,
-  //       },
-  //       nextKofolaTime: nextTime,
-  //       kofolaMotoracek: nextMotoracekName,
-  //       kofolaStreak: getStreakValue(user),
-  //       userName: message.author.globalName || '',
-  //     },
-  //   });
-  // } else
-  //   updatedUser = await prisma.stacjobotUsers.create({
-  //     data: {
-  //       userId: messageAuthorId,
-  //       nextKofolaTime: nextTime,
-  //       kofolaCount: randKofolaAmount,
-  //       kofolaMotoracek: nextMotoracekName,
-  //       userName: message.author.globalName || '',
-  //     },
-  //   });
-
   const topList = await fetchTopUsers(prisma);
 
   const topListPlace = topList.findIndex(
@@ -147,9 +120,10 @@ export async function addKofolaToUser(prisma: PrismaService, message: Message) {
         }. miejscu** top listy zebranych kofoli! ${notujEmoji}`
       : ``;
 
-  const liters = getLitersInPolish(randKofolaAmount);
-  const gainMessage = `Zdobyłeś **${randKofolaAmount} ${liters}** ${kofolaEmoji}!`;
-  const totalMessage = `(Łącznie: ${upsertedUser.kofolaCount})`;
+  const gainMessage = `Zdobyłeś **${randKofolaAmount.toFixed(
+    2,
+  )}l** ${kofolaEmoji}!`;
+  const totalMessage = `(Łącznie: ${upsertedUser.kofolaCount.toFixed(2)})`;
 
   const nextKofolaTimestamp = getDiscordTimeFormat(
     upsertedUser.nextKofolaTime.getTime(),
@@ -157,10 +131,6 @@ export async function addKofolaToUser(prisma: PrismaService, message: Message) {
   );
 
   const nextKofolaMessage = `*Następna dostawa*: ${motosraczekEmoji} ${nextKofolaTimestamp}`;
-
-  // TODO
-  // const kofolaStreakMessage =
-  //   updatedUser.kofolaStreak > 0 ? `Streak: ${updatedUser.kofolaStreak}` : '';
 
   message.react(kofolaEmoji);
   message.reply(

@@ -4,7 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import { stacjobotUsers } from '@prisma/client';
 import { Client, Collection, GuildMember, WebhookClient } from 'discord.js';
 import { getLitersInPolish } from '../../utils/namingUtils';
-import { randomRangeInteger } from '../../utils/randomUtils';
+import { randomRangeFloat, randomRangeInteger } from '../../utils/randomUtils';
 import { getEmojiByName } from '../utils/emojiUtils';
 import { PrismaService } from '../../prisma/prisma.service';
 import { Winner } from './se.types';
@@ -99,9 +99,10 @@ export class KofolaGiveway {
           },
           data: {
             kofolaCount: {
-              increment: randomRangeInteger(
+              increment: randomRangeFloat(
                 givewaySetup.maxAmount,
                 givewaySetup.minAmount,
+                2,
               ),
             },
             lastLotteryWinner: new Date(),
@@ -130,11 +131,11 @@ export class KofolaGiveway {
       .map((w) => {
         const dcMember = dcMembers.find((m) => m.id == w.userId);
 
-        return `> - **${w.userName || dcMember.user.globalName}**: + ${
-          w.amount
-        }l ${kofolaEmoji} ▶▶ ${w.totalAfter} ${getLitersInPolish(
-          w.totalAfter,
-        )}!`;
+        return `> - **${
+          w.userName || dcMember.user.globalName
+        }**: + ${w.amount.toFixed(
+          2,
+        )}l ${kofolaEmoji} ▶▶ **${w.totalAfter.toFixed(2)}l**!`;
       });
 
     const todayString = format(new Date(), 'do MMMM Yo', { locale: pl });
