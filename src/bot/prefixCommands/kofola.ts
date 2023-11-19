@@ -62,9 +62,9 @@ export async function addKofolaToUser(prisma: PrismaService, message: Message) {
       `Twój ${motosraczekEmoji} z kofolą przyjedzie ${getDiscordTimeFormat(
         user.nextKofolaTime.getTime(),
         'relative',
-      )} ${tenseSmashEmoji} \nObecnie posiadasz: ${
-        user.kofolaCount
-      }l ${kofolaEmoji}!`,
+      )} ${tenseSmashEmoji} \nObecnie posiadasz: ${user.kofolaCount.toFixed(
+        2,
+      )}l ${kofolaEmoji}!`,
     );
 
     return;
