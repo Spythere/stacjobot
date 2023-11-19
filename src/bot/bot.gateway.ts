@@ -70,8 +70,8 @@ export class BotGateway {
   @UseGuards(AdministratorCommandGuard)
   async onMessage(message: Message) {
     if (message.content == '!test' && isDevelopment()) {
-      this.giveway.runGiveway();
-      // this.dailyOverview.runEvent();
+      // this.giveway.runGiveway();
+      this.dailyOverview.runEvent();
     }
   }
 
@@ -82,7 +82,7 @@ export class BotGateway {
   }
 
   // 00:00:05 - stats event
-  // @Cron('05 00 00 * * *', { timeZone: 'Europe/Warsaw' })
+  @Cron('05 00 00 * * *', { timeZone: 'Europe/Warsaw' })
   async scheduleStatsOverview() {
     this.dailyOverview.runEvent();
   }

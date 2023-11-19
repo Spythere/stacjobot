@@ -6,6 +6,7 @@ import { WebhookMessageCreateOptions } from 'discord.js';
 import { ApiService } from '../../api/api.service';
 import { IDailyStats } from '../../api/interfaces/_index';
 import {
+  format,
   formatDuration,
   formatISO,
   getUnixTime,
@@ -42,7 +43,6 @@ export class DailyStatsOverview {
   }
 
   private async fetchLastDayStats(): Promise<IDailyStats> {
-    // const lastDayDateString = DateTime.now().minus({ day: 1 }).toISODate();
     const lastDayDateString = formatISO(subDays(new Date(), 1), {
       representation: 'date',
     });
@@ -80,7 +80,7 @@ export class DailyStatsOverview {
         start: 0,
         end: duration,
       }),
-      { locale: pl },
+      { locale: pl, format: ['hours', 'minutes'] },
     );
 
     return `- najdłuższa służba: \`${name}\` - **${longestDutyTime}** na scenerii ${station}`;
@@ -93,7 +93,7 @@ export class DailyStatsOverview {
     const { distance, name } = statsData.mostActiveDrivers[0];
 
     const distanceFixed = distance.toFixed(2);
-    return `- najaktywniejszy maszynista: \`${name}\` - przejechany dystans **${distanceFixed}km**`;
+    return `- najaktywniejszy maszynista: \`${name}\` - potwierdzony dystans **${distanceFixed}km**`;
   }
 
   private getTopDispatcherMessage(statsData: IDailyStats) {
@@ -126,10 +126,11 @@ export class DailyStatsOverview {
   private prepareDiscordMessage(
     statsData: IDailyStats,
   ): WebhookMessageCreateOptions {
-    const dateUnix = getUnixTime(startOfDay(subDays(new Date(), 1)));
+    const todayString = format(new Date(), 'do MMMM Yo', { locale: pl });
 
     const contentLines = [
-      `# :bar_chart: STATYSTYKI TD2 Z DNIA <t:${dateUnix}:D>`,
+      `# :crescent_moon: MINĘŁA PÓŁNOC DNIA ${todayString.toUpperCase()}!`,
+      `## Podsumowanie statystyk TD2 z ostatnich 24 godzin:`,
 
       this.getGlobalStatsMessage(statsData),
       this.getTopStatsMessage(statsData),
