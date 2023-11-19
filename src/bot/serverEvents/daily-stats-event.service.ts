@@ -15,6 +15,7 @@ import {
   subDays,
 } from 'date-fns';
 import { pl } from 'date-fns/locale';
+import { getEmojiByName } from '../utils/emojiUtils';
 
 @Injectable()
 export class DailyStatsOverview {
@@ -116,7 +117,7 @@ export class DailyStatsOverview {
 
   private getOtherStatsMessage(statsData: IDailyStats) {
     return [
-      `### <:kofola2:1107627668293292083> INNE`,
+      `### ${getEmojiByName('kofola2')} INNE`,
       `- stworzone rozkłady jazdy: **${statsData.totalTimetables}**`,
       `- łączny dystans RJ: **${statsData.distanceSum.toFixed(2)}km**`,
       `- średnia długość RJ: **${statsData.distanceAvg.toFixed(2)}km**`,
