@@ -116,7 +116,7 @@ export class DailyStatsOverview {
 
   private getOtherStatsMessage(statsData: IDailyStats) {
     return [
-      `### <:kofola2:1141496846636830771> INNE`,
+      `### <:kofola2:1107627668293292083> INNE`,
       `- stworzone rozkłady jazdy: **${statsData.totalTimetables}**`,
       `- łączny dystans RJ: **${statsData.distanceSum.toFixed(2)}km**`,
       `- średnia długość RJ: **${statsData.distanceAvg.toFixed(2)}km**`,
