@@ -8,6 +8,9 @@ import { randomRangeInteger } from '../../utils/randomUtils';
 import { getEmojiByName } from '../utils/emojiUtils';
 import { PrismaService } from '../../prisma/prisma.service';
 import { Winner } from './se.types';
+import { pl } from 'date-fns/locale';
+import { formatWithOptions } from 'date-fns/fp';
+import { format } from 'date-fns';
 
 const givewaySetup = {
   maxAmount: 5,
@@ -32,14 +35,9 @@ export class KofolaGiveway {
   }
 
   async runGiveway() {
-    const dcGuild = await this.client.guilds.fetch(
-      this.config.get<string>('BOT_GUILD_ID'),
-    );
-
-    const dcMembers = await dcGuild.members.fetch();
-
-    const users = await this.fetchRandomizedUsers();
-    const drawnUsers = await this.drawUsers(dcMembers, users);
+    const guildMembers = await this.fetchDiscGuildMembers();
+    const dbUsers = await this.fetchRandomDbUsers();
+    const drawnUsers = await this.filterFetchedUsers(guildMembers, dbUsers);
 
     if (drawnUsers.length == 0) {
       this.webhookClient.send({
@@ -50,12 +48,19 @@ export class KofolaGiveway {
       return;
     }
 
-    const winners = await this.processWinners(drawnUsers);
-
-    this.displayWinners(dcMembers, winners);
+    const winners = await this.updateWinners(drawnUsers);
+    this.displayWinners(guildMembers, winners);
   }
 
-  private async fetchRandomizedUsers(): Promise<stacjobotUsers[]> {
+  private async fetchDiscGuildMembers() {
+    const dcGuild = await this.client.guilds.fetch(
+      this.config.get<string>('BOT_GUILD_ID'),
+    );
+
+    return await dcGuild.members.fetch();
+  }
+
+  private async fetchRandomDbUsers(): Promise<stacjobotUsers[]> {
     // Dev environment
     if (process.env['NODE_ENV'] === 'development')
       return await this.prisma
@@ -65,7 +70,7 @@ export class KofolaGiveway {
       .$queryRaw`SELECT * FROM "stacjobotUsers" WHERE "nextKofolaTime" > (current_timestamp - interval '4 days') AND "kofolaExcluded"=False ORDER BY random() LIMIT 50;`;
   }
 
-  private async drawUsers(
+  private async filterFetchedUsers(
     dcMembers: Collection<string, GuildMember>,
     users: stacjobotUsers[],
   ) {
@@ -85,38 +90,33 @@ export class KofolaGiveway {
     return drawnUsers.slice(0, drawCount);
   }
 
-  private async processWinners(drawnUsers: stacjobotUsers[]) {
-    const winners: Winner[] = [];
-
-    for (let i = 0; i < drawnUsers.length; i++) {
-      const user = drawnUsers[i];
-
-      const randAmount = randomRangeInteger(
-        givewaySetup.maxAmount,
-        givewaySetup.minAmount,
-      );
-
-      const updatedWinner = await this.prisma.stacjobotUsers.update({
-        where: {
-          userId: user.userId,
-        },
-        data: {
-          kofolaCount: {
-            increment: randAmount,
+  private async updateWinners(drawnUsers: stacjobotUsers[]): Promise<Winner[]> {
+    const updatedUsers = await this.prisma.$transaction([
+      ...drawnUsers.map((user) =>
+        this.prisma.stacjobotUsers.update({
+          where: {
+            userId: user.userId,
           },
-          lastLotteryWinner: new Date(),
-        },
-      });
+          data: {
+            kofolaCount: {
+              increment: randomRangeInteger(
+                givewaySetup.maxAmount,
+                givewaySetup.minAmount,
+              ),
+            },
+            lastLotteryWinner: new Date(),
+          },
+        }),
+      ),
+    ]);
 
-      winners.push({
-        userId: user.userId,
-        userName: user.userName,
-        amount: randAmount,
-        totalAfter: updatedWinner.kofolaCount,
-      });
-    }
-
-    return winners.sort((w1, w2) => w2.amount - w1.amount);
+    return updatedUsers.map((user) => ({
+      userId: user.userId,
+      userName: user.userName,
+      amount:
+        user.kofolaCount - drawnUsers.find((u) => u.id == user.id)!.kofolaCount,
+      totalAfter: user.kofolaCount,
+    }));
   }
 
   private async displayWinners(
@@ -125,20 +125,22 @@ export class KofolaGiveway {
   ) {
     const kofolaEmoji = getEmojiByName('kofola2');
 
-    const winnerDisplay = winners.map((w) => {
-      const dcMember = dcMembers.find((m) => m.id == w.userId);
+    const winnerDisplay = winners
+      .sort((w1, w2) => w2.amount - w1.amount)
+      .map((w) => {
+        const dcMember = dcMembers.find((m) => m.id == w.userId);
 
-      return `> - **${w.userName || dcMember.user.globalName}**: + ${
-        w.amount
-      }l ${kofolaEmoji} ▶▶ ${w.totalAfter} ${getLitersInPolish(
-        w.totalAfter,
-      )}!`;
-    });
+        return `> - **${w.userName || dcMember.user.globalName}**: + ${
+          w.amount
+        }l ${kofolaEmoji} ▶▶ ${w.totalAfter} ${getLitersInPolish(
+          w.totalAfter,
+        )}!`;
+      });
 
-    const timestamp = ~~(Date.now() / 1000);
+    const todayString = format(new Date(), 'do MMMM Yo', { locale: pl });
 
     const contentLines = [
-      `# ${kofolaEmoji} __STACJOWNIKOWA KOFOLOTERIA DNIA__ <t:${timestamp}:D> ${kofolaEmoji}`,
+      `# ${kofolaEmoji} __STACJOWNIKOWA KOFOLOTERIA DNIA ${todayString.toUpperCase()}__ ${kofolaEmoji}`,
       '# Dzisiejszymi zwycięzcami są:',
       winnerDisplay.join('\n'),
       '',

@@ -7,7 +7,6 @@ import {
   Interaction,
   InteractionType,
   Message,
-  WebhookClient,
 } from 'discord.js';
 import { PrefixCommandHandler } from './handlers/PrefixCommandHandler';
 import { PrismaService } from '../prisma/prisma.service';
@@ -15,7 +14,6 @@ import {
   AdministratorCommandGuard,
   PrefixCommandGuard,
 } from './guards/command.guard';
-import { ConfigService } from '@nestjs/config';
 import { collectEmojis } from './utils/emojiUtils';
 import { Cron } from '@nestjs/schedule';
 import { KofolaGiveway } from './serverEvents/giveway-event.service';
@@ -72,7 +70,7 @@ export class BotGateway {
   @UseGuards(AdministratorCommandGuard)
   async onMessage(message: Message) {
     if (message.content == '!test' && isDevelopment()) {
-      // this.giveway.runGiveway();
+      this.giveway.runGiveway();
       // this.dailyOverview.runEvent();
     }
   }
