@@ -7,7 +7,7 @@ import { Injectable, Logger } from '@nestjs/common';
 export class EmojiCommandHandler {
   private readonly logger = new Logger('EmojiCmd');
 
-  constructor(private readonly prisma: PrismaService) {} // !commands
+  constructor(private readonly prisma: PrismaService) {}
 
   private logCommand(message: Message) {
     this.logger.log(
