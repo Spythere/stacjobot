@@ -83,6 +83,12 @@ export async function addKofolaToUser(prisma: PrismaService, message: Message) {
   const motosraczekEmoji = getEmojiByName(nextMotoracekName);
   const notujEmoji = getEmojiByName('notujspeed');
 
+  const userName =
+    message.author.globalName ??
+    message.author.displayName ??
+    message.author.username ??
+    '';
+
   const upsertedUser = await prisma.stacjobotUsers.upsert({
     where: {
       userId: messageAuthorId,
@@ -93,7 +99,7 @@ export async function addKofolaToUser(prisma: PrismaService, message: Message) {
       nextKofolaTime: nextTime,
       kofolaCount: randKofolaAmount,
       kofolaMotoracek: nextMotoracekName,
-      userName: message.author.globalName || '',
+      userName,
     },
 
     update: {
@@ -103,7 +109,7 @@ export async function addKofolaToUser(prisma: PrismaService, message: Message) {
       nextKofolaTime: nextTime,
       kofolaMotoracek: nextMotoracekName,
       kofolaStreak: getStreakValue(user),
-      userName: message.author.globalName || '',
+      userName,
     },
   });
 

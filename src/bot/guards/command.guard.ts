@@ -1,7 +1,7 @@
 import { CanActivate, ExecutionContext } from '@nestjs/common';
 import { Message, PermissionFlagsBits } from 'discord.js';
 
-const accepted = [
+const acceptedPrefix = [
   'kofola',
   'dajmute',
   'topkofola',
@@ -10,12 +10,27 @@ const accepted = [
   'dajmatza',
 ];
 
+const acceptedEmoji = [`<:kofola2:1107627668293292083>`];
+
 export class PrefixCommandGuard implements CanActivate {
   canActivate(context: ExecutionContext): boolean {
     const message = context.getArgByIndex(0);
     if (message.author.bot) return false;
 
-    return new RegExp(`^!(${accepted.join('|')})$`, 'i').test(message.content);
+    return new RegExp(`^!(${acceptedPrefix.join('|')})$`, 'i').test(
+      message.content,
+    );
+  }
+}
+
+export class EmojiCommandGuard implements CanActivate {
+  canActivate(context: ExecutionContext): boolean {
+    const message = context.getArgByIndex(0);
+    if (message.author.bot) return false;
+
+    return new RegExp(`^(${acceptedEmoji.join('|')})$`, 'i').test(
+      message.content,
+    );
   }
 }
 
