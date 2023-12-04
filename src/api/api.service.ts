@@ -25,7 +25,7 @@ export class ApiService {
   getDailyTimetableStats(
     dto: DailyStatsDto,
   ): Promise<AxiosResponse<IDailyStats>> {
-    return this.httpService.axiosRef.get('/api/getDailyTimetableStats', {
+    return this.httpService.axiosRef.get('/api/getDailyStats', {
       params: {
         date: dto.date,
       },

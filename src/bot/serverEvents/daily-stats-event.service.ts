@@ -106,12 +106,32 @@ export class DailyStatsOverview {
     return `- najaktywniejszy dyżurny: \`${name}\` - stworzył **${count} RJ**`;
   }
 
+  private getTopTimetableMessage(statsData: IDailyStats) {
+    if (!statsData.maxTimetable) return `- najdłuższy RJ: *brak danych*`;
+
+    const {
+      driverName,
+      routeDistance,
+      route,
+      trainNo,
+      trainCategoryCode,
+      id,
+      authorName,
+    } = statsData.maxTimetable;
+
+    return `- najdłuższy RJ: \`#${id}\` \`${trainCategoryCode} ${trainNo} ${route.replace(
+      '|',
+      ' -> ',
+    )}\` - **${routeDistance}km** (stworzył \`${driverName}\` dla \`${authorName}\`)`;
+  }
+
   private getTopStatsMessage(statsData: IDailyStats) {
     return [
       `### :first_place: PODIUM`,
       this.getTopDutyMessage(statsData),
       this.getTopDriverMessage(statsData),
       this.getTopDispatcherMessage(statsData),
+      this.getTopTimetableMessage(statsData),
     ].join('\n');
   }
 
