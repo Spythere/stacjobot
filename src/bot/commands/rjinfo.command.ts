@@ -1,10 +1,5 @@
 import { CollectorInterceptor, SlashCommandPipe } from '@discord-nestjs/common';
-import {
-  Command,
-  Handler,
-  InteractionEvent,
-  UseCollectors,
-} from '@discord-nestjs/core';
+import { Command, Handler, InteractionEvent, UseCollectors } from '@discord-nestjs/core';
 
 import { RjNickDto } from '../dto/rjnick.dto';
 import { InteractionReplyOptions } from 'discord.js';
@@ -22,9 +17,7 @@ export class RjInfoCmd {
   constructor(private pageBuilder: TimetablePageBuilder) {}
 
   @Handler()
-  async onCommand(
-    @InteractionEvent(SlashCommandPipe) dto: RjNickDto,
-  ): Promise<InteractionReplyOptions> {
+  async onCommand(@InteractionEvent(SlashCommandPipe) dto: RjNickDto): Promise<InteractionReplyOptions> {
     return await this.pageBuilder.generatePage(dto.nick, 1);
   }
 }

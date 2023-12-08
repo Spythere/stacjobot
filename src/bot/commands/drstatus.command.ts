@@ -13,9 +13,7 @@ export class DrStatusCmd {
   constructor(private prisma: PrismaService) {}
 
   @Handler()
-  async onCommand(
-    @IA(SlashCommandPipe) dto: DrStatusDto,
-  ): Promise<InteractionReplyOptions> {
+  async onCommand(@IA(SlashCommandPipe) dto: DrStatusDto): Promise<InteractionReplyOptions> {
     const drServices = await this.prisma.dispatchers.findMany({
       where: {
         dispatcherName: {
@@ -38,21 +36,15 @@ export class DrStatusCmd {
       };
 
     const embed = new EmbedBuilder()
-      .setTitle(
-        `Ostatnie zmiany statusów dyżurnego ${drServices[0].dispatcherName}`,
-      )
+      .setTitle(`Ostatnie zmiany statusów dyżurnego ${drServices[0].dispatcherName}`)
       .setFields(
         drServices.map((serv) => {
-          const dcDateTimestamp = `<t:${~~(
-            serv.createdAt.getTime() / 1000
-          )}:D>`;
+          const dcDateTimestamp = `<t:${~~(serv.createdAt.getTime() / 1000)}:D>`;
 
           const statusList = serv.statusHistory.reverse().map((sh) => {
             const [timestamp, status] = sh.split('@');
             const dcTimeTimestamp = `<t:${~~(+timestamp / 1000)}:t>`;
-            const formattedStatus = DispatcherUtils.getDispatcherStatus(
-              +status,
-            );
+            const formattedStatus = DispatcherUtils.getDispatcherStatus(+status);
 
             return `- ${dcTimeTimestamp}: ${formattedStatus}`;
           });

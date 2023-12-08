@@ -5,9 +5,9 @@ export abstract class DriverUtils {
     return timetables
       .map(
         (tt) =>
-          `${tt.driverName} | ${tt.trainCategoryCode} ${tt.trainNo} (${
-            tt.routeDistance
-          }km) \n ID: #${tt.id} \n ${tt.route.replace('|', ' -> ')}`,
+          `${tt.driverName} | ${tt.trainCategoryCode} ${tt.trainNo} (${tt.routeDistance}km) \n ID: #${
+            tt.id
+          } \n ${tt.route.replace('|', ' -> ')}`,
       )
       .join('\n\n');
   }

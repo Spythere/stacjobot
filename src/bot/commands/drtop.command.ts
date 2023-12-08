@@ -12,9 +12,7 @@ export class DrTopCmd {
   constructor(private prisma: PrismaService) {}
 
   @Handler()
-  async onCommand(
-    @InteractionEvent(SlashCommandPipe) dto: DrTopDto,
-  ): Promise<InteractionReplyOptions> {
+  async onCommand(@InteractionEvent(SlashCommandPipe) dto: DrTopDto): Promise<InteractionReplyOptions> {
     const embed = new EmbedBuilder().setColor('Random');
 
     switch (dto.type) {

@@ -21,14 +21,7 @@ export class TimetablePageBuilder {
           Date.now() - timeStart,
         ),
       ],
-      components: [
-        PageBuilderUtils.generateButtons(
-          'rjinfo',
-          nick,
-          currentPage,
-          driverInfo._count._all,
-        ),
-      ],
+      components: [PageBuilderUtils.generateButtons('rjinfo', nick, currentPage, driverInfo._count._all)],
       ephemeral: true,
     };
   }
@@ -74,9 +67,7 @@ export class TimetablePageBuilder {
       },
       ...timetables.map((timetable) => {
         return {
-          name: `${timetable.trainCategoryCode} ${
-            timetable.trainNo
-          } | ${timetable.route.replace('|', ' > ')}`,
+          name: `${timetable.trainCategoryCode} ${timetable.trainNo} | ${timetable.route.replace('|', ' > ')}`,
           value: `#ID: ${timetable.id}\nKilometry: ${timetable.currentDistance} / ${timetable.routeDistance}km\nStacje: ${timetable.confirmedStopsCount} / ${timetable.allStopsCount}`,
         };
       }),

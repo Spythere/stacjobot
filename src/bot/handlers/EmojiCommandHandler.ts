@@ -10,9 +10,7 @@ export class EmojiCommandHandler {
   constructor(private readonly prisma: PrismaService) {}
 
   private logCommand(message: Message) {
-    this.logger.log(
-      `${message.author.username} (${message.author.id}): ${message.content}`,
-    );
+    this.logger.log(`${message.author.username} (${message.author.id}): ${message.content}`);
   }
 
   public handleCommands(message: Message) {

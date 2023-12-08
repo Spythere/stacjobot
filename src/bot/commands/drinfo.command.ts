@@ -14,9 +14,7 @@ export class DrInfoCmd {
   constructor(private readonly apiService: ApiService) {}
 
   @Handler()
-  async onCommand(
-    @InteractionEvent(SlashCommandPipe) dto: DrNickDto,
-  ): Promise<InteractionReplyOptions> {
+  async onCommand(@InteractionEvent(SlashCommandPipe) dto: DrNickDto): Promise<InteractionReplyOptions> {
     let drStats: IDispatcherInfoData;
     try {
       drStats = (await this.apiService.getDispatcherInfo(dto.nick)).data;

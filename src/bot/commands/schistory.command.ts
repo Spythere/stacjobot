@@ -18,9 +18,7 @@ export class ScHistoryCmd {
   constructor(private pageBuilder: SceneryPageBuilder) {}
 
   @Handler()
-  async onCommand(
-    @IA(SlashCommandPipe) dto: ScHistoryDto,
-  ): Promise<InteractionReplyOptions> {
+  async onCommand(@IA(SlashCommandPipe) dto: ScHistoryDto): Promise<InteractionReplyOptions> {
     const page = await this.pageBuilder.generatePage(dto.sceneryName, 1);
 
     return page;

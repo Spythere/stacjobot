@@ -1,12 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import {
-  ActionRowBuilder,
-  ButtonBuilder,
-  ButtonInteraction,
-  ButtonStyle,
-  CacheType,
-  EmbedBuilder,
-} from 'discord.js';
+import { ActionRowBuilder, ButtonBuilder, ButtonInteraction, ButtonStyle, CacheType, EmbedBuilder } from 'discord.js';
 import { ApiService } from '../../api/api.service';
 import { ITimetable } from '../../api/interfaces/timetable.interface';
 
@@ -14,10 +7,7 @@ import { ITimetable } from '../../api/interfaces/timetable.interface';
 export class ScRjPageBuilder {
   constructor(private apiService: ApiService) {}
 
-  async interactionController(
-    i: ButtonInteraction<CacheType>,
-    customId: string,
-  ) {
+  async interactionController(i: ButtonInteraction<CacheType>, customId: string) {
     if (!customId.startsWith('btn-scrj')) return;
 
     const btnInfo = customId.split('-');
@@ -30,9 +20,7 @@ export class ScRjPageBuilder {
   async generateSceneryPage(stationName: string, currentPage: number) {
     const timeStart = Date.now();
 
-    const { timetables, count } = (
-      await this.fetchIssuedTimetables(stationName, currentPage)
-    ).data;
+    const { timetables, count } = (await this.fetchIssuedTimetables(stationName, currentPage)).data;
 
     if (count == 0 || timetables.length == 0)
       return {
@@ -40,11 +28,7 @@ export class ScRjPageBuilder {
         ephemeral: true,
       };
 
-    const buttonsRow = this.generateSceneryButtons(
-      stationName,
-      currentPage,
-      count,
-    );
+    const buttonsRow = this.generateSceneryButtons(stationName, currentPage, count);
 
     const sceneryEmbed = this.generateSceneryEmbed(
       timetables,
@@ -69,11 +53,7 @@ export class ScRjPageBuilder {
     });
   }
 
-  private generateSceneryButtons(
-    stationName: string,
-    currentPage: number,
-    totalDocsCount: number,
-  ) {
+  private generateSceneryButtons(stationName: string, currentPage: number, totalDocsCount: number) {
     const prevPage = currentPage == 1 ? 1 : currentPage - 1;
     const nextPage = currentPage + 1;
     const lastPage = Math.ceil(totalDocsCount / 10);
@@ -124,12 +104,8 @@ export class ScRjPageBuilder {
     const indexTo = indexFrom + 9 < totalCount ? indexFrom + 9 : totalCount;
 
     const embed = new EmbedBuilder();
-    embed.setTitle(
-      `Rozkłady jazdy wystawione na scenerii ${originalSceneryName}`,
-    );
-    embed.setDescription(
-      `Wyświetlane pozycje w bazie: ${indexFrom}-${indexTo} z ${totalCount}`,
-    );
+    embed.setTitle(`Rozkłady jazdy wystawione na scenerii ${originalSceneryName}`);
+    embed.setDescription(`Wyświetlane pozycje w bazie: ${indexFrom}-${indexTo} z ${totalCount}`);
 
     embed.setColor('Random');
 
@@ -138,13 +114,9 @@ export class ScRjPageBuilder {
         const createdAtDate = new Date(doc.createdAt);
         const beginDate = new Date(doc.beginDate);
 
-        const timetableStartTimestamp = ~~(
-          (beginDate < createdAtDate ? beginDate : createdAtDate).getTime() /
-          1000
-        );
+        const timetableStartTimestamp = ~~((beginDate < createdAtDate ? beginDate : createdAtDate).getTime() / 1000);
 
-        const author =
-          doc.authorName != null ? ` wystawił: ${doc.authorName}` : '';
+        const author = doc.authorName != null ? ` wystawił: ${doc.authorName}` : '';
 
         const route = doc.route.replace('|', ' > ');
 

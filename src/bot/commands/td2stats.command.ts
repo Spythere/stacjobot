@@ -1,11 +1,6 @@
 import { SlashCommandPipe } from '@discord-nestjs/common';
 import { Command, Handler, InteractionEvent } from '@discord-nestjs/core';
-import {
-  InteractionReplyOptions,
-  EmbedBuilder,
-  Attachment,
-  AttachmentBuilder,
-} from 'discord.js';
+import { InteractionReplyOptions, EmbedBuilder, Attachment, AttachmentBuilder } from 'discord.js';
 import { PrismaService } from '../../prisma/prisma.service';
 import { TD2StatsDto } from '../dto/td2stats.dto';
 import { ApiService } from '../../api/api.service';
@@ -21,9 +16,7 @@ export class TD2StatsCmd {
   ) {}
 
   @Handler()
-  async onCommand(
-    @InteractionEvent(SlashCommandPipe) dto: TD2StatsDto,
-  ): Promise<InteractionReplyOptions> {
+  async onCommand(@InteractionEvent(SlashCommandPipe) dto: TD2StatsDto): Promise<InteractionReplyOptions> {
     const graph = await this.apiService.getTrafficStats(dto);
 
     const imageAttachment = new AttachmentBuilder(graph.data);

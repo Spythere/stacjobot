@@ -1,14 +1,7 @@
 import { CanActivate, ExecutionContext } from '@nestjs/common';
 import { Message, PermissionFlagsBits } from 'discord.js';
 
-const acceptedPrefix = [
-  'kofola',
-  'dajmute',
-  'topkofola',
-  'test',
-  'dajbana',
-  'dajmatza',
-];
+const acceptedPrefix = ['kofola', 'dajmute', 'topkofola', 'test', 'dajbana', 'dajmatza'];
 
 const emojiRules = [
   {
@@ -22,9 +15,7 @@ export class PrefixCommandGuard implements CanActivate {
     const message = context.getArgByIndex(0);
     if (message.author.bot) return false;
 
-    return new RegExp(`^!(${acceptedPrefix.join('|')})$`, 'i').test(
-      message.content,
-    );
+    return new RegExp(`^!(${acceptedPrefix.join('|')})$`, 'i').test(message.content);
   }
 }
 
@@ -35,11 +26,7 @@ export class EmojiCommandGuard implements CanActivate {
     if (!('author' in message)) return false;
     if (message.author.bot) return false;
 
-    return (
-      emojiRules
-        .find((rule) => rule.emojiId === message.content)
-        ?.channels.includes(message.channelId) ?? false
-    );
+    return emojiRules.find((rule) => rule.emojiId === message.content)?.channels.includes(message.channelId) ?? false;
   }
 }
 

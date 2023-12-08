@@ -1,15 +1,6 @@
-import {
-  Filter,
-  InjectCauseEvent,
-  InteractionEventCollector,
-  On,
-} from '@discord-nestjs/core';
+import { Filter, InjectCauseEvent, InteractionEventCollector, On } from '@discord-nestjs/core';
 import { Injectable, Scope } from '@nestjs/common';
-import {
-  ButtonInteraction,
-  ChatInputCommandInteraction,
-  InteractionUpdateOptions,
-} from 'discord.js';
+import { ButtonInteraction, ChatInputCommandInteraction, InteractionUpdateOptions } from 'discord.js';
 import { PageBuilderService } from '../page_builders/builder.service';
 import { BuilderId, builderIds } from '../page_builders/builder.interfaces';
 
@@ -44,8 +35,6 @@ export class ButtonInteractionCollector {
     const name = btnInfo[1];
     const pageNo = Number(btnInfo[2]);
 
-    i.update(
-      await this.pageBuilder.generatePage(id as BuilderId, name, pageNo),
-    );
+    i.update(await this.pageBuilder.generatePage(id as BuilderId, name, pageNo));
   }
 }

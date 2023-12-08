@@ -23,17 +23,11 @@ const roleMultipliers = {
 };
 
 function getMaxMultiplier(message: Message) {
-  if (message.member.permissions.has(PermissionsBitField.Flags.Administrator))
-    return roleMultipliers['Spythere'];
+  if (message.member.permissions.has(PermissionsBitField.Flags.Administrator)) return roleMultipliers['Spythere'];
 
-  const multipliedRoles = message.member.roles.cache.filter((role) =>
-    Object.keys(roleMultipliers).includes(role.name),
-  );
+  const multipliedRoles = message.member.roles.cache.filter((role) => Object.keys(roleMultipliers).includes(role.name));
 
-  return Math.max(
-    1,
-    ...multipliedRoles.map((role) => roleMultipliers[role.name]),
-  );
+  return Math.max(1, ...multipliedRoles.map((role) => roleMultipliers[role.name]));
 }
 
 function getStreakValue(prismaUser: stacjobotUsers) {
@@ -62,32 +56,23 @@ export async function addKofolaToUser(prisma: PrismaService, message: Message) {
       `Twój ${motosraczekEmoji} z kofolą przyjedzie ${getDiscordTimeFormat(
         user.nextKofolaTime.getTime(),
         'relative',
-      )} ${tenseSmashEmoji} \nObecnie posiadasz: ${user.kofolaCount.toFixed(
-        2,
-      )}l ${kofolaEmoji}!`,
+      )} ${tenseSmashEmoji} \nObecnie posiadasz: ${user.kofolaCount.toFixed(2)}l ${kofolaEmoji}!`,
     );
 
     return;
   }
 
   const randTimeout = randomRangeInteger(MAX_TIMEOUT_HOURS, MIN_TIMEOUT_HOURS);
-  const nextTime = new Date(
-    new Date().getTime() + randTimeout * 60 * 60 * 1000,
-  );
+  const nextTime = new Date(new Date().getTime() + randTimeout * 60 * 60 * 1000);
 
-  const randKofolaAmount =
-    randomRangeFloat(AMOUNT_MAX, AMOUNT_MIN, 2) * getMaxMultiplier(message);
+  const randKofolaAmount = randomRangeFloat(AMOUNT_MAX, AMOUNT_MIN, 2) * getMaxMultiplier(message);
 
   const nextMotoracekName = `motosraczek${randomRangeInteger(5, 1)}`;
 
   const motosraczekEmoji = getEmojiByName(nextMotoracekName);
   const notujEmoji = getEmojiByName('notujspeed');
 
-  const userName =
-    message.author.globalName ??
-    message.author.displayName ??
-    message.author.username ??
-    '';
+  const userName = message.author.globalName ?? message.author.displayName ?? message.author.username ?? '';
 
   const upsertedUser = await prisma.stacjobotUsers.upsert({
     where: {
@@ -115,31 +100,20 @@ export async function addKofolaToUser(prisma: PrismaService, message: Message) {
 
   const topList = await fetchTopUsers(prisma);
 
-  const topListPlace = topList.findIndex(
-    (top) => top.userId == messageAuthorId,
-  );
+  const topListPlace = topList.findIndex((top) => top.userId == messageAuthorId);
 
   const topPlaceMessage =
     topListPlace != -1
-      ? `\n${notujEmoji} Obecnie jesteś na **${
-          topListPlace + 1
-        }. miejscu** top listy zebranych kofoli! ${notujEmoji}`
+      ? `\n${notujEmoji} Obecnie jesteś na **${topListPlace + 1}. miejscu** top listy zebranych kofoli! ${notujEmoji}`
       : ``;
 
-  const gainMessage = `Zdobyłeś **${randKofolaAmount.toFixed(
-    2,
-  )}l** ${kofolaEmoji}!`;
+  const gainMessage = `Zdobyłeś **${randKofolaAmount.toFixed(2)}l** ${kofolaEmoji}!`;
   const totalMessage = `(Łącznie: ${upsertedUser.kofolaCount.toFixed(2)})`;
 
-  const nextKofolaTimestamp = getDiscordTimeFormat(
-    upsertedUser.nextKofolaTime.getTime(),
-    'relative',
-  );
+  const nextKofolaTimestamp = getDiscordTimeFormat(upsertedUser.nextKofolaTime.getTime(), 'relative');
 
   const nextKofolaMessage = `*Następna dostawa*: ${motosraczekEmoji} ${nextKofolaTimestamp}`;
 
   message.react(kofolaEmoji);
-  message.reply(
-    `${gainMessage} ${totalMessage}\n${nextKofolaMessage}${topPlaceMessage}`,
-  );
+  message.reply(`${gainMessage} ${totalMessage}\n${nextKofolaMessage}${topPlaceMessage}`);
 }

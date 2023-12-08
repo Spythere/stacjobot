@@ -14,28 +14,20 @@ function getFormattedTimeout(minutesTotal: number) {
 }
 
 export async function randomMuteUser(message: Message) {
-  const randMinutesTotal = ~~(
-    Math.random() * (MAX_TIMEOUT_MINUTES - MIN_TIMEOUT_MINUTES) +
-    MIN_TIMEOUT_MINUTES
-  );
+  const randMinutesTotal = ~~(Math.random() * (MAX_TIMEOUT_MINUTES - MIN_TIMEOUT_MINUTES) + MIN_TIMEOUT_MINUTES);
 
   try {
-    if (!isDevelopment())
-      await message.member.timeout(randMinutesTotal * 60 * 1000);
+    if (!isDevelopment()) await message.member.timeout(randMinutesTotal * 60 * 1000);
 
     const rewidentEmoji = getEmojiByName('rewident');
     const formattedTimeout = getFormattedTimeout(randMinutesTotal);
 
     message.react(rewidentEmoji);
 
-    message.reply(
-      `Gratulacje, <@${message.member.id}>! Dostałeś ${formattedTimeout} przerwy! ${rewidentEmoji}`,
-    );
+    message.reply(`Gratulacje, <@${message.member.id}>! Dostałeś ${formattedTimeout} przerwy! ${rewidentEmoji}`);
   } catch (error) {
     const bagietyEmoji = getEmojiByName('bagiety');
 
-    message.reply(
-      `Niestety, obecny reżim nie pozwala na mutowanie oficjeli na wysokich stanowiskach! ${bagietyEmoji}`,
-    );
+    message.reply(`Niestety, obecny reżim nie pozwala na mutowanie oficjeli na wysokich stanowiskach! ${bagietyEmoji}`);
   }
 }

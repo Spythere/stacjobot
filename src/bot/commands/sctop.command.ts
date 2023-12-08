@@ -17,9 +17,7 @@ export class ScTopCmd {
   constructor(private prisma: PrismaService) {}
 
   @Handler()
-  async onCommand(
-    @InteractionEvent(SlashCommandPipe) dto: ScTopDto,
-  ): Promise<InteractionReplyOptions> {
+  async onCommand(@InteractionEvent(SlashCommandPipe) dto: ScTopDto): Promise<InteractionReplyOptions> {
     switch (dto.type) {
       case ScTopChoices['Liczba wypełnionych dyżurów']:
         return this.onServiceCountChoice(dto.name);
@@ -39,9 +37,7 @@ export class ScTopCmd {
       };
 
     const embed = new EmbedBuilder();
-    embed.setTitle(
-      `TOP LISTA DYŻURÓW NA SCENERII ${sceneryName.toUpperCase()}`,
-    );
+    embed.setTitle(`TOP LISTA DYŻURÓW NA SCENERII ${sceneryName.toUpperCase()}`);
     embed.setColor('Random');
 
     embed.addFields(

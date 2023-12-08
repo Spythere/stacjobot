@@ -1,18 +1,8 @@
-import {
-  ActionRowBuilder,
-  ButtonBuilder,
-  ButtonStyle,
-  EmbedBuilder,
-} from 'discord.js';
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder } from 'discord.js';
 import { BuilderId } from './builder.interfaces';
 
 export class PageBuilderUtils {
-  static generateButtons(
-    builderId: BuilderId,
-    value: string,
-    currentPage: number,
-    pageCount: number,
-  ) {
+  static generateButtons(builderId: BuilderId, value: string, currentPage: number, pageCount: number) {
     const prevPage = currentPage == 1 ? 1 : currentPage - 1;
     const nextPage = currentPage + 1;
     const lastPage = Math.ceil(pageCount / 10);
@@ -47,21 +37,14 @@ export class PageBuilderUtils {
     return buttonsRow;
   }
 
-  static generateBasicEmbed(
-    currentPage: number,
-    totalDataCount: number,
-    title: string,
-  ) {
+  static generateBasicEmbed(currentPage: number, totalDataCount: number, title: string) {
     const indexFrom = (currentPage - 1) * 10 + 1;
-    const indexTo =
-      indexFrom + 9 < totalDataCount ? indexFrom + 9 : totalDataCount;
+    const indexTo = indexFrom + 9 < totalDataCount ? indexFrom + 9 : totalDataCount;
 
     const embed = new EmbedBuilder();
 
     embed.setTitle(title);
-    embed.setDescription(
-      `Wyświetlane pozycje w bazie: ${indexFrom}-${indexTo} z ${totalDataCount}`,
-    );
+    embed.setDescription(`Wyświetlane pozycje w bazie: ${indexFrom}-${indexTo} z ${totalDataCount}`);
     embed.setColor('Random');
 
     return embed;

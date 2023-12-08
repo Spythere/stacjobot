@@ -32,24 +32,16 @@ export class DrHistoryCmd {
     const embed = new EmbedBuilder()
       .setTitle(`Historia dyżurnego ${dispatcherName}`)
       .setColor('Random')
-      .setDescription(
-        'Wyświetlanych jest maksymalnie 24 najnowszych wpisów w bazie',
-      )
+      .setDescription('Wyświetlanych jest maksymalnie 24 najnowszych wpisów w bazie')
       .addFields([
         {
           name: 'Zapisane dyżury',
           value: `${count}`,
         },
         ...dispatcherHistory.map((historyRecord) => {
-          const dateFrom = TimestampUtils.getDiscordTimestamp(
-            historyRecord.timestampFrom,
-            'D',
-          );
+          const dateFrom = TimestampUtils.getDiscordTimestamp(historyRecord.timestampFrom, 'D');
 
-          const timeFrom = TimestampUtils.getDiscordTimestamp(
-            historyRecord.timestampFrom,
-            't',
-          );
+          const timeFrom = TimestampUtils.getDiscordTimestamp(historyRecord.timestampFrom, 't');
 
           const timeTo = historyRecord.timestampTo
             ? TimestampUtils.getDiscordTimestamp(historyRecord.timestampTo, 't')
@@ -57,9 +49,7 @@ export class DrHistoryCmd {
 
           return {
             name: historyRecord.stationName,
-            value: `${dateFrom}\nod: ${timeFrom} ${
-              timeTo ? `do: ${timeTo}` : '(online)'
-            }`,
+            value: `${dateFrom}\nod: ${timeFrom} ${timeTo ? `do: ${timeTo}` : '(online)'}`,
             inline: true,
           };
         }),

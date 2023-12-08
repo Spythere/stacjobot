@@ -1,8 +1,4 @@
-import {
-  APIEmbedField,
-  EmbedBuilder,
-  InteractionReplyOptions,
-} from 'discord.js';
+import { APIEmbedField, EmbedBuilder, InteractionReplyOptions } from 'discord.js';
 import { ViolationsDto } from '../dto/violations.dto';
 import { PrismaService } from '../../prisma/prisma.service';
 import { SlashCommandPipe } from '@discord-nestjs/common';
@@ -16,9 +12,7 @@ const violationTitle: { [key in ViolationType]: string } = {
   LOCO_COUNT: 'Liczba pojazdów w składzie',
 };
 
-function getViolationDesc(
-  violationDoc: violations & { timetables: timetables },
-) {
+function getViolationDesc(violationDoc: violations & { timetables: timetables }) {
   let message = '';
 
   switch (violationDoc.type) {
@@ -59,9 +53,7 @@ export class ViolationsCmd {
   constructor(private prisma: PrismaService) {}
 
   @Handler()
-  async onCommand(
-    @InteractionEvent(SlashCommandPipe) dto: ViolationsDto,
-  ): Promise<InteractionReplyOptions> {
+  async onCommand(@InteractionEvent(SlashCommandPipe) dto: ViolationsDto): Promise<InteractionReplyOptions> {
     console.log('v', dto.violationType);
 
     const violationDocs = await this.prisma.violations.findMany({
@@ -95,22 +87,16 @@ export class ViolationsCmd {
 
     const embed = new EmbedBuilder();
     const embedFields: APIEmbedField[] = violationDocs.map((v) => ({
-      name: `<t:${~~(v.createdAt.getTime() / 1000)}:f> | #${
-        v.timetables.id
-      } | ${violationTitle[v.type]}`,
+      name: `<t:${~~(v.createdAt.getTime() / 1000)}:f> | #${v.timetables.id} | ${violationTitle[v.type]}`,
       value: getViolationDesc(v),
     }));
 
-    embed.setTitle(
-      `Wykroczenia maszynisty ${violationDocs[0].timetables.driverName}`,
-    );
+    embed.setTitle(`Wykroczenia maszynisty ${violationDocs[0].timetables.driverName}`);
     embed.setColor('Random');
 
     embed.setFields(embedFields);
 
-    embed.setDescription(
-      'Lista ostatnich wykroczeń maszynisty na serwerze PL1',
-    );
+    embed.setDescription('Lista ostatnich wykroczeń maszynisty na serwerze PL1');
 
     return {
       embeds: [embed],

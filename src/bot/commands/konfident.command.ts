@@ -12,16 +12,12 @@ export class KonfCmd {
   constructor(private apiService: ApiService) {}
 
   @Handler()
-  async onCommand(
-    @InteractionEvent(SlashCommandPipe) dto: KonfDto,
-  ): Promise<InteractionReplyOptions> {
+  async onCommand(@InteractionEvent(SlashCommandPipe) dto: KonfDto): Promise<InteractionReplyOptions> {
     const embed = new EmbedBuilder();
     embed.setTitle(`Donos na użytkownika ${dto.nick}`);
     embed.setColor('Random');
 
-    embed.setDescription(
-      'Zebrane informacje zostały wysłane do odpowiednich organów sprawiedliwości',
-    );
+    embed.setDescription('Zebrane informacje zostały wysłane do odpowiednich organów sprawiedliwości');
 
     return {
       embeds: [embed],

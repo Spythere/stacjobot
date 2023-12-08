@@ -41,8 +41,7 @@ export class KofolaGiveway {
 
     if (drawnUsers.length == 0) {
       this.webhookClient.send({
-        content:
-          'Losowanie przerwane z powodu brakującej liczby wymaganych uczestników :(',
+        content: 'Losowanie przerwane z powodu brakującej liczby wymaganych uczestników :(',
       });
 
       return;
@@ -53,9 +52,7 @@ export class KofolaGiveway {
   }
 
   private async fetchDiscGuildMembers() {
-    const dcGuild = await this.client.guilds.fetch(
-      this.config.get<string>('BOT_GUILD_ID'),
-    );
+    const dcGuild = await this.client.guilds.fetch(this.config.get<string>('BOT_GUILD_ID'));
 
     return await dcGuild.members.fetch();
   }
@@ -70,21 +67,11 @@ export class KofolaGiveway {
       .$queryRaw`SELECT * FROM "stacjobotUsers" WHERE "nextKofolaTime" > (current_timestamp - interval '4 days') AND "kofolaExcluded"=False ORDER BY random() LIMIT 50;`;
   }
 
-  private async filterFetchedUsers(
-    dcMembers: Collection<string, GuildMember>,
-    users: stacjobotUsers[],
-  ) {
-    const drawCount = randomRangeInteger(
-      givewaySetup.drawMaxCount,
-      givewaySetup.drawMinCount,
-    );
+  private async filterFetchedUsers(dcMembers: Collection<string, GuildMember>, users: stacjobotUsers[]) {
+    const drawCount = randomRangeInteger(givewaySetup.drawMaxCount, givewaySetup.drawMinCount);
 
     const drawnUsers = users.filter((row) =>
-      dcMembers.some(
-        (m) =>
-          m.id == row.userId &&
-          m.communicationDisabledUntilTimestamp <= Date.now(),
-      ),
+      dcMembers.some((m) => m.id == row.userId && m.communicationDisabledUntilTimestamp <= Date.now()),
     );
 
     return drawnUsers.slice(0, drawCount);
@@ -99,11 +86,7 @@ export class KofolaGiveway {
           },
           data: {
             kofolaCount: {
-              increment: randomRangeFloat(
-                givewaySetup.maxAmount,
-                givewaySetup.minAmount,
-                2,
-              ),
+              increment: randomRangeFloat(givewaySetup.maxAmount, givewaySetup.minAmount, 2),
             },
             lastLotteryWinner: new Date(),
           },
@@ -114,16 +97,12 @@ export class KofolaGiveway {
     return updatedUsers.map((user) => ({
       userId: user.userId,
       userName: user.userName,
-      amount:
-        user.kofolaCount - drawnUsers.find((u) => u.id == user.id)!.kofolaCount,
+      amount: user.kofolaCount - drawnUsers.find((u) => u.id == user.id)!.kofolaCount,
       totalAfter: user.kofolaCount,
     }));
   }
 
-  private async displayWinners(
-    dcMembers: Collection<string, GuildMember>,
-    winners: Winner[],
-  ) {
+  private async displayWinners(dcMembers: Collection<string, GuildMember>, winners: Winner[]) {
     const kofolaEmoji = getEmojiByName('kofola2');
 
     const winnerDisplay = winners
@@ -131,9 +110,7 @@ export class KofolaGiveway {
       .map((w) => {
         const dcMember = dcMembers.find((m) => m.id == w.userId);
 
-        return `> - **${
-          w.userName || dcMember.user.globalName
-        }**: + ${w.amount.toFixed(
+        return `> - **${w.userName || dcMember.user.globalName}**: + ${w.amount.toFixed(
           2,
         )}l ${kofolaEmoji} ▶▶ **${w.totalAfter.toFixed(2)}l**!`;
       });
