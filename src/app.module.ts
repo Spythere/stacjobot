@@ -8,9 +8,14 @@ import { BotModule } from './bot/bot.module';
 import { ApiModule } from './api/api.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { isDevelopment } from './bot/utils/envUtils';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 @Module({
   imports: [
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'assets'),
+    }),
     ScheduleModule.forRoot(),
     ConfigModule.forRoot({
       isGlobal: true,
@@ -29,17 +34,13 @@ import { isDevelopment } from './bot/utils/envUtils';
         },
         registerCommandOptions: [
           {
-            forGuild: isDevelopment()
-              ? configService.get('BOT_GUILD_ID')
-              : undefined,
+            forGuild: isDevelopment() ? configService.get('BOT_GUILD_ID') : undefined,
             removeCommandsBefore: true,
             allowFactory: (message) => {
               if (message.author.bot || !message.member) return false;
 
               return (
-                message.member.permissions.has(
-                  PermissionsBitField.Flags.Administrator,
-                ) && message.content == '!deploy'
+                message.member.permissions.has(PermissionsBitField.Flags.Administrator) && message.content == '!deploy'
               );
             },
           },

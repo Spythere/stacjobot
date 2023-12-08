@@ -22,20 +22,16 @@ export class ApiService {
   constructor(private readonly httpService: HttpService) {}
 
   /* api/getDailyTimetableStats */
-  getDailyTimetableStats(
-    dto: DailyStatsDto,
-  ): Promise<AxiosResponse<IDailyStats>> {
+  getDailyTimetableStats(dto: DailyStatsDto): Promise<AxiosResponse<IDailyStats>> {
     return this.httpService.axiosRef.get('/api/getDailyStats', {
       params: {
-        date: dto.date,
+        scope: dto.scope,
       },
     });
   }
 
   /* api/getDispatcherHistory */
-  getDispatcherHistory(
-    name: string,
-  ): Promise<AxiosResponse<IDispatcherHistoryData>> {
+  getDispatcherHistory(name: string): Promise<AxiosResponse<IDispatcherHistoryData>> {
     return this.httpService.axiosRef.get('/api/getDispatcherHistory', {
       params: {
         name,
@@ -50,9 +46,7 @@ export class ApiService {
     });
   }
 
-  getDispatchersWithCount(
-    dto: DispatchersDto,
-  ): Promise<AxiosResponse<IDispatchersWithCount>> {
+  getDispatchersWithCount(dto: DispatchersDto): Promise<AxiosResponse<IDispatchersWithCount>> {
     return this.httpService.axiosRef.get('/api/getDispatchers', {
       params: {
         ...dto,
@@ -91,9 +85,7 @@ export class ApiService {
     });
   }
 
-  getTimetablesWithCount(
-    dto: any,
-  ): Promise<AxiosResponse<ITimetablesWithCount>> {
+  getTimetablesWithCount(dto: any): Promise<AxiosResponse<ITimetablesWithCount>> {
     return this.httpService.axiosRef.get('/api/getTimetables', {
       params: {
         ...dto,
@@ -104,14 +96,11 @@ export class ApiService {
 
   /* api/getTrafficStats */
   getTrafficStats(dto: TD2StatsDto): Promise<AxiosResponse<any>> {
-    return this.httpService.axiosRef.get(
-      `/api/getTrafficStats?scope=${dto.scope}&${dto.type}`,
-      {
-        responseType: 'arraybuffer',
-        headers: {
-          'Content-Type': 'image/png',
-        },
+    return this.httpService.axiosRef.get(`/api/getTrafficStats?scope=${dto.scope}&${dto.type}`, {
+      responseType: 'arraybuffer',
+      headers: {
+        'Content-Type': 'image/png',
       },
-    );
+    });
   }
 }

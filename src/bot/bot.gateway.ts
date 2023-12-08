@@ -1,20 +1,9 @@
 import { Injectable, Logger, UseGuards } from '@nestjs/common';
 import { InjectDiscordClient, On, Once } from '@discord-nestjs/core';
-import {
-  ActivityType,
-  ChatInputCommandInteraction,
-  Client,
-  Interaction,
-  InteractionType,
-  Message,
-} from 'discord.js';
+import { ActivityType, ChatInputCommandInteraction, Client, Interaction, InteractionType, Message } from 'discord.js';
 import { PrefixCommandHandler } from './handlers/PrefixCommandHandler';
 import { PrismaService } from '../prisma/prisma.service';
-import {
-  AdministratorCommandGuard,
-  EmojiCommandGuard,
-  PrefixCommandGuard,
-} from './guards/command.guard';
+import { AdministratorCommandGuard, EmojiCommandGuard, PrefixCommandGuard } from './guards/command.guard';
 import { collectEmojis } from './utils/emojiUtils';
 import { Cron } from '@nestjs/schedule';
 import { KofolaGiveway } from './serverEvents/giveway-event.service';
@@ -59,8 +48,7 @@ export class BotGateway {
 
   @On('interactionCreate')
   async onInteraction(i: Interaction) {
-    if (i.type == InteractionType.ApplicationCommand)
-      this.logSlashCommand(i as ChatInputCommandInteraction);
+    if (i.type == InteractionType.ApplicationCommand) this.logSlashCommand(i as ChatInputCommandInteraction);
   }
 
   @On('messageCreate')
