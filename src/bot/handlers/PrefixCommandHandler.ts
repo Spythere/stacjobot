@@ -29,6 +29,10 @@ export class PrefixCommandHandler {
         randomMuteUser(message);
         break;
 
+      case 'dajmatza':
+        randomMuteUser(message);
+        break;
+
       case 'kofola':
         addKofolaToUser(this.prisma, message);
         break;
