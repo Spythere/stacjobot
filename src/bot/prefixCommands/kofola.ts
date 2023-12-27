@@ -4,7 +4,6 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { randomRangeFloat, randomRangeInteger } from '../../utils/randomUtils';
 import { getDiscordTimeFormat } from '../../utils/discordTimestampUtils';
 import { isDevelopment } from '../utils/envUtils';
-import { getLitersInPolish } from '../../utils/namingUtils';
 import { fetchTopUsers } from './topkofola';
 import { getEmojiByName } from '../utils/emojiUtils';
 
@@ -16,6 +15,7 @@ const AMOUNT_MAX = 5,
 
 const roleMultipliers = {
   Wspierający: 1.4,
+  Stacjosponsor: 1.4,
   'Krąg Wtajemniczenia': 1.75,
   'St. Strażnik': 1.75,
   Wtajemniczony: 1.25,
@@ -113,6 +113,8 @@ export async function addKofolaToUser(prisma: PrismaService, message: Message) {
   const nextKofolaTimestamp = getDiscordTimeFormat(upsertedUser.nextKofolaTime.getTime(), 'relative');
 
   const nextKofolaMessage = `*Następna dostawa*: ${motosraczekEmoji} ${nextKofolaTimestamp}`;
+
+  console.log(getMaxMultiplier(message));
 
   message.react(kofolaEmoji);
   message.reply(`${gainMessage} ${totalMessage}\n${nextKofolaMessage}${topPlaceMessage}`);
