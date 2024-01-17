@@ -40,82 +40,88 @@ function getStreakValue(prismaUser: stacjobotUsers) {
 }
 
 export async function addKofolaToUser(prisma: PrismaService, message: Message) {
-  const messageAuthorId = message.author.id;
-
-  const user = await prisma.stacjobotUsers.findUnique({
-    where: { userId: messageAuthorId },
+  message.reply({
+    content: `${getEmojiByName('kofola2')} ${getEmojiByName(
+      'bagiety',
+    )}  **Towarzyszu! Nowe komendy kofoli z sezonowo zwiększonymi mnożnikami znajdują się tutaj: **`,
   });
 
-  const kofolaEmoji = getEmojiByName('kofola2');
+  // const messageAuthorId = message.author.id;
 
-  if (!isDevelopment() && user && user.nextKofolaTime > new Date()) {
-    const motosraczekEmoji = getEmojiByName(user.kofolaMotoracek);
-    const tenseSmashEmoji = getEmojiByName('tenseSmash');
+  // const user = await prisma.stacjobotUsers.findUnique({
+  //   where: { userId: messageAuthorId },
+  // });
 
-    message.reply(
-      `Twój ${motosraczekEmoji} z kofolą przyjedzie ${getDiscordTimeFormat(
-        user.nextKofolaTime.getTime(),
-        'relative',
-      )} ${tenseSmashEmoji} \nObecnie posiadasz: ${user.kofolaCount.toFixed(2)}l ${kofolaEmoji}!`,
-    );
+  // const kofolaEmoji = getEmojiByName('kofola2');
 
-    return;
-  }
+  // if (!isDevelopment() && user && user.nextKofolaTime > new Date()) {
+  //   const motosraczekEmoji = getEmojiByName(user.kofolaMotoracek);
+  //   const tenseSmashEmoji = getEmojiByName('tenseSmash');
 
-  const randTimeout = randomRangeInteger(MAX_TIMEOUT_HOURS, MIN_TIMEOUT_HOURS);
-  const nextTime = new Date(new Date().getTime() + randTimeout * 60 * 60 * 1000);
+  //   message.reply(
+  //     `Twój ${motosraczekEmoji} z kofolą przyjedzie ${getDiscordTimeFormat(
+  //       user.nextKofolaTime.getTime(),
+  //       'relative',
+  //     )} ${tenseSmashEmoji} \nObecnie posiadasz: ${user.kofolaCount.toFixed(2)}l ${kofolaEmoji}!`,
+  //   );
 
-  const randKofolaAmount = randomRangeFloat(AMOUNT_MAX, AMOUNT_MIN, 2) * getMaxMultiplier(message);
+  //   return;
+  // }
 
-  const nextMotoracekName = `motosraczek${randomRangeInteger(5, 1)}`;
+  // const randTimeout = randomRangeInteger(MAX_TIMEOUT_HOURS, MIN_TIMEOUT_HOURS);
+  // const nextTime = new Date(new Date().getTime() + randTimeout * 60 * 60 * 1000);
 
-  const motosraczekEmoji = getEmojiByName(nextMotoracekName);
-  const notujEmoji = getEmojiByName('notujspeed');
+  // const randKofolaAmount = randomRangeFloat(AMOUNT_MAX, AMOUNT_MIN, 2) * getMaxMultiplier(message);
 
-  const userName = message.author.globalName ?? message.author.displayName ?? message.author.username ?? '';
+  // const nextMotoracekName = `motosraczek${randomRangeInteger(5, 1)}`;
 
-  const upsertedUser = await prisma.stacjobotUsers.upsert({
-    where: {
-      userId: messageAuthorId,
-    },
+  // const motosraczekEmoji = getEmojiByName(nextMotoracekName);
+  // const notujEmoji = getEmojiByName('notujspeed');
 
-    create: {
-      userId: messageAuthorId,
-      nextKofolaTime: nextTime,
-      kofolaCount: randKofolaAmount,
-      kofolaMotoracek: nextMotoracekName,
-      userName,
-    },
+  // const userName = message.author.globalName ?? message.author.displayName ?? message.author.username ?? '';
 
-    update: {
-      kofolaCount: {
-        increment: randKofolaAmount,
-      },
-      nextKofolaTime: nextTime,
-      kofolaMotoracek: nextMotoracekName,
-      kofolaStreak: getStreakValue(user),
-      userName,
-    },
-  });
+  // const upsertedUser = await prisma.stacjobotUsers.upsert({
+  //   where: {
+  //     userId: messageAuthorId,
+  //   },
 
-  const topList = await fetchTopUsers(prisma);
+  //   create: {
+  //     userId: messageAuthorId,
+  //     nextKofolaTime: nextTime,
+  //     kofolaCount: randKofolaAmount,
+  //     kofolaMotoracek: nextMotoracekName,
+  //     userName,
+  //   },
 
-  const topListPlace = topList.findIndex((top) => top.userId == messageAuthorId);
+  //   update: {
+  //     kofolaCount: {
+  //       increment: randKofolaAmount,
+  //     },
+  //     nextKofolaTime: nextTime,
+  //     kofolaMotoracek: nextMotoracekName,
+  //     kofolaStreak: getStreakValue(user),
+  //     userName,
+  //   },
+  // });
 
-  const topPlaceMessage =
-    topListPlace != -1
-      ? `\n${notujEmoji} Obecnie jesteś na **${topListPlace + 1}. miejscu** top listy zebranych kofoli! ${notujEmoji}`
-      : ``;
+  // const topList = await fetchTopUsers(prisma);
 
-  const gainMessage = `Zdobyłeś **${randKofolaAmount.toFixed(2)}l** ${kofolaEmoji}!`;
-  const totalMessage = `(Łącznie: ${upsertedUser.kofolaCount.toFixed(2)})`;
+  // const topListPlace = topList.findIndex((top) => top.userId == messageAuthorId);
 
-  const nextKofolaTimestamp = getDiscordTimeFormat(upsertedUser.nextKofolaTime.getTime(), 'relative');
+  // const topPlaceMessage =
+  //   topListPlace != -1
+  //     ? `\n${notujEmoji} Obecnie jesteś na **${topListPlace + 1}. miejscu** top listy zebranych kofoli! ${notujEmoji}`
+  //     : ``;
 
-  const nextKofolaMessage = `*Następna dostawa*: ${motosraczekEmoji} ${nextKofolaTimestamp}`;
+  // const gainMessage = `Zdobyłeś **${randKofolaAmount.toFixed(2)}l** ${kofolaEmoji}!`;
+  // const totalMessage = `(Łącznie: ${upsertedUser.kofolaCount.toFixed(2)})`;
 
-  console.log(getMaxMultiplier(message));
+  // const nextKofolaTimestamp = getDiscordTimeFormat(upsertedUser.nextKofolaTime.getTime(), 'relative');
 
-  message.react(kofolaEmoji);
-  message.reply(`${gainMessage} ${totalMessage}\n${nextKofolaMessage}${topPlaceMessage}`);
+  // const nextKofolaMessage = `*Następna dostawa*: ${motosraczekEmoji} ${nextKofolaTimestamp}`;
+
+  // console.log(getMaxMultiplier(message));
+
+  // message.react(kofolaEmoji);
+  // message.reply(`${gainMessage} ${totalMessage}\n${nextKofolaMessage}${topPlaceMessage}`);
 }

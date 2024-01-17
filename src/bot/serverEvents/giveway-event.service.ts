@@ -1,15 +1,13 @@
 import { InjectDiscordClient } from '@discord-nestjs/core';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { stacjobotUsers } from '@prisma/client';
 import { Client, Collection, GuildMember, WebhookClient } from 'discord.js';
-import { getLitersInPolish } from '../../utils/namingUtils';
 import { randomRangeFloat, randomRangeInteger } from '../../utils/randomUtils';
 import { getEmojiByName } from '../utils/emojiUtils';
 import { PrismaService } from '../../prisma/prisma.service';
 import { Winner } from './se.types';
 import { pl } from 'date-fns/locale';
-import { formatWithOptions } from 'date-fns/fp';
 import { format } from 'date-fns';
 
 const givewaySetup = {
@@ -23,6 +21,8 @@ const givewaySetup = {
 export class KofolaGiveway {
   private webhookClient: WebhookClient;
 
+  private readonly logger = new Logger('Event: KofolaGiveway');
+
   constructor(
     @InjectDiscordClient()
     private readonly client: Client,
@@ -35,6 +35,8 @@ export class KofolaGiveway {
   }
 
   async runGiveway() {
+    this.logger.log('Losowanie kofoli...');
+
     const guildMembers = await this.fetchDiscGuildMembers();
     const dbUsers = await this.fetchRandomDbUsers();
     const drawnUsers = await this.filterFetchedUsers(guildMembers, dbUsers);
@@ -49,6 +51,14 @@ export class KofolaGiveway {
 
     const winners = await this.updateWinners(drawnUsers);
     this.displayWinners(guildMembers, winners);
+
+    this.logEventData(winners);
+  }
+
+  private logEventData(winners: Winner[]) {
+    const winnersLogInfo = winners.map((w) => `${w.userName} (id: ${w.userId}; notify: ${w.kofolaNotify})`);
+
+    this.logger.log(`Wylosowani użytkownicy: ${winnersLogInfo.join(' | ')}`);
   }
 
   private async fetchDiscGuildMembers() {
@@ -99,6 +109,7 @@ export class KofolaGiveway {
       userName: user.userName,
       amount: user.kofolaCount - drawnUsers.find((u) => u.id == user.id)!.kofolaCount,
       totalAfter: user.kofolaCount,
+      kofolaNotify: user.kofolaNotify,
     }));
   }
 
@@ -110,7 +121,7 @@ export class KofolaGiveway {
       .map((w) => {
         const dcMember = dcMembers.find((m) => m.id == w.userId);
 
-        return `> - **${w.userName || dcMember.user.globalName}**: + ${w.amount.toFixed(
+        return `> - **${w.userName || dcMember.user.globalName}** <@${w.userId}>: + ${w.amount.toFixed(
           2,
         )}l ${kofolaEmoji} ▶▶ **${w.totalAfter.toFixed(2)}l**!`;
       });
@@ -122,15 +133,16 @@ export class KofolaGiveway {
       '# Dzisiejszymi zwycięzcami są:',
       winnerDisplay.join('\n'),
       '',
-      '*Wszelkie zażalenia dotyczące przebiegu losowania można zgłaszać [tutaj](https://www.youtube.com/watch?v=avCWDDox1nE)*',
+      '*Chcesz otrzymywać ping przy wygranej? Wpisz </kofolanotify:1196436853763604571>*',
     ];
 
     this.webhookClient.send({
       content: contentLines.join('\n'),
       allowedMentions: {
         parse: [],
+        users: winners.filter((w) => w.kofolaNotify).map((w) => w.userId),
       },
-      flags: ['SuppressEmbeds', 'SuppressNotifications'],
+      flags: ['SuppressEmbeds'],
     });
   }
 }

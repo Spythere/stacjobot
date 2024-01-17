@@ -3,4 +3,5 @@ export interface Winner {
   userName: string;
   amount: number;
   totalAfter: number;
+  kofolaNotify: boolean;
 }

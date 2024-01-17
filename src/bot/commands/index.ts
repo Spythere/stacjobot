@@ -9,6 +9,9 @@ import { ScHistoryCmd } from './schistory.command';
 import { ScTopCmd } from './sctop.command';
 import { TD2StatsCmd } from './td2stats.command';
 import { ViolationsCmd } from './violations.command';
+import { KofolaNotifyCmd } from './kofola/kofolanotify.command';
+import { KofolaCmd } from './kofola/kofola.command';
+import { KofolaTopCmd } from './kofola/kofolatop.command';
 
 export const commandsIndex = [
   DrHistoryCmd,
@@ -22,4 +25,8 @@ export const commandsIndex = [
   ViolationsCmd,
   ActivityCmd,
   TD2StatsCmd,
+
+  KofolaNotifyCmd,
+  KofolaTopCmd,
+  KofolaCmd,
 ];

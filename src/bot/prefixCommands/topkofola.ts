@@ -24,15 +24,26 @@ export async function fetchTopUsers(prisma: PrismaService, topLimit = 15) {
 }
 
 export async function getKofolaTopList(prisma: PrismaService, message: Message) {
-  const topKofolaCount = await fetchTopUsers(prisma);
-  const kofolaEmoji = getEmojiByName('kofola2');
+  // const topKofolaCount = await fetchTopUsers(prisma);
+  // const kofolaEmoji = getEmojiByName('kofola2');
 
-  const topList: string[] = topKofolaCount.reduce((acc, top, i) => {
-    acc.push(`${i + 1}. **${top.userName}** - ${top.kofolaCount.toFixed(2)}l ${kofolaEmoji}`);
-    return acc;
-  }, [] as string[]);
+  // const topList: string[] = topKofolaCount.reduce((acc, top, i) => {
+  //   acc.push(`${i + 1}. **${top.userName}** <@${top.userId}> - ${top.kofolaCount.toFixed(2)}l ${kofolaEmoji}`);
+  //   return acc;
+  // }, [] as string[]);
 
-  message.channel.send({
-    content: `# TOP LISTA ZEBRANYCH ${kofolaEmoji}\n${topList.join('\n')}`,
+  // message.channel.send({
+  //   content: `# TOP LISTA ZEBRANYCH ${kofolaEmoji}\n${topList.join('\n')}`,
+  //   allowedMentions: {
+  //     parse: [],
+  //     users: [],
+  //   },
+  //   flags: ['SuppressEmbeds', 'SuppressNotifications'],
+  // });
+
+  message.reply({
+    content: `${getEmojiByName('kofola2')} ${getEmojiByName(
+      'bagiety',
+    )}  **Towarzyszu! Nowe komendy kofoli z sezonowo zwiększonymi mnożnikami znajdują się tutaj: **`,
   });
 }
