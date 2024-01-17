@@ -207,7 +207,7 @@ export default class DailyStatsCanvas {
         fontSize: FontSize.SEGMENT_STAT,
       },
       {
-        text: `${distance}km `,
+        text: `${distance.toFixed(2)}km `,
         textColor: TextColor.ACCENT,
         fontWeight: FontWeight.BOLD,
         fontSize: FontSize.SEGMENT_STAT,
@@ -255,28 +255,34 @@ export default class DailyStatsCanvas {
   private renderLongestTimetable() {
     if (!this.stats.maxTimetable) return;
 
-    const { routeDistance, trainCategoryCode, trainNo, route, id } = this.stats.maxTimetable;
+    const { routeDistance, trainCategoryCode, trainNo, route, id, driverName, authorName } = this.stats.maxTimetable;
 
     const segmentsTop: ISegment[] = [
       {
-        text: `${routeDistance}km `,
+        text: `${trainCategoryCode} ${trainNo} `,
         textColor: TextColor.ACCENT,
         fontWeight: FontWeight.BOLD,
         fontSize: FontSize.SEGMENT_STAT,
       },
       {
-        text: `- ${trainCategoryCode} ${trainNo} | #${id}`,
+        text: `${route.replace('|', ' -> ')}`,
         textColor: TextColor.PRIMARY,
-        fontWeight: FontWeight.REGULAR,
+        fontWeight: FontWeight.BOLD,
         fontSize: FontSize.SEGMENT_STAT,
       },
     ];
 
     const segmentsBottom: ISegment[] = [
       {
-        text: `${route.replace('|', ' -> ')}`,
-        textColor: TextColor.PRIMARY,
+        text: `${routeDistance}km`,
+        textColor: TextColor.ACCENT,
         fontWeight: FontWeight.BOLD,
+        fontSize: FontSize.SEGMENT_STAT,
+      },
+      {
+        text: ` - stworzony przez: ${authorName} dla: ${driverName}`,
+        textColor: TextColor.PRIMARY,
+        fontWeight: FontWeight.REGULAR,
         fontSize: FontSize.SEGMENT_STAT,
       },
     ];
