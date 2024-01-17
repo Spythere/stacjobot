@@ -43,7 +43,7 @@ export async function addKofolaToUser(prisma: PrismaService, message: Message) {
   message.reply({
     content: `${getEmojiByName('kofola2')} ${getEmojiByName(
       'bagiety',
-    )}  **Towarzyszu! Nowe komendy kofoli z sezonowo zwiększonymi mnożnikami znajdują się tutaj: **`,
+    )}  **Towarzyszu! Nowe komendy kofoli z sezonowo zwiększonymi mnożnikami znajdują się tutaj: </kofola:1197178633656213569> </kofolanotify:1197178633656213567> </kofolatop:1197178633656213568> **`,
   });
 
   // const messageAuthorId = message.author.id;

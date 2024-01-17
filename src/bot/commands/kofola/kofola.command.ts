@@ -90,7 +90,7 @@ export class KofolaCmd {
     const nextTime = new Date(new Date().getTime() + randTimeout * 60 * 60 * 1000);
 
     const randKofolaAmount =
-      randomRangeFloat(RANGES.AMOUNT_MAX, RANGES.AMOUNT_MIN, 2) * this.getMaxMultiplier(interaction) * 1.2;
+      randomRangeFloat(RANGES.AMOUNT_MAX, RANGES.AMOUNT_MIN, 2) * this.getMaxMultiplier(interaction);
 
     const nextMotoracekName = `motosraczek${randomRangeInteger(5, 1)}`;
     const userName = interaction.user.globalName ?? interaction.user.displayName ?? interaction.user.username ?? '';
@@ -141,7 +141,7 @@ export class KofolaCmd {
       Object.keys(ROLE_MULTIPLIERS).includes(role.name),
     );
 
-    return Math.max(1, ...multipliedRoles.map((role) => ROLE_MULTIPLIERS[role.name]));
+    return Math.max(1.2, ...multipliedRoles.map((role) => ROLE_MULTIPLIERS[role.name]));
   }
 
   private getStreakValue(stacjobotUser: stacjobotUsers) {
