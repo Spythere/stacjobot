@@ -67,8 +67,8 @@ export class BotGateway {
   @UseGuards(AdministratorCommandGuard)
   async onMessage(message: Message) {
     if (message.content == '!test' && isDevelopment()) {
-      // this.giveway.runGiveway();
-      this.dailyOverview.runEvent();
+      this.giveway.runGiveway();
+      // this.dailyOverview.runEvent();
     }
   }
 

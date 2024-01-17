@@ -133,7 +133,7 @@ export class KofolaGiveway {
       '# Dzisiejszymi zwycięzcami są:',
       winnerDisplay.join('\n'),
       '',
-      '*Chcesz otrzymywać ping przy wygranej? Wpisz </kofolanotify:1196436853763604571>*',
+      '*Chcesz otrzymywać ping przy wygranej? Wpisz </kofolanotify:1197178633656213567>*',
     ];
 
     this.webhookClient.send({
