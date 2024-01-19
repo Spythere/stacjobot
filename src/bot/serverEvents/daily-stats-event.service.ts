@@ -1,16 +1,8 @@
-import axios from 'axios';
-
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { WebhookClient, WebhookMessageCreateOptions } from 'discord.js';
+import { WebhookClient } from 'discord.js';
 import { ApiService } from '../../api/api.service';
 import { IDailyStats } from '../../api/interfaces/_index';
-import { format, formatDuration, formatISO, getUnixTime, intervalToDuration, startOfDay, subDays } from 'date-fns';
-import { pl } from 'date-fns/locale';
-import { getEmojiByName } from '../utils/emojiUtils';
-import { Image, createCanvas, loadImage, registerFont } from 'canvas';
-import { readFile } from 'fs';
-import path, { join } from 'path';
 import DailyStatsCanvas from './utils/dailyStatsCanvas';
 import { DailyStatsScope } from '../../api/dtos/dailyStats.dto';
 
