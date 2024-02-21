@@ -5,12 +5,17 @@ import { addKofolaToUser } from '../prefixCommands/kofola';
 import { getKofolaTopList } from '../prefixCommands/topkofola';
 import { Injectable, Logger } from '@nestjs/common';
 import { fakeBanUser } from '../prefixCommands/dajbana';
+import { SponsorPrefixCmd } from '../prefixCommands/sponsor';
 
 @Injectable()
 export class PrefixCommandHandler {
   private readonly logger = new Logger('PrefixCmd');
 
-  constructor(private readonly prisma: PrismaService) {} // !commands
+  private readonly sponsorCmd: SponsorPrefixCmd;
+
+  constructor(private readonly prisma: PrismaService) {
+    this.sponsorCmd = new SponsorPrefixCmd(prisma);
+  } // !commands
 
   private logCommand(message: Message) {
     this.logger.log(`${message.author.username} (${message.author.id}): ${message.content}`);
@@ -43,6 +48,10 @@ export class PrefixCommandHandler {
 
       case 'dajbana':
         fakeBanUser(message);
+        break;
+
+      case 'sponsor':
+        this.sponsorCmd.handleCommand(message);
         break;
 
       default:
