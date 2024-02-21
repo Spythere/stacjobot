@@ -8,6 +8,7 @@ const accepted = [
   'test',
   'dajbana',
   'dajmatza',
+  'sponsor',
 ];
 
 export class PrefixCommandGuard implements CanActivate {
@@ -15,7 +16,7 @@ export class PrefixCommandGuard implements CanActivate {
     const message = context.getArgByIndex(0);
     if (message.author.bot) return false;
 
-    return new RegExp(`^!(${accepted.join('|')})$`, 'i').test(message.content);
+    return new RegExp(`^!(${accepted.join('|')})`, 'i').test(message.content);
   }
 }
 
