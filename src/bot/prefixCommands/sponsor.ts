@@ -46,14 +46,7 @@ export class SponsorPrefixCmd {
   private validateArgs(message: Message): boolean {
     const [_, cmdName, nick, amountGr] = message.content.split(' ');
 
-    return (
-      cmdName &&
-      nick &&
-      amountGr &&
-      cmdName.trim() !== '' &&
-      nick.trim() !== '' &&
-      !isNaN(Number(amountGr))
-    );
+    return cmdName && nick && amountGr && cmdName.trim() !== '' && nick.trim() !== '' && !isNaN(Number(amountGr));
   }
 
   private runGuard(message: Message): boolean {
@@ -75,9 +68,7 @@ export class SponsorPrefixCmd {
     if (discordMember) {
       await message.guild.roles.fetch();
 
-      const sponsorRole = message.guild.roles.cache.find(
-        (r) => r.name === 'Stacjosponsor',
-      );
+      const sponsorRole = message.guild.roles.cache.find((r) => r.name === 'Stacjosponsor');
 
       if (sponsorRole) discordMember.roles.add(sponsorRole);
     }
@@ -102,31 +93,22 @@ export class SponsorPrefixCmd {
         },
       });
 
-      this.logger.log(
-        `${donator.nameTD2}: ${this.parsePLN(donator.donatedAmount)}`,
-      );
+      this.logger.log(`${donator.nameTD2}: ${this.parsePLN(donator.donatedAmount)}`);
 
       return message.reply({
         content: `Gracz \`${donator.nameTD2}\` (${
           donator.nameDiscord ? `<@${donator.nameDiscord}>` : 'brak profilu DC'
-        }): dodano ${this.parsePLN(
-          Number(amountGr),
-        )} (łącznie teraz: ${this.parsePLN(donator.donatedAmount)})`,
+        }): dodano ${this.parsePLN(Number(amountGr))} (łącznie teraz: ${this.parsePLN(donator.donatedAmount)})`,
         flags: [MessageFlags.SuppressNotifications],
       });
     } catch (error) {
       this.logger.error(error);
 
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
-        if (error.code == 'P2002')
-          return message.reply(
-            'Ten użytkownik Discord jest już przypisany pod inny wpis!',
-          );
+        if (error.code == 'P2002') return message.reply('Ten użytkownik Discord jest już przypisany pod inny wpis!');
       }
 
-      return message.reply(
-        'Wystąpił błąd podczas wykonywania komendy, sprawdź czy wszystko wpisałeś poprawnie!',
-      );
+      return message.reply('Wystąpił błąd podczas wykonywania komendy, sprawdź czy wszystko wpisałeś poprawnie!');
     }
   }
 
@@ -149,17 +131,13 @@ export class SponsorPrefixCmd {
         const discordMember = message.guild.members.fetch(donator.nameDiscord);
         await message.guild.roles.fetch();
 
-        const sponsorRole = message.guild.roles.cache.find(
-          (r) => r.name === 'Stacjosponsor',
-        );
+        const sponsorRole = message.guild.roles.cache.find((r) => r.name === 'Stacjosponsor');
 
         (await discordMember).roles.remove(sponsorRole);
       } catch (error) {
         console.log(error);
 
-        message.reply(
-          'Wystąpił problem z usunięciem rangi Stacjosponsora na serwerze Discord!',
-        );
+        message.reply('Wystąpił problem z usunięciem rangi Stacjosponsora na serwerze Discord!');
       }
     }
 
@@ -177,9 +155,7 @@ export class SponsorPrefixCmd {
     } catch (error) {
       console.log(error);
 
-      return message.reply(
-        'Wystąpił błąd podczas wykonywania komendy, sprawdź czy wszystko wpisałeś poprawnie!',
-      );
+      return message.reply('Wystąpił błąd podczas wykonywania komendy, sprawdź czy wszystko wpisałeś poprawnie!');
     }
   }
 
@@ -189,10 +165,7 @@ export class SponsorPrefixCmd {
     return message.reply({
       content: `# LISTA STACJOSPONSORÓW\n${donatorList
         .map(
-          (d) =>
-            `\`${d.nameTD2}\` ${
-              d.nameDiscord ? `(<@${d.nameDiscord}>)` : ''
-            } - ${this.parsePLN(d.donatedAmount)}`,
+          (d) => `\`${d.nameTD2}\` ${d.nameDiscord ? `(<@${d.nameDiscord}>)` : ''} - ${this.parsePLN(d.donatedAmount)}`,
         )
         .join('\n')}`,
       flags: [MessageFlags.SuppressNotifications],

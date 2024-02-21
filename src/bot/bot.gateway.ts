@@ -3,13 +3,12 @@ import { InjectDiscordClient, On, Once } from '@discord-nestjs/core';
 import { ActivityType, ChatInputCommandInteraction, Client, Interaction, InteractionType, Message } from 'discord.js';
 import { PrefixCommandHandler } from './handlers/PrefixCommandHandler';
 import { PrismaService } from '../prisma/prisma.service';
-import { AdministratorCommandGuard, EmojiCommandGuard, PrefixCommandGuard } from './guards/command.guard';
+import { AdministratorCommandGuard, PrefixCommandGuard } from './guards/command.guard';
 import { collectEmojis } from './utils/emojiUtils';
 import { Cron } from '@nestjs/schedule';
 import { KofolaGiveway } from './serverEvents/giveway-event.service';
 import { isDevelopment } from './utils/envUtils';
 import { DailyStatsOverview } from './serverEvents/daily-stats-event.service';
-import { EmojiCommandHandler } from './handlers/EmojiCommandHandler';
 
 @Injectable()
 export class BotGateway {
@@ -22,7 +21,6 @@ export class BotGateway {
     private readonly giveway: KofolaGiveway,
     private readonly dailyOverview: DailyStatsOverview,
     private readonly prefixCmdHandler: PrefixCommandHandler,
-    private readonly emojiCmdHandler: EmojiCommandHandler,
   ) {}
 
   private logSlashCommand(i: ChatInputCommandInteraction) {
@@ -55,12 +53,6 @@ export class BotGateway {
   @UseGuards(PrefixCommandGuard)
   async onPrefixCommand(message: Message) {
     this.prefixCmdHandler.handleCommands(message);
-  }
-
-  @On('messageCreate')
-  @UseGuards(EmojiCommandGuard)
-  async onEmojiCommand(message: Message) {
-    this.emojiCmdHandler.handleCommands(message);
   }
 
   @On('messageCreate')

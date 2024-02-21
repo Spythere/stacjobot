@@ -1,8 +1,6 @@
-import { Client, Message } from 'discord.js';
+import { Message } from 'discord.js';
 import { PrismaService } from '../../prisma/prisma.service';
 import { randomMuteUser } from '../prefixCommands/dajmute';
-import { addKofolaToUser } from '../prefixCommands/kofola';
-import { getKofolaTopList } from '../prefixCommands/topkofola';
 import { Injectable, Logger } from '@nestjs/common';
 import { fakeBanUser } from '../prefixCommands/dajbana';
 import { SponsorPrefixCmd } from '../prefixCommands/sponsor';
@@ -36,14 +34,6 @@ export class PrefixCommandHandler {
 
       case 'dajmatza':
         randomMuteUser(message);
-        break;
-
-      case 'kofola':
-        addKofolaToUser(this.prisma, message);
-        break;
-
-      case 'topkofola':
-        getKofolaTopList(this.prisma, message);
         break;
 
       case 'dajbana':

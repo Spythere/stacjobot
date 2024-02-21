@@ -12,7 +12,6 @@ import { PageBuilderService } from './page_builders/builder.service';
 import { KofolaGiveway } from './serverEvents/giveway-event.service';
 import { PrefixCommandHandler } from './handlers/PrefixCommandHandler';
 import { DailyStatsOverview } from './serverEvents/daily-stats-event.service';
-import { EmojiCommandHandler } from './handlers/EmojiCommandHandler';
 
 @Module({
   imports: [DiscordModule.forFeature(), ApiModule],
@@ -23,7 +22,6 @@ import { EmojiCommandHandler } from './handlers/EmojiCommandHandler';
     SceneryPageBuilder,
     BotGateway,
     PrefixCommandHandler,
-    EmojiCommandHandler,
     KofolaGiveway,
     DailyStatsOverview,
     ...commandsIndex,
