@@ -1,4 +1,4 @@
-import { Message, MessageFlags, PermissionFlagsBits } from 'discord.js';
+import { DiscordAPIError, Message, MessageFlags, PermissionFlagsBits } from 'discord.js';
 import { PrismaService } from '../../prisma/prisma.service';
 import { Logger } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
@@ -61,19 +61,18 @@ export class SponsorPrefixCmd {
   }
 
   private async addToDonator(message: Message): Promise<Message> {
-    const { 2: nickTD2, 3: amountGr } = message.content.split(' ');
-
-    const discordMember = message.mentions.members.first();
-
-    if (discordMember) {
-      await message.guild.roles.fetch();
-
-      const sponsorRole = message.guild.roles.cache.find((r) => r.name === 'Stacjosponsor');
-
-      if (sponsorRole) discordMember.roles.add(sponsorRole);
-    }
+    const { 2: nickTD2, 3: amountGr, 4: memberId } = message.content.split(' ');
 
     try {
+      const discordMember = await message.guild.members.fetch(memberId);
+
+      if (memberId) {
+        await message.guild.roles.fetch();
+        const sponsorRole = message.guild.roles.cache.find((r) => r.name === 'Stacjosponsor');
+
+        if (sponsorRole) discordMember.roles.add(sponsorRole);
+      }
+
       const donator = await this.prisma.donators.upsert({
         where: {
           nameTD2: nickTD2,
@@ -102,11 +101,11 @@ export class SponsorPrefixCmd {
         flags: [MessageFlags.SuppressNotifications],
       });
     } catch (error) {
-      this.logger.error(error);
-
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code == 'P2002') return message.reply('Ten użytkownik Discord jest już przypisany pod inny wpis!');
-      }
+      } else if (error instanceof DiscordAPIError) {
+        if (error.code == '10013') return message.reply('Użytkownik o podanym ID nie jest na tym serwerze!');
+      } else this.logger.error(error);
 
       return message.reply('Wystąpił błąd podczas wykonywania komendy, sprawdź czy wszystko wpisałeś poprawnie!');
     }
@@ -115,33 +114,38 @@ export class SponsorPrefixCmd {
   private async removeDonator(message: Message): Promise<Message> {
     const { 2: nickTD2 } = message.content.split(' ');
 
-    const donator = await this.prisma.donators.findUnique({
-      where: {
-        nameTD2: nickTD2,
-      },
-    });
-
-    if (!donator)
+    if (!nickTD2 || nickTD2.trim() == '')
       return message.reply({
-        content: 'Nie znaleziono podanego gracza na liście Stacjosponsorów!',
+        content: 'Nie podano poprawnego nicku TD2!',
       });
 
-    if (donator.nameDiscord) {
-      try {
-        const discordMember = message.guild.members.fetch(donator.nameDiscord);
-        await message.guild.roles.fetch();
-
-        const sponsorRole = message.guild.roles.cache.find((r) => r.name === 'Stacjosponsor');
-
-        (await discordMember).roles.remove(sponsorRole);
-      } catch (error) {
-        console.log(error);
-
-        message.reply('Wystąpił problem z usunięciem rangi Stacjosponsora na serwerze Discord!');
-      }
-    }
-
     try {
+      const donator = await this.prisma.donators.findUnique({
+        where: {
+          nameTD2: nickTD2,
+        },
+      });
+
+      if (!donator)
+        return message.reply({
+          content: 'Nie znaleziono podanego gracza na liście Stacjosponsorów!',
+        });
+
+      if (donator.nameDiscord) {
+        try {
+          const discordMember = message.guild.members.fetch(donator.nameDiscord);
+          await message.guild.roles.fetch();
+
+          const sponsorRole = message.guild.roles.cache.find((r) => r.name === 'Stacjosponsor');
+
+          (await discordMember).roles.remove(sponsorRole);
+        } catch (error) {
+          console.log(error);
+
+          message.reply('Wystąpił problem z usunięciem rangi Stacjosponsora na serwerze Discord!');
+        }
+      }
+
       await this.prisma.donators.delete({
         where: {
           nameTD2: nickTD2,
@@ -162,12 +166,14 @@ export class SponsorPrefixCmd {
   private async showDonators(message: Message): Promise<Message> {
     const donatorList = await this.prisma.donators.findMany({});
 
+    const donatorListContent = donatorList
+      .map(
+        (d) => `\`${d.nameTD2}\` ${d.nameDiscord ? `(<@${d.nameDiscord}>)` : ''} - ${this.parsePLN(d.donatedAmount)}`,
+      )
+      .join('\n');
+
     return message.reply({
-      content: `# LISTA STACJOSPONSORÓW\n${donatorList
-        .map(
-          (d) => `\`${d.nameTD2}\` ${d.nameDiscord ? `(<@${d.nameDiscord}>)` : ''} - ${this.parsePLN(d.donatedAmount)}`,
-        )
-        .join('\n')}`,
+      content: `# LISTA STACJOSPONSORÓW\n${donatorListContent || 'brak zapisanych sponsorów :('}`,
       flags: [MessageFlags.SuppressNotifications],
     });
   }
