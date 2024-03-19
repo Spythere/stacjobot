@@ -7,21 +7,23 @@ import { isDevelopment } from '../../utils/envUtils';
 import { getDiscordTimeFormat } from '../../../utils/discordTimestampUtils';
 import { randomRangeInteger, randomRangeFloat } from '../../../utils/randomUtils';
 
-const ROLE_MULTIPLIERS = {
-  Wspierający: 1.4,
-  Stacjosponsor: 1.4,
-  'Krąg Wtajemniczenia': 1.75,
-  'St. Strażnik': 1.75,
-  Wtajemniczony: 1.25,
-  Spythere: 1.75,
+const DEFAULT = {
+  multiplier: 1.1,
+  maxTimeoutHours: 12,
+  minTimeoutHours: 9,
+  maxAmount: 6,
+  minAmount: 1,
 };
 
-const RANGES = {
-  MAX_TIMEOUT_HOURS: 12,
-  MIN_TIMEOUT_HOURS: 9,
+type RoleName = 'Wspierający' | 'Stacjosponsor' | 'Krąg Wtajemniczenia' | 'St. Strażnik' | 'Wtajemniczony' | 'Spythere';
 
-  AMOUNT_MAX: 5,
-  AMOUNT_MIN: 1,
+const roleProps: Record<RoleName, { multiplier: number }> = {
+  Wspierający: { multiplier: 1.4 },
+  Stacjosponsor: { multiplier: 1.45 },
+  'Krąg Wtajemniczenia': { multiplier: 1.45 },
+  'St. Strażnik': { multiplier: 1.45 },
+  Wtajemniczony: { multiplier: 1.25 },
+  Spythere: { multiplier: 1.5 },
 };
 
 @Command({
@@ -70,8 +72,6 @@ export class KofolaCmd {
           ? `\n${notujEmoji} Obecnie jesteś na **${topListPlace}. miejscu** top listy zebranych kofoli! ${notujEmoji}`
           : ``;
 
-      // message.react(kofolaEmoji);
-
       return {
         content: `${gainMessage} ${totalMessage}\n${nextKofolaMessage}${topPlaceMessage}`,
       };
@@ -86,11 +86,11 @@ export class KofolaCmd {
   }
 
   private async updateUser(stacjobotUser: stacjobotUsers, interaction: CommandInteraction) {
-    const randTimeout = randomRangeInteger(RANGES.MAX_TIMEOUT_HOURS, RANGES.MIN_TIMEOUT_HOURS);
+    const randTimeout = randomRangeInteger(DEFAULT.maxTimeoutHours, DEFAULT.minTimeoutHours);
     const nextTime = new Date(new Date().getTime() + randTimeout * 60 * 60 * 1000);
 
     const randKofolaAmount =
-      randomRangeFloat(RANGES.AMOUNT_MAX, RANGES.AMOUNT_MIN, 2) * this.getMaxMultiplier(interaction);
+      randomRangeFloat(DEFAULT.maxAmount, DEFAULT.minAmount, 2) * this.getMaxRoleMultiplier(interaction);
 
     const nextMotoracekName = `motosraczek${randomRangeInteger(5, 1)}`;
     const userName = interaction.user.globalName ?? interaction.user.displayName ?? interaction.user.username ?? '';
@@ -134,14 +134,21 @@ export class KofolaCmd {
     return topList.length == 1 ? topList[0].position : -1;
   }
 
-  private getMaxMultiplier(interaction: CommandInteraction) {
-    if (interaction.memberPermissions.has(PermissionsBitField.Flags.Administrator)) return ROLE_MULTIPLIERS['Spythere'];
+  private getMaxRoleMultiplier(interaction: CommandInteraction) {
+    if (interaction.memberPermissions.has(PermissionsBitField.Flags.Administrator))
+      return roleProps['Spythere'].multiplier;
 
-    const multipliedRoles = (interaction.member.roles as GuildMemberRoleManager).cache.filter((role) =>
-      Object.keys(ROLE_MULTIPLIERS).includes(role.name),
+    const memberRoles = (interaction.member.roles as GuildMemberRoleManager).cache;
+    const multipliedRoles = memberRoles.filter((role) => Object.keys(roleProps).includes(role.name));
+
+    const max = Math.max(
+      DEFAULT.multiplier,
+      ...multipliedRoles.map((role) => roleProps[role.name as RoleName].multiplier),
     );
 
-    return Math.max(1.2, ...multipliedRoles.map((role) => ROLE_MULTIPLIERS[role.name]));
+    console.log('Multiplier: %d', max);
+
+    return max;
   }
 
   private getStreakValue(stacjobotUser: stacjobotUsers) {
