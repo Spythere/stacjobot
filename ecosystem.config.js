@@ -2,7 +2,7 @@ module.exports = {
   apps: [
     {
       name: 'stacjobot',
-      script: 'npm',
+      script: 'yarn',
       args: 'run start',
       time: true,
     },
