@@ -1,7 +1,7 @@
 import { Command, Handler } from '@discord-nestjs/core';
 import { CommandInteraction, GuildMemberRoleManager, InteractionReplyOptions, PermissionsBitField } from 'discord.js';
 import { PrismaService } from '../../../prisma/prisma.service';
-import { stacjobotUsers } from '@prisma/client';
+import { stacjobotUsers } from '.prisma/client';
 import { getEmojiByName } from '../../utils/emojiUtils';
 import { isDevelopment } from '../../utils/envUtils';
 import { getDiscordTimeFormat } from '../../../utils/discordTimestampUtils';

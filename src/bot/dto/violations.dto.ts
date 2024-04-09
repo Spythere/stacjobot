@@ -1,5 +1,5 @@
 import { Choice, Param } from '@discord-nestjs/core';
-import { ViolationType } from '@prisma/client';
+import { ViolationType } from '.prisma/client';
 
 // const violationChocies = {
 //   'Przekroczenie prędkości': ViolationType.SPEED,

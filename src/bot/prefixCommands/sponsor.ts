@@ -1,7 +1,7 @@
 import { DiscordAPIError, Message, MessageFlags, PermissionFlagsBits } from 'discord.js';
 import { PrismaService } from '../../prisma/prisma.service';
 import { Logger } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { Prisma } from '.prisma/client';
 
 export class SponsorPrefixCmd {
   constructor(private readonly prisma: PrismaService) {}

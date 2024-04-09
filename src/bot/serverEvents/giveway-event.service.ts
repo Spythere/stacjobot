@@ -1,7 +1,7 @@
 import { InjectDiscordClient } from '@discord-nestjs/core';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { stacjobotUsers } from '@prisma/client';
+import { stacjobotUsers } from '.prisma/client';
 import { Client, Collection, GuildMember, WebhookClient } from 'discord.js';
 import { randomRangeFloat, randomRangeInteger } from '../../utils/randomUtils';
 import { getEmojiByName } from '../utils/emojiUtils';

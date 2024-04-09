@@ -3,7 +3,7 @@ import { ViolationsDto } from '../dto/violations.dto';
 import { PrismaService } from '../../prisma/prisma.service';
 import { SlashCommandPipe } from '@discord-nestjs/common';
 import { Command, Handler, InteractionEvent } from '@discord-nestjs/core';
-import { ViolationType, timetables, violations } from '@prisma/client';
+import { ViolationType, timetables, violations } from '.prisma/client';
 
 const violationTitle: { [key in ViolationType]: string } = {
   SPEED: 'Przekroczenie prędkości',
