@@ -80,7 +80,7 @@ export class DrTopCmd {
           (await this.getTopLongestTimetables()).map((top, i) => {
             return {
               name: `${i + 1}. ${top.routeDistance}km | #${top.timetableId}`,
-              value: top.authorName,
+              value: top.authorName ?? '---',
               inline: true,
             };
           }),

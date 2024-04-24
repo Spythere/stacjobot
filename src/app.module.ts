@@ -23,13 +23,14 @@ import { join } from 'path';
     DiscordModule.forRootAsync({
       imports: [ConfigModule.forRoot()],
       useFactory: (configService: ConfigService) => ({
-        token: configService.get('BOT_TOKEN'),
+        token: configService.get('BOT_TOKEN')!,
         discordClientOptions: {
           intents: [
             GatewayIntentBits.Guilds,
             GatewayIntentBits.GuildMessages,
             GatewayIntentBits.MessageContent,
             GatewayIntentBits.GuildMembers,
+            GatewayIntentBits.GuildPresences,
           ],
         },
         registerCommandOptions: [

@@ -16,7 +16,7 @@ export class DailyStatsOverview {
     private readonly config: ConfigService,
   ) {
     this.webhookClient = new WebhookClient({
-      url: this.config.get<string>('OVERVIEW_WEBHOOK_URL'),
+      url: this.config.get<string>('OVERVIEW_WEBHOOK_URL')!,
     });
 
     this.dailyStatsCanvas = new DailyStatsCanvas();

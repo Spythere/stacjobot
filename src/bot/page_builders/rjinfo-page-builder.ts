@@ -11,12 +11,18 @@ export class TimetablePageBuilder {
     const timeStart = Date.now();
     const { timetables, driverInfo } = await this.fetchData(nick, currentPage);
 
+    if (timetables.data.length == 0)
+      return {
+        content: 'Ten użytkownik nie posiada zapisanych rozkładów jazdy!',
+        ephemeral: true,
+      };
+
     return {
       embeds: [
         this.generateEmbed(
           timetables.data,
           currentPage,
-          driverInfo._sum.routeDistance,
+          driverInfo._sum.routeDistance ?? 0,
           driverInfo._count._all,
           Date.now() - timeStart,
         ),
@@ -32,12 +38,6 @@ export class TimetablePageBuilder {
       countFrom: (currentPage - 1) * 10,
       countLimit: 10,
     });
-
-    if (timetables.data.length == 0)
-      return {
-        content: 'Ten użytkownik nie posiada zapisanych rozkładów jazdy!',
-        ephemeral: true,
-      };
 
     const driverInfo = (await this.apiService.getDriverInfo(nick)).data;
 

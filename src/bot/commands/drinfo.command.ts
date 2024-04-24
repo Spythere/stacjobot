@@ -44,21 +44,21 @@ export class DrInfoCmd {
         },
         {
           name: 'Suma kilometrów wystawionych RJ',
-          value: drStats._sum.routeDistance.toFixed(2) + 'km',
+          value: `${drStats._sum.routeDistance?.toFixed(2) ?? 0}km`,
         },
         {
           name: 'Maksymalna długość RJ',
-          value: drStats._max.routeDistance.toFixed(2) + 'km',
+          value: `${drStats._max.routeDistance?.toFixed(2) ?? 0}km`,
           inline: true,
         },
         {
-          name: 'Średnia długość RJ ',
-          value: drStats._avg.routeDistance.toFixed(2) + 'km',
+          name: 'Średnia długość RJ',
+          value: `${drStats._avg.routeDistance?.toFixed(2) ?? 0}km`,
           inline: true,
         },
         {
-          name: 'Minimalna długość RJ ',
-          value: drStats._min.routeDistance.toFixed(2) + 'km',
+          name: 'Minimalna długość RJ',
+          value: `${drStats._min.routeDistance?.toFixed(2) ?? 0}km`,
           inline: true,
         },
       ])

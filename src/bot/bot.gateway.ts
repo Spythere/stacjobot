@@ -1,6 +1,15 @@
 import { Injectable, Logger, UseGuards } from '@nestjs/common';
 import { InjectDiscordClient, On, Once } from '@discord-nestjs/core';
-import { ActivityType, ChatInputCommandInteraction, Client, Interaction, InteractionType, Message } from 'discord.js';
+import {
+  ActivityType,
+  ChatInputCommandInteraction,
+  Client,
+  GuildMember,
+  Interaction,
+  InteractionType,
+  Message,
+  Presence,
+} from 'discord.js';
 import { PrefixCommandHandler } from './handlers/PrefixCommandHandler';
 import { PrismaService } from '../prisma/prisma.service';
 import { AdministratorCommandGuard, PrefixCommandGuard } from './guards/command.guard';
@@ -35,7 +44,7 @@ export class BotGateway {
   onReady() {
     this.logger.log('Bot was started!');
 
-    this.client.user.setActivity({
+    this.client.user!.setActivity({
       name: 'Train Driver 2',
       type: ActivityType.Playing,
       url: 'https://stacjownik-td2.web.app',
@@ -60,7 +69,29 @@ export class BotGateway {
   async onMessage(message: Message) {
     if (message.content == '!test' && isDevelopment()) {
       // this.giveway.runGiveway();
-      this.dailyOverview.runEvent();
+      // this.dailyOverview.runEvent();
+    }
+  }
+
+  @On('presenceUpdate')
+  async onPresenceUpdate(oldPresence: Presence, newPresence: Presence) {
+    const newActivity = newPresence?.activities.find((a) => a.applicationId == '1080201895139885066');
+    const oldActivity = oldPresence?.activities.find((a) => a.applicationId == '1080201895139885066');
+
+    if (oldActivity || newActivity) {
+      // const mode = newActivity?.assets?.smallImage;
+      // if (!mode) return;
+      // await newPresence.guild.roles.fetch();
+      // // match mode to role name
+      // const td2Role = newPresence.guild.roles.cache.find(
+      //   (r) => r.name === (mode == 'driver' ? 'Maszynista TD2' : 'Dyżurny TD2'),
+      // );
+      // try {
+      //   if (td2Role && newActivity) await newPresence.member.roles.add(td2Role);
+      //   if (td2Role && (oldActivity || !newActivity)) await oldPresence.member.roles.remove(td2Role);
+      // } catch (error) {
+      //   this.logger.error('Wystąpił błąd podczas aktualizowania ról (presenceUpdate)', error);
+      // }
     }
   }
 

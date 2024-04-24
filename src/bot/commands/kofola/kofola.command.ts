@@ -85,7 +85,7 @@ export class KofolaCmd {
     }
   }
 
-  private async updateUser(stacjobotUser: stacjobotUsers, interaction: CommandInteraction) {
+  private async updateUser(stacjobotUser: stacjobotUsers | null, interaction: CommandInteraction) {
     const randTimeout = randomRangeInteger(DEFAULT.maxTimeoutHours, DEFAULT.minTimeoutHours);
     const nextTime = new Date(new Date().getTime() + randTimeout * 60 * 60 * 1000);
 
@@ -135,6 +135,8 @@ export class KofolaCmd {
   }
 
   private getMaxRoleMultiplier(interaction: CommandInteraction) {
+    if (!interaction.member || !interaction.memberPermissions) return 1;
+
     if (interaction.memberPermissions.has(PermissionsBitField.Flags.Administrator))
       return roleProps['Spythere'].multiplier;
 
@@ -146,12 +148,10 @@ export class KofolaCmd {
       ...multipliedRoles.map((role) => roleProps[role.name as RoleName].multiplier),
     );
 
-    console.log('Multiplier: %d', max);
-
     return max;
   }
 
-  private getStreakValue(stacjobotUser: stacjobotUsers) {
+  private getStreakValue(stacjobotUser: stacjobotUsers | null) {
     if (!stacjobotUser || !stacjobotUser.nextKofolaTime) return 1;
 
     const maxStreakDate = stacjobotUser.nextKofolaTime;

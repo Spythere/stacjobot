@@ -30,7 +30,7 @@ export class KofolaGiveway {
     private readonly config: ConfigService,
   ) {
     this.webhookClient = new WebhookClient({
-      url: config.get<string>('ANNOUNCEMENT_WEBHOOK_URL'),
+      url: config.get<string>('ANNOUNCEMENT_WEBHOOK_URL')!,
     });
   }
 
@@ -62,7 +62,7 @@ export class KofolaGiveway {
   }
 
   private async fetchDiscGuildMembers() {
-    const dcGuild = await this.client.guilds.fetch(this.config.get<string>('BOT_GUILD_ID'));
+    const dcGuild = await this.client.guilds.fetch(this.config.get<string>('BOT_GUILD_ID')!);
 
     return await dcGuild.members.fetch();
   }
@@ -81,7 +81,7 @@ export class KofolaGiveway {
     const drawCount = randomRangeInteger(givewaySetup.drawMaxCount, givewaySetup.drawMinCount);
 
     const drawnUsers = users.filter((row) =>
-      dcMembers.some((m) => m.id == row.userId && m.communicationDisabledUntilTimestamp <= Date.now()),
+      dcMembers.some((m) => m.id == row.userId && (m.communicationDisabledUntilTimestamp ?? 0) <= Date.now()),
     );
 
     return drawnUsers.slice(0, drawCount);
@@ -121,7 +121,7 @@ export class KofolaGiveway {
       .map((w) => {
         const dcMember = dcMembers.find((m) => m.id == w.userId);
 
-        return `> - **${w.userName || dcMember.user.globalName}** <@${w.userId}>: + ${w.amount.toFixed(
+        return `> - **${w.userName || dcMember!.user.globalName}** <@${w.userId}>: + ${w.amount.toFixed(
           2,
         )}l ${kofolaEmoji} ▶▶ **${w.totalAfter.toFixed(2)}l**!`;
       });

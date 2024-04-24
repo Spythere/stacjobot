@@ -38,7 +38,7 @@ export class SceneryPageBuilder {
         name: `${doc.dispatcherName}`,
         value: `<t:${Math.round(doc.timestampFrom.valueOf() / 1000)}:D> <t:${Math.round(
           doc.timestampFrom.valueOf() / 1000,
-        )}:t>-<t:${Math.round(doc.timestampTo.valueOf() / 1000)}:t>`,
+        )}:t>-<t:${Math.round(doc.timestampTo!.valueOf() / 1000)}:t>`,
       })),
     );
 

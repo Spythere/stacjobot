@@ -15,7 +15,7 @@ export class PrefixCommandGuard implements CanActivate {
 export class AdministratorCommandGuard implements CanActivate {
   canActivate(context: ExecutionContext): boolean {
     const message = context.getArgByIndex<Message>(0);
-    if (message.author.bot) return false;
+    if (message.author.bot || !message.member) return false;
 
     return message.member.permissions.has(PermissionFlagsBits.Administrator);
   }

@@ -18,7 +18,7 @@ export class ButtonInteractionCollector {
 
   @Filter()
   filter(interaction: ButtonInteraction): boolean {
-    return this.causeInteraction.id === interaction.message.interaction.id;
+    return this.causeInteraction.id === interaction.message.interaction?.id;
   }
 
   @On('collect')

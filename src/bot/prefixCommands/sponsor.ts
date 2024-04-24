@@ -2,6 +2,7 @@ import { DiscordAPIError, Message, MessageFlags, PermissionFlagsBits } from 'dis
 import { PrismaService } from '../../prisma/prisma.service';
 import { Logger } from '@nestjs/common';
 import { Prisma } from '.prisma/client';
+import { unescape } from 'querystring';
 
 export class SponsorPrefixCmd {
   constructor(private readonly prisma: PrismaService) {}
@@ -46,10 +47,19 @@ export class SponsorPrefixCmd {
   private validateArgs(message: Message): boolean {
     const [_, cmdName, nick, amountGr] = message.content.split(' ');
 
-    return cmdName && nick && amountGr && cmdName.trim() !== '' && nick.trim() !== '' && !isNaN(Number(amountGr));
+    return (
+      cmdName !== undefined &&
+      nick !== undefined &&
+      amountGr !== undefined &&
+      cmdName.trim() !== '' &&
+      nick.trim() !== '' &&
+      !isNaN(Number(amountGr))
+    );
   }
 
   private runGuard(message: Message): boolean {
+    if (!message.member) return false;
+
     return message.member.permissions.has(PermissionFlagsBits.Administrator);
   }
 
@@ -64,13 +74,13 @@ export class SponsorPrefixCmd {
     const { 2: nickTD2, 3: amountGr, 4: memberId } = message.content.split(' ');
 
     try {
-      const discordMember = await message.guild.members.fetch(memberId);
+      const discordMember = await message.guild!.members.fetch(memberId);
 
       if (memberId) {
-        await message.guild.roles.fetch();
-        const sponsorRole = message.guild.roles.cache.find((r) => r.name === 'Stacjosponsor');
+        await message.guild!.roles.fetch();
+        const sponsorRole = message.guild!.roles.cache.find((r) => r.name === 'Stacjosponsor');
 
-        if (sponsorRole) discordMember.roles.add(sponsorRole);
+        if (sponsorRole) await discordMember.roles.add(sponsorRole);
       }
 
       const donator = await this.prisma.donators.upsert({
@@ -133,12 +143,12 @@ export class SponsorPrefixCmd {
 
       if (donator.nameDiscord) {
         try {
-          const discordMember = message.guild.members.fetch(donator.nameDiscord);
-          await message.guild.roles.fetch();
+          const discordMember = message.guild!.members.fetch(donator.nameDiscord);
+          await message.guild!.roles.fetch();
 
-          const sponsorRole = message.guild.roles.cache.find((r) => r.name === 'Stacjosponsor');
+          const sponsorRole = message.guild!.roles.cache.find((r) => r.name === 'Stacjosponsor');
 
-          (await discordMember).roles.remove(sponsorRole);
+          if (sponsorRole) (await discordMember).roles.remove(sponsorRole);
         } catch (error) {
           console.log(error);
 

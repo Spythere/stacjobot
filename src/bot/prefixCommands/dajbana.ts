@@ -11,6 +11,6 @@ export async function fakeBanUser(message: Message) {
   date.setHours(date.getHours() + randHours);
 
   message.reply(
-    `Gratulacje, <@${message.member.id}>! Zostaniesz permamentnie zbanowany <t:${~~(date.getTime() / 1000)}:R>`,
+    `Gratulacje, <@${message.member!.id}>! Zostaniesz permamentnie zbanowany <t:${~~(date.getTime() / 1000)}:R>`,
   );
 }
