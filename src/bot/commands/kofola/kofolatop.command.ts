@@ -39,6 +39,7 @@ export class KofolaTopCmd {
         userName: {
           not: '',
         },
+        kofolaExcluded: false,
       },
 
       by: ['kofolaCount', 'userId', 'nextKofolaTime', 'userName'],
