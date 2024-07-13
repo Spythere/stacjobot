@@ -1,14 +1,18 @@
 import { Injectable, Logger, UseGuards } from '@nestjs/common';
 import { InjectDiscordClient, On, Once } from '@discord-nestjs/core';
 import {
+  ActionRowBuilder,
   ActivityType,
+  ButtonBuilder,
+  ButtonStyle,
   ChatInputCommandInteraction,
   Client,
-  GuildMember,
+  EmbedBuilder,
   Interaction,
   InteractionType,
   Message,
   Presence,
+  TextChannel,
 } from 'discord.js';
 import { PrefixCommandHandler } from './handlers/PrefixCommandHandler';
 import { PrismaService } from '../prisma/prisma.service';
@@ -18,6 +22,7 @@ import { Cron } from '@nestjs/schedule';
 import { KofolaGiveway } from './serverEvents/giveway-event.service';
 import { isDevelopment } from './utils/envUtils';
 import { DailyStatsOverview } from './serverEvents/daily-stats-event.service';
+import { UserVerificationService } from './setups/verification';
 
 @Injectable()
 export class BotGateway {
@@ -27,6 +32,7 @@ export class BotGateway {
     @InjectDiscordClient()
     private readonly client: Client,
     readonly prisma: PrismaService,
+    private readonly verificationService: UserVerificationService,
     private readonly giveway: KofolaGiveway,
     private readonly dailyOverview: DailyStatsOverview,
     private readonly prefixCmdHandler: PrefixCommandHandler,
@@ -51,11 +57,24 @@ export class BotGateway {
     });
 
     collectEmojis(this.client);
+
+    // Weryfikacja userów
+    this.verificationService.setupVerificationChannel();
   }
 
   @On('interactionCreate')
   async onInteraction(i: Interaction) {
     if (i.type == InteractionType.ApplicationCommand) this.logSlashCommand(i as ChatInputCommandInteraction);
+
+    if (i.type == InteractionType.MessageComponent) {
+      // Verification button
+      if (i.customId && /^stacjobot_verify/.test(i.customId)) {
+        const verifyResult = await this.verificationService.verifyUser(i);
+
+        if (verifyResult) i.reply({ content: 'Zostałeś zweryfikowany!', ephemeral: true });
+        else i.reply({ content: 'Jesteś już zweryfikowany!', ephemeral: true });
+      }
+    }
   }
 
   @On('messageCreate')
@@ -70,6 +89,7 @@ export class BotGateway {
     if (message.content == '!test' && isDevelopment()) {
       // this.giveway.runGiveway();
       // this.dailyOverview.runEvent();
+      // this.topListEvent.updateTopList();
     }
   }
 
