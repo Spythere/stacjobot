@@ -48,7 +48,7 @@ export class UserVerificationService {
 
       const channelMessages = await channel.messages.fetch({ limit: 5 });
 
-      if (channelMessages.size <= 2 && !isDevelopment()) {
+      if (channelMessages.size != 2 && !isDevelopment()) {
         return;
       }
 
