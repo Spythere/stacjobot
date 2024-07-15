@@ -1,4 +1,4 @@
-import { DiscordAPIError, Message, MessageFlags, PermissionFlagsBits } from 'discord.js';
+import { DiscordAPIError, EmbedBuilder, Message, MessageFlags, PermissionFlagsBits } from 'discord.js';
 import { PrismaService } from '../../prisma/prisma.service';
 import { Logger } from '@nestjs/common';
 import { Prisma } from '.prisma/client';
@@ -13,17 +13,17 @@ export class SponsorPrefixCmd {
     {
       name: 'list',
       requiresValidation: false,
-      handler: 'showDonators',
+      handler: (message: Message) => this.showDonators(message),
     },
     {
       name: 'add',
       requiresValidation: true,
-      handler: 'addToDonator',
+      handler: (message: Message) => this.addToDonator(message),
     },
     {
       name: 'remove',
       requiresValidation: false,
-      handler: 'removeDonator',
+      handler: (message: Message) => this.removeDonator(message),
     },
   ];
 
@@ -41,7 +41,7 @@ export class SponsorPrefixCmd {
         'Komenda powinna wyglądać tak: !sponsor [add | remove] [nick TD2] [amount (gr)] [opcjonalnie: discord ID]',
       );
 
-    return this[cmd.handler](message);
+    return cmd.handler(message);
   }
 
   private validateArgs(message: Message): boolean {
@@ -70,7 +70,7 @@ export class SponsorPrefixCmd {
     return `${amountZloty}zł ${amountRest}gr`;
   }
 
-  private async addToDonator(message: Message): Promise<Message> {
+  private async addToDonator(message: Message) {
     const { 2: nickTD2, 3: amountGr, 4: memberId } = message.content.split(' ');
 
     try {
@@ -142,18 +142,12 @@ export class SponsorPrefixCmd {
         });
 
       if (donator.nameDiscord) {
-        try {
-          const discordMember = message.guild!.members.fetch(donator.nameDiscord);
-          await message.guild!.roles.fetch();
+        const discordMember = message.guild!.members.fetch(donator.nameDiscord);
+        await message.guild!.roles.fetch();
 
-          const sponsorRole = message.guild!.roles.cache.find((r) => r.name === 'Stacjosponsor');
+        const sponsorRole = message.guild!.roles.cache.find((r) => r.name === 'Stacjosponsor');
 
-          if (sponsorRole) (await discordMember).roles.remove(sponsorRole);
-        } catch (error) {
-          console.log(error);
-
-          message.reply('Wystąpił problem z usunięciem rangi Stacjosponsora na serwerze Discord!');
-        }
+        if (sponsorRole) (await discordMember).roles.remove(sponsorRole);
       }
 
       await this.prisma.donators.delete({
@@ -167,24 +161,48 @@ export class SponsorPrefixCmd {
         flags: [MessageFlags.SuppressNotifications],
       });
     } catch (error) {
-      console.log(error);
+      this.logger.error('Wystąpił problem podczas przetwarzania komendy!', error);
 
       return message.reply('Wystąpił błąd podczas wykonywania komendy, sprawdź czy wszystko wpisałeś poprawnie!');
     }
   }
 
-  private async showDonators(message: Message): Promise<Message> {
+  private async showDonators(message: Message) {
     const donatorList = await this.prisma.donators.findMany({});
 
-    const donatorListContent = donatorList
-      .map(
-        (d) => `\`${d.nameTD2}\` ${d.nameDiscord ? `(<@${d.nameDiscord}>)` : ''} - ${this.parsePLN(d.donatedAmount)}`,
-      )
-      .join('\n');
+    const donatedTotal = donatorList.reduce((acc, d) => acc += d.donatedAmount, 0); 
 
-    return message.reply({
-      content: `# LISTA STACJOSPONSORÓW\n${donatorListContent || 'brak zapisanych sponsorów :('}`,
-      flags: [MessageFlags.SuppressNotifications],
-    });
+    const embeds: EmbedBuilder[] = [];
+
+    const chunkSize = 25;
+    for (let chunkIndex = 0; chunkIndex < donatorList.length; chunkIndex += chunkSize) {
+      const embedBuilder = new EmbedBuilder()
+        .setTitle('Stacjosponsorzy')
+        .setDescription(`Wyświetlane pozycje: ${chunkIndex + 1} - ${Math.min(chunkIndex + chunkSize, donatorList.length)}`);
+
+      embedBuilder.addFields(
+        donatorList.slice(chunkIndex, chunkIndex + chunkSize).map((d, i) => ({
+          name: `${chunkIndex + i + 1}. ${d.nameTD2}`,
+          value: `${d.nameDiscord ? `<@${d.nameDiscord}>` : 'brak profilu DC'} | **${this.parsePLN(d.donatedAmount)}**`,
+        })),
+      );
+
+      embeds.push(embedBuilder);
+    }
+
+    try {
+      await message.reply({
+        content: `## W sumie wpłacono: ${this.parsePLN(donatedTotal)} :scream:`,
+        embeds: embeds.slice(0, 10),
+        flags: [MessageFlags.SuppressNotifications],
+      });
+      
+    } catch (error) {
+      this.logger.error(error);
+
+      await message.reply({
+        content: 'Ups! Coś poszło nie tak podczas przetwarzania komendy...',
+      });
+    }
   }
 }
