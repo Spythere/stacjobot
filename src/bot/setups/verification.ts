@@ -1,25 +1,21 @@
-import { InjectDiscordClient, On } from '@discord-nestjs/core';
+import { InjectDiscordClient } from '@discord-nestjs/core';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
   ActionRowBuilder,
   ButtonBuilder,
-  ButtonInteraction,
   ButtonStyle,
-  CacheType,
   Client,
   EmbedBuilder,
   GuildMember,
-  GuildMemberRoleManager,
   Interaction,
-  InteractionType,
   TextChannel,
 } from 'discord.js';
-import { isDevelopment } from '../utils/envUtils';
 
 @Injectable()
 export class UserVerificationService {
   private logger = new Logger('Verification');
+  private readonly CHANNEL_MESSAGE_COUNT = 2;
 
   constructor(
     @InjectDiscordClient()
@@ -48,12 +44,12 @@ export class UserVerificationService {
 
       const channelMessages = await channel.messages.fetch({ limit: 5 });
 
-      if (!isDevelopment() && channelMessages.size == 2) {
+      if (channelMessages.size == this.CHANNEL_MESSAGE_COUNT) {
         return;
       }
 
       this.logger.log('Czyszczenie kanału...');
-      await channel.bulkDelete(100);
+      await channel.bulkDelete(100, true);
 
       const confirmButtonPolish = new ButtonBuilder()
         .setCustomId('stacjobot_verify_pl_btn')
