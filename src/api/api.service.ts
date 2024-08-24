@@ -15,11 +15,18 @@ import {
   ITimetables,
   ITimetablesWithCount,
 } from './interfaces/_index';
+
 import { DailyStatsDto } from './dtos/_index';
+import { IActiveDataResponse } from './interfaces/activeData.interface';
 
 @Injectable()
 export class ApiService {
   constructor(private readonly httpService: HttpService) {}
+
+  /* api/getActiveData */
+  getActiveData(): Promise<AxiosResponse<IActiveDataResponse>> {
+    return this.httpService.axiosRef.get('/api/getActiveData');
+  }
 
   /* api/getDailyTimetableStats */
   getDailyTimetableStats(dto: DailyStatsDto): Promise<AxiosResponse<IDailyStats>> {

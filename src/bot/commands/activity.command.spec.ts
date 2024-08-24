@@ -1,8 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ActivityCmd } from './activity.command';
 import { ApiService } from '../../api/api.service';
-import { HttpModule, HttpService } from '@nestjs/axios';
-import { ApiModule } from '../../api/api.module';
+import { HttpModule } from '@nestjs/axios';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 
 describe('ActivityCmd', () => {
