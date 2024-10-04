@@ -4,6 +4,7 @@ import { randomMuteUser } from '../prefixCommands/dajmute';
 import { Injectable, Logger } from '@nestjs/common';
 import { fakeBanUser } from '../prefixCommands/dajbana';
 import { SponsorPrefixCmd } from '../prefixCommands/sponsor';
+import { handleFrozenCommand } from '../prefixCommands/frozen';
 
 @Injectable()
 export class PrefixCommandHandler {
@@ -42,6 +43,10 @@ export class PrefixCommandHandler {
 
       case 'sponsor':
         this.sponsorCmd.handleCommand(message);
+        break;
+
+      case 'frozen':
+        handleFrozenCommand(message);
         break;
 
       default:
