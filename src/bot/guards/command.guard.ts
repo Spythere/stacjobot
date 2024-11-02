@@ -1,7 +1,7 @@
 import { CanActivate, ExecutionContext } from '@nestjs/common';
 import { Message, PermissionFlagsBits } from 'discord.js';
 
-const accepted = ['kofola', 'dajmute', 'topkofola', 'test', 'dajbana', 'dajmatza', 'sponsor', 'frozen'];
+const accepted = ['kofola', 'dajmute', 'test', 'dajbana', 'sponsor', 'frozen']; 
 
 export class PrefixCommandGuard implements CanActivate {
   canActivate(context: ExecutionContext): boolean {

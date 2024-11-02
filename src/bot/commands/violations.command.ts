@@ -54,8 +54,6 @@ export class ViolationsCmd {
 
   @Handler()
   async onCommand(@InteractionEvent(SlashCommandPipe) dto: ViolationsDto): Promise<InteractionReplyOptions> {
-    console.log('v', dto.violationType);
-
     const violationDocs = await this.prisma.violations.findMany({
       where: {
         timetables: {

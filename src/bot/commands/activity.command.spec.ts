@@ -3,20 +3,21 @@ import { ActivityCmd } from './activity.command';
 import { ApiService } from '../../api/api.service';
 import { HttpModule } from '@nestjs/axios';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { DiscordModule } from '@discord-nestjs/core';
 
 describe('ActivityCmd', () => {
   let activityCommand: ActivityCmd;
 
   beforeEach(async () => {
+    
     const module: TestingModule = await Test.createTestingModule({
       imports: [
+        DiscordModule.forFeature(),
         ConfigModule.forRoot({
           isGlobal: true,
         }),
         HttpModule.registerAsync({
           useFactory: async (config: ConfigService) => ({
-            timeout: 5000,
-            maxRedirects: 10,
             baseURL: config.get('API_BASE_URL'),
           }),
           inject: [ConfigService],

@@ -3,6 +3,8 @@ import { DrTopChoices, DrTopDto } from '../dto/drtop.dto';
 import { PrismaService } from '../../prisma/prisma.service';
 import { Command, Handler, InteractionEvent } from '@discord-nestjs/core';
 import { SlashCommandPipe } from '@discord-nestjs/common';
+import { formatDuration, intervalToDuration } from 'date-fns';
+import { pl } from 'date-fns/locale';
 
 @Command({
   name: 'drtop',
@@ -18,9 +20,6 @@ export class DrTopCmd {
     switch (dto.type) {
       case DrTopChoices['Ocena dyżurnego']:
         embed.setTitle('Top lista dyżurnych - suma ocen');
-        embed.setFooter({
-          text: 'Szczegółowe statystyki o ocenach dyżurnych są zbierane od 25 lutego 2023r.',
-        });
 
         embed.addFields(
           (await this.getTopLikeCount()).map((top, i) => {
@@ -36,9 +35,6 @@ export class DrTopCmd {
 
       case DrTopChoices['Liczba wystawionych RJ']:
         embed.setTitle('Top lista dyżurnych - wystawione rozkłady jazdy');
-        embed.setFooter({
-          text: 'Szczegółowe statystyki o autorach RJ są zbierane od 1 lutego 2022r.',
-        });
 
         embed.addFields(
           (await this.getTopTimetableCount()).map((top, i) => {
@@ -54,9 +50,6 @@ export class DrTopCmd {
 
       case DrTopChoices['Liczba wypełnionych dyżurów']:
         embed.setTitle('Top lista dyżurnych - liczba dyżurów');
-        embed.setFooter({
-          text: 'Szczegółowe statystyki o liczbie dyżurów są zbierane od 1 lutego 2022r.',
-        });
 
         embed.addFields(
           (await this.getTopServiceCount()).map((top, i) => {
@@ -72,9 +65,6 @@ export class DrTopCmd {
 
       case DrTopChoices['Najdłuższy wystawiony RJ']:
         embed.setTitle('Top lista dyżurnych - najdłuższy rozkład jazdy');
-        embed.setFooter({
-          text: 'Szczegółowe statystyki o rozkładach jazdy są zbierane od 1 lutego 2022r.',
-        });
 
         embed.addFields(
           (await this.getTopLongestTimetables()).map((top, i) => {
@@ -87,9 +77,35 @@ export class DrTopCmd {
         );
 
         break;
+
+      case DrTopChoices['Suma długości dyżurów']:
+        embed.setTitle('Top lista dyżurnych - łączny czas służby');
+
+        embed.addFields(
+          (await this.getTotalServiceTime()).map((top, i) => {
+            const totalDutyTime = formatDuration(
+              intervalToDuration({
+                start: 0,
+                end: top.currentDuration,
+              }),
+              { locale: pl, format: ['days', 'hours', 'minutes'] },
+            );
+
+            return {
+              name: `${i + 1}. ${top.dispatcherName}`,
+              value: `${totalDutyTime}`,
+              inline: true,
+            };
+          }),
+        );
+
       default:
         break;
     }
+
+    embed.setFooter({
+      text: 'Szczegółowe statystyki o dyżurnych są zbierane od 25 lutego 2023r.',
+    });
 
     return { embeds: [embed] };
   }
@@ -156,6 +172,21 @@ export class DrTopCmd {
       sumRate: number;
     }[] = await this.prisma
       .$queryRaw`select s."dispatcherName",SUM(s."maxRate") as "sumRate" from (select "dispatcherName",CONCAT("dispatcherName",'@',"stationName") as "sessionID", MAX("dispatcherRate") as "maxRate" from dispatchers where "dispatcherRate">0 and "hidden"=false group by "sessionID", "dispatcherName") as s group by "dispatcherName" order by "sumRate" desc, s."dispatcherName" asc limit 24;`;
+
+    return results;
+  }
+
+  private async getTotalServiceTime() {
+    const results = await this.prisma.dispatchers.groupBy({
+      where: {
+        hidden: false,
+      },
+      by: ['currentDuration', 'dispatcherName'],
+      orderBy: {
+        currentDuration: 'desc',
+      },
+      take: 24,
+    });
 
     return results;
   }

@@ -6,9 +6,10 @@ import { Client, Collection, GuildMember, WebhookClient } from 'discord.js';
 import { randomRangeFloat, randomRangeInteger } from '../../utils/randomUtils';
 import { getEmojiByName } from '../utils/emojiUtils';
 import { PrismaService } from '../../prisma/prisma.service';
-import { Winner } from './se.types';
+import { Winner } from './types';
 import { pl } from 'date-fns/locale';
 import { format } from 'date-fns';
+import { Cron } from '@nestjs/schedule';
 
 const givewaySetup = {
   maxAmount: 5,
@@ -18,7 +19,7 @@ const givewaySetup = {
 };
 
 @Injectable()
-export class KofolaGiveway {
+export class KofolaGivewayEvent {
   private webhookClient: WebhookClient;
 
   private readonly logger = new Logger('Event: KofolaGiveway');
@@ -34,7 +35,13 @@ export class KofolaGiveway {
     });
   }
 
-  async runGiveway() {
+  // 21:37 - kofola event
+  @Cron('37 21 * * *', { timeZone: 'Europe/Warsaw' })
+  async kofolaGivewayCron() {
+    this.runGiveway();
+  }
+
+  private async runGiveway() {
     this.logger.log('Losowanie kofoli...');
 
     const guildMembers = await this.fetchDiscGuildMembers();

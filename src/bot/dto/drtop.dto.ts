@@ -5,6 +5,7 @@ export enum DrTopChoices {
   'Najdłuższy wystawiony RJ' = '2',
   'Liczba wypełnionych dyżurów' = '3',
   'Ocena dyżurnego' = '4',
+  'Suma długości dyżurów' = '5'
 }
 
 export class DrTopDto {
@@ -15,4 +16,4 @@ export class DrTopDto {
   })
   @Choice(DrTopChoices)
   type: DrTopChoices;
-}
+} 

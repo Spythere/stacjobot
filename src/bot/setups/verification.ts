@@ -1,4 +1,4 @@
-import { InjectDiscordClient } from '@discord-nestjs/core';
+import { InjectDiscordClient, On, Once } from '@discord-nestjs/core';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
@@ -9,6 +9,7 @@ import {
   EmbedBuilder,
   GuildMember,
   Interaction,
+  InteractionType,
   TextChannel,
 } from 'discord.js';
 
@@ -23,7 +24,24 @@ export class UserVerificationService {
     private readonly config: ConfigService,
   ) {}
 
-  async setupVerificationChannel() {
+  @Once('ready')
+  onReady() {
+    this.setupVerificationChannel();
+  }
+
+  // Button interaction listener
+  @On('interactionCreate')
+  async onInteraction(i: Interaction) {
+    if (i.type == InteractionType.MessageComponent && i.customId && /^stacjobot_verify/.test(i.customId)) {
+      // Verification button
+      const verifyResult = await this.verifyInteractionUser(i);
+
+      if (verifyResult) i.reply({ content: 'Zostałeś zweryfikowany!', ephemeral: true });
+      else i.reply({ content: 'Jesteś już zweryfikowany!', ephemeral: true });
+    }
+  }
+
+  private async setupVerificationChannel() {
     const channelId = this.config.get<string>('VERIFICATION_CHANNEL_ID');
 
     if (!channelId) {
@@ -104,8 +122,7 @@ export class UserVerificationService {
     }
   }
 
-  // Controlled from bot.gateway.ts as part of single interaction event
-  async verifyUser(interaction: Interaction) {
+  private async verifyInteractionUser(interaction: Interaction) {
     if (!interaction.guild) return false;
 
     await interaction.guild.roles.fetch();

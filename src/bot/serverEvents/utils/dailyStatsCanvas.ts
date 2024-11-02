@@ -31,28 +31,21 @@ export default class DailyStatsCanvas {
   ctx: CanvasRenderingContext2D;
   stats: IDailyStats;
 
-  constructor() {
-    this.setup();
-  }
-
   setup() {
     // Font register
-    registerFont(join(process.cwd(), 'src', 'assets', 'Lato.ttf'), {
+    registerFont(join(process.cwd(), 'assets', 'Lato.ttf'), {
       family: 'Lato',
       weight: FontWeight.REGULAR,
     });
 
-    registerFont(join(process.cwd(), 'src', 'assets', 'Lato-Bold.ttf'), {
+    registerFont(join(process.cwd(), 'assets', 'Lato-Bold.ttf'), {
       family: 'Lato',
       weight: FontWeight.BOLD,
     });
 
     // Canvas & Context setup
-    const canvas = createCanvas(1920, 1171);
-    const ctx = canvas.getContext('2d');
-
-    this.canvas = canvas;
-    this.ctx = ctx;
+    this.canvas = createCanvas(1920, 1171);
+    this.ctx = this.canvas.getContext('2d');
   }
 
   getDailyStatsData(stats: IDailyStats) {
@@ -62,7 +55,7 @@ export default class DailyStatsCanvas {
   prepareCanvasJPEG(): JPEGStream | null {
     if (!this.canvas || !this.ctx || !this.stats) return null;
 
-    this.renderImage(join(process.cwd(), 'src', 'assets', 'stats-template.jpg'));
+    this.renderImage(join(process.cwd(), 'assets', 'stats-template.jpg'));
 
     this.renderNumericStats();
 

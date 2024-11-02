@@ -1,52 +1,62 @@
 import { Message } from 'discord.js';
 import { PrismaService } from '../../prisma/prisma.service';
-import { randomMuteUser } from '../prefixCommands/dajmute';
-import { Injectable, Logger } from '@nestjs/common';
-import { fakeBanUser } from '../prefixCommands/dajbana';
+import { Injectable, Logger, UseGuards } from '@nestjs/common';
+import { On } from '@discord-nestjs/core';
+import { PrefixCommandGuard } from '../guards/command.guard';
+import { DajBanaPrefixCmd } from '../prefixCommands/dajbana';
+import { DajMutePrefixCmd } from '../prefixCommands/dajmute';
+import { FrozenPrefixCmd } from '../prefixCommands/frozen';
 import { SponsorPrefixCmd } from '../prefixCommands/sponsor';
-import { handleFrozenCommand } from '../prefixCommands/frozen';
+import { StacjownikPrefixCmd } from '../prefixCommands/stacjownik';
 
 @Injectable()
 export class PrefixCommandHandler {
   private readonly logger = new Logger('PrefixCmd');
 
-  private readonly sponsorCmd: SponsorPrefixCmd;
+  constructor(
+    private readonly dajBana: DajBanaPrefixCmd,
+    private readonly dajMute: DajMutePrefixCmd,
+    private readonly frozen: FrozenPrefixCmd,
+    private readonly sponsor: SponsorPrefixCmd,
+    private readonly stacjownik: StacjownikPrefixCmd,
+  ) {} // !commands
 
-  constructor(private readonly prisma: PrismaService) {
-    this.sponsorCmd = new SponsorPrefixCmd(prisma);
-  } // !commands
+  @On('messageCreate')
+  @UseGuards(PrefixCommandGuard)
+  async onPrefixCommand(message: Message) {
+    this.logCommand(message);
+    this.handlePrefixCommand(message);
+  }
 
   private logCommand(message: Message) {
     this.logger.log(`${message.author.username} (${message.author.id}): ${message.content}`);
   }
 
-  public handleCommands(message: Message) {
+  private handlePrefixCommand(message: Message) {
     const content = message.content;
 
     const [command] = content.slice(1).split(' ');
     const commandLowerCase = command.toLocaleLowerCase();
 
-    this.logCommand(message);
-
     switch (commandLowerCase) {
       case 'dajmute':
-        randomMuteUser(message);
-        break;
-
-      case 'dajmatza':
-        randomMuteUser(message);
+        this.dajMute.runCommand(message);
         break;
 
       case 'dajbana':
-        fakeBanUser(message);
+        this.dajBana.runCommand(message);
         break;
 
       case 'sponsor':
-        this.sponsorCmd.handleCommand(message);
+        this.sponsor.handleCommand(message);
         break;
 
       case 'frozen':
-        handleFrozenCommand(message);
+        this.frozen.handleCommand(message);
+        break;
+
+      case 'stacjownik':
+        this.stacjownik.handleCommand(message);
         break;
 
       default:

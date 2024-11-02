@@ -5,9 +5,11 @@ import { ApiService } from '../../api/api.service';
 import { IDailyStats } from '../../api/interfaces/_index';
 import DailyStatsCanvas from './utils/dailyStatsCanvas';
 import { DailyStatsScope } from '../../api/dtos/dailyStats.dto';
+import { Cron } from '@nestjs/schedule';
+import { Once } from '@discord-nestjs/core';
 
 @Injectable()
-export class DailyStatsOverview {
+export class DailyStatsEvent {
   private webhookClient: WebhookClient;
   private dailyStatsCanvas: DailyStatsCanvas;
 
@@ -24,7 +26,18 @@ export class DailyStatsOverview {
 
   private logger = new Logger('DailyStatsOverview');
 
-  async runEvent() {
+  @Once('ready')
+  onReady() {
+    this.dailyStatsCanvas.setup();
+  }
+
+  // 00:00:05 - stats event
+  @Cron('05 00 00 * * *', { timeZone: 'Europe/Warsaw' })
+  async statsOverviewCron() {
+    this.runEvent();
+  }
+
+  private async runEvent() {
     this.logger.log('Przygotowywanie danych...');
 
     try {

@@ -1,9 +1,9 @@
 import { DiscordAPIError, EmbedBuilder, Message, MessageFlags, PermissionFlagsBits } from 'discord.js';
 import { PrismaService } from '../../prisma/prisma.service';
-import { Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { Prisma } from '.prisma/client';
-import { unescape } from 'querystring';
 
+@Injectable()
 export class SponsorPrefixCmd {
   constructor(private readonly prisma: PrismaService) {}
 
@@ -34,14 +34,20 @@ export class SponsorPrefixCmd {
 
     const cmd = this.subCommands.find((c) => c.name === cmdName);
 
-    if (!cmd) return message.reply('Dostępne subkomendy: add / remove / list');
+    if (!cmd) {
+      message.reply('Dostępne subkomendy: add / remove / list');
+      return;
+    }
 
-    if (cmd.requiresValidation && !this.validateArgs(message))
-      return message.reply(
+    if (cmd.requiresValidation && !this.validateArgs(message)) {
+      message.reply(
         'Komenda powinna wyglądać tak: !sponsor [add | remove] [nick TD2] [amount (gr)] [opcjonalnie: discord ID]',
       );
 
-    return cmd.handler(message);
+      return;
+    }
+
+    cmd.handler(message);
   }
 
   private validateArgs(message: Message): boolean {
@@ -170,7 +176,7 @@ export class SponsorPrefixCmd {
   private async showDonators(message: Message) {
     const donatorList = await this.prisma.donators.findMany({});
 
-    const donatedTotal = donatorList.reduce((acc, d) => acc += d.donatedAmount, 0); 
+    const donatedTotal = donatorList.reduce((acc, d) => (acc += d.donatedAmount), 0);
 
     const embeds: EmbedBuilder[] = [];
 
@@ -178,7 +184,9 @@ export class SponsorPrefixCmd {
     for (let chunkIndex = 0; chunkIndex < donatorList.length; chunkIndex += chunkSize) {
       const embedBuilder = new EmbedBuilder()
         .setTitle('Stacjosponsorzy')
-        .setDescription(`Wyświetlane pozycje: ${chunkIndex + 1} - ${Math.min(chunkIndex + chunkSize, donatorList.length)}`);
+        .setDescription(
+          `Wyświetlane pozycje: ${chunkIndex + 1} - ${Math.min(chunkIndex + chunkSize, donatorList.length)}`,
+        );
 
       embedBuilder.addFields(
         donatorList.slice(chunkIndex, chunkIndex + chunkSize).map((d, i) => ({
@@ -196,7 +204,6 @@ export class SponsorPrefixCmd {
         embeds: embeds.slice(0, 10),
         flags: [MessageFlags.SuppressNotifications],
       });
-      
     } catch (error) {
       this.logger.error(error);
 
