@@ -78,27 +78,6 @@ export class DrTopCmd {
 
         break;
 
-      case DrTopChoices['Suma długości dyżurów']:
-        embed.setTitle('Top lista dyżurnych - łączny czas służby');
-
-        embed.addFields(
-          (await this.getTotalServiceTime()).map((top, i) => {
-            const totalDutyTime = formatDuration(
-              intervalToDuration({
-                start: 0,
-                end: top.currentDuration,
-              }),
-              { locale: pl, format: ['days', 'hours', 'minutes'] },
-            );
-
-            return {
-              name: `${i + 1}. ${top.dispatcherName}`,
-              value: `${totalDutyTime}`,
-              inline: true,
-            };
-          }),
-        );
-
       default:
         break;
     }
@@ -172,21 +151,6 @@ export class DrTopCmd {
       sumRate: number;
     }[] = await this.prisma
       .$queryRaw`select s."dispatcherName",SUM(s."maxRate") as "sumRate" from (select "dispatcherName",CONCAT("dispatcherName",'@',"stationName") as "sessionID", MAX("dispatcherRate") as "maxRate" from dispatchers where "dispatcherRate">0 and "hidden"=false group by "sessionID", "dispatcherName") as s group by "dispatcherName" order by "sumRate" desc, s."dispatcherName" asc limit 24;`;
-
-    return results;
-  }
-
-  private async getTotalServiceTime() {
-    const results = await this.prisma.dispatchers.groupBy({
-      where: {
-        hidden: false,
-      },
-      by: ['currentDuration', 'dispatcherName'],
-      orderBy: {
-        currentDuration: 'desc',
-      },
-      take: 24,
-    });
 
     return results;
   }
