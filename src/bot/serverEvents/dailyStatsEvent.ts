@@ -29,6 +29,7 @@ export class DailyStatsEvent {
   @Once('ready')
   onReady() {
     this.dailyStatsCanvas.setup();
+    this.runEvent(); // test
   }
 
   // 00:00:05 - stats event
@@ -37,7 +38,7 @@ export class DailyStatsEvent {
     this.runEvent();
   }
 
-  private async runEvent() {
+  async runEvent() {
     this.logger.log('Przygotowywanie danych...');
 
     try {
