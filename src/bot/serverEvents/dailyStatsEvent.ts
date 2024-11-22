@@ -7,6 +7,9 @@ import DailyStatsCanvas from './utils/dailyStatsCanvas';
 import { DailyStatsScope } from '../../api/dtos/dailyStats.dto';
 import { Cron } from '@nestjs/schedule';
 import { Once } from '@discord-nestjs/core';
+import { format } from 'date-fns';
+import { pl } from 'date-fns/locale';
+import { getEmojiByName } from '../utils/emojiUtils';
 
 @Injectable()
 export class DailyStatsEvent {
@@ -60,6 +63,7 @@ export class DailyStatsEvent {
         })
       ).data;
     } catch (error) {
+      
       throw error;
     }
   }
@@ -72,11 +76,13 @@ export class DailyStatsEvent {
 
     const canvasSVG = this.dailyStatsCanvas.prepareCanvasJPEG();
 
-    // const todayString = format(new Date(), 'do MMMM Yo', { locale: pl });
+    const statsDate = new Date();
+    statsDate.setHours(statsDate.getHours() - 24);
+
+    const statsFormattedDate = format(statsDate, 'do MMMM Yo', { locale: pl });
 
     const contentLines = [
-      `# :clock12: _I oto nastała północ..._`,
-      `## Podsumowanie statystyk TD2 z ostatnich 24 godzin:`,
+      `# ${getEmojiByName('stacjownik')} Podsumowanie statystyk TD2 z dnia ${statsFormattedDate}r.`,
     ];
 
     if (!canvasSVG) {
