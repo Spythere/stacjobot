@@ -31,7 +31,6 @@ export class DailyStatsEvent {
   @Once('ready')
   onReady() {
     this.dailyStatsCanvas.setup();
-    this.runEvent();
   }
 
   // 00:00:05 - stats event
